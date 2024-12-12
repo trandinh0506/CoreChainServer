@@ -7,3 +7,5 @@ const jobSchema = new mongoose.Schema({
     position: String,
     salary: String,
 });
+
+module.exports = jobSchema;
