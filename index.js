@@ -4,6 +4,7 @@ require("dotenv").config();
 
 const authen = require("./Services/authen.Service");
 const adminRoute = require("./Routers/admin.Router");
+const managerRoute = require("./Routers/manager.Router");
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -37,7 +38,7 @@ authRouter.use(authMiddleware);
 
 // Protected `/auth` route group
 authRouter.use("/admin", adminRoute);
-
+authRouter.use("/manager", managerRoute);
 // Example protected route
 // authRouter.get("/profile", (req, res) => {
 //     res.json({
