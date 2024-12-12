@@ -15,6 +15,16 @@ class managerService {
             return {status: 500, message: err.message}
         }
     }
+    async getAllTasks(data) {
+        try {
+            const {projectId} = data;
+            const project = await projectModel.findById(projectId).select("tasks").lean();
+
+            return { status: 200, message: project.tasks || [] };
+        } catch (err) {
+            return { status: 500, message: err.message };
+        }
+    }
 }
 
 module.exports = new managerService();
