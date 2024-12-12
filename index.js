@@ -8,6 +8,8 @@ const adminRoute = require("./Routers/admin.Router");
 const PORT = process.env.PORT || 3001;
 const app = express();
 
+app.use(express.json());
+
 // Middleware for authentication
 const authMiddleware = (req, res, next) => {
     const token =
