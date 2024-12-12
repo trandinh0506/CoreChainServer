@@ -7,5 +7,4 @@ const blockSchema = new mongoose.Schema({
     timeStamp: Date,
     nonce: Number,
 });
-
 module.exports = blockSchema;
