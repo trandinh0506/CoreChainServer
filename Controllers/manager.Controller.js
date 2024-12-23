@@ -4,7 +4,7 @@ class managerController {
     async allocateTasks(req, res) {
         const data = req.body.data;
         const result = await managerService.allocateTasks(data);
-        res.status(result.status).json(result.message);     
+        res.status(result.status).json(result.message);
     }
     async getAllTasks(req, res) {
         const data = req.body.data;
@@ -13,5 +13,4 @@ class managerController {
     }
 }
 
-module.exports = managerController();
-
+module.exports = new managerController();
