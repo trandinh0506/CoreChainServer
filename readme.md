@@ -212,14 +212,14 @@ The `req.body.data` object must include the following fields:
 
 **Example Request Body:**
 
-```
+```json
 {
-  "data": {
-    "userId": `userId`,
-    "projectId": `projectId`,
-    "task": `task title`,
-    "deadline": `yyyy-mm-dd'T'HH:mm`
-  }
+    "data": {
+        "userId": "exampleUserId",
+        "projectId": "exampleProjectId",
+        "task": "exampleTask",
+        "deadline": "yyyy-mm-dd'T'HH:mm"
+    }
 }
 ```
 
