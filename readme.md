@@ -247,7 +247,7 @@ The `req.body.data` object must include the following fields:
 {
     "message": "Missing authorization token",
 }
-```json
+```
 
 -   403 (Forbidden)
 
