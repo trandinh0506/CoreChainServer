@@ -13,7 +13,7 @@ Key Features:
 
 <!-- authen -->
 
-### 1. Login
+### Login
 
 **URL:**`auth/login`
 
@@ -75,7 +75,7 @@ The `req.body.data` object must include the following fields:
 }
 ```
 
-### 2. Register
+### Register
 
 **URL:**`/auth/register`
 
@@ -91,7 +91,8 @@ The `req.body.data` object must include the following fields:
 | ---------- | ------ | -------- | -------------------- |
 | `username` | string | Yes      | The user's username. |
 | `password` | string | Yes      | The user's password. |
-| `role`     | string | Yes      | The user's role      |
+| `email`    | string | Yes      | The user's email.    |
+| `role`     | string | Yes      | The user's role.     |
 
 **Example Request Body:**
 
@@ -100,6 +101,7 @@ The `req.body.data` object must include the following fields:
     "data": {
         "username": "exampleUser",
         "password": "examplePassword",
+        "email": "exampleEmail",
         "role": "exampleRole"
     }
 }
@@ -109,7 +111,7 @@ The `req.body.data` object must include the following fields:
 | Code | Description |
 |------|-------------|
 | `200`| `Success` |
-| `409`| `conflict username had already existed` |
+| `409`| `conflict` |
 | `500`| `Internal Server Error`|
 
 **Example Response**
@@ -139,7 +141,7 @@ The `req.body.data` object must include the following fields:
 }
 ```
 
-### 3. Logout
+### Logout
 
 **URL:**`auth/logout`
 
@@ -184,9 +186,123 @@ The `req.body.data` object must include the following fields:
 }
 ```
 
-<!-- manager tasks -->
+### Request Reset Password
 
-### 4. Allocate Tasks
+**URL:**`auth/resetPassword`
+
+**Method** POST
+
+**Header:**
+
+| Headers       | Value          | Required | Description                      |
+| ------------- | -------------- | -------- | -------------------------------- |
+| Authorization | Bearer <token> | Yes      | Bearer token for authentication. |
+
+**Response Codes:**
+| Code | Description |
+|------|-------------|
+| `200`| `Success` |
+| `401`| `Unauthorized` |
+| `500`| `Internal Server Error`|
+
+**Example Response**
+
+-   200 (Success)
+
+```json
+{
+    "message": "Request reset password successful"
+}
+```
+
+-   401 (Unauthorized)
+
+```json
+{
+    "message": "Missing authorization token"
+}
+```
+
+-   500 (Internal Server Error)
+
+```json
+{
+    "message": "Internal Server Error"
+}
+```
+
+### Change Password
+
+**URL:**`/auth/changePassword`
+
+**Method** POST
+
+**Headers**
+
+| Headers       | Value            | Required | Description                      |
+| ------------- | ---------------- | -------- | -------------------------------- |
+| Content-type  | application/json | Yes      |                                  |
+| Authorization | Bearer <token>   | Yes      | Bearer token for authentication. |
+
+**Request Body:** `req.body.data`
+**Request Body:**  
+The `req.body.data` object must include the following fields:
+
+| Field         | Type   | Required | Description             |
+| ------------- | ------ | -------- | ----------------------- |
+| `password`    | string | Yes      | The user's password.    |
+| `newPassword` | string | Yes      | The user's newPassword. |
+
+**Example Request Body:**
+
+```json
+{
+    "data": {
+        "password": "examplePassword",
+        "newPassword": "exampleNewPassword"
+    }
+}
+```
+
+**Response Codes:**
+| Code | Description |
+|------|-------------|
+| `200`| `Success` |
+| `409`| `conflict` |
+| `500`| `Internal Server Error`|
+
+**Example Response**
+
+-   200 (Success)
+
+```json
+{
+    "message": "Password changed successfully",
+    "token": "Example token"
+}
+```
+
+-   409 (conflict)
+
+```json
+{
+    "message": "Old password do not matched"
+}
+```
+
+-   500 (Internal Server Error)
+
+```json
+{
+    "message": "Internal Server Error"
+}
+```
+
+<!-- common api -->
+
+<!-- manager api -->
+
+### Allocate Tasks
 
 **URL:**`/auth/manager/allocateTasks`
 
