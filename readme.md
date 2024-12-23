@@ -11,6 +11,8 @@ Key Features:
 
 ## Usages:
 
+<!-- authen -->
+
 ### 1. Login
 
 **URL:**`/login`
@@ -39,14 +41,14 @@ The `req.body.data` object must include the following fields:
 }
 ```
 
-**Respone Codes:**
+**Response Codes:**
 | Code | Description |
 |------|-------------|
 | `200`| `Success` |
 | `404`| `Not Found` |
 | `500`| `Internal Server Error`|
 
-**Example Respone**
+**Example Response**
 
 -   200 (Success)
 
@@ -103,14 +105,14 @@ The `req.body.data` object must include the following fields:
 }
 ```
 
-**Respone Codes:**
+**Response Codes:**
 | Code | Description |
 |------|-------------|
 | `200`| `Success` |
 | `409`| `conflict username had already existed` |
 | `500`| `Internal Server Error`|
 
-**Example Respone**
+**Example Response**
 
 -   200 (Success)
 
@@ -126,6 +128,132 @@ The `req.body.data` object must include the following fields:
 ```
 {
     "message": "Username had already existed",
+}
+```
+
+-   500 (Internal Server Error)
+
+```
+{
+    "message": "Internal Server Error"
+}
+```
+
+### 3. Logout
+
+**URL:**`/logout`
+
+**Method** POST
+
+**Header:**
+
+| Headers       | Value          | Required | Description                      |
+| ------------- | -------------- | -------- | -------------------------------- |
+| Authorization | Bearer <token> | Yes      | Bearer token for authentication. |
+
+**Response Codes:**
+| Code | Description |
+|------|-------------|
+| `200`| `Success` |
+| `401`| `Unauthorized` |
+| `500`| `Internal Server Error`|
+
+**Example Response**
+
+-   200 (Success)
+
+```
+{
+    "message": "Logout successful",
+}
+```
+
+-   401 (Unauthorized)
+
+```
+{
+    "message": "Missing authorization token",
+}
+```
+
+-   500 (Internal Server Error)
+
+```
+{
+    "message": "Internal Server Error"
+}
+```
+
+<!-- manager tasks -->
+
+### 4. Allocate Tasks
+
+**URL:**`/allocateTasks`
+
+**Method** POST
+
+**Header:**
+
+| Headers       | Value            | Required | Description                      |
+| ------------- | ---------------- | -------- | -------------------------------- |
+| Content-type  | application/json | Yes      |                                  |
+| Authorization | Bearer <token>   | Yes      | Bearer token for authentication. |
+
+**Request Body:** `req.body.data`
+**Request Body:**  
+The `req.body.data` object must include the following fields:
+
+| Field       | Type      | Required | Description                |
+| ----------- | --------- | -------- | -------------------------- |
+| `userId`    | string    | Yes      | The user id assigned task. |
+| `projectId` | string    | Yes      | The project id.            |
+| `task`      | string    | Yes      | The task title.            |
+| `deadline`  | date/time | Yes      | The deadline of the task.  |
+
+**Example Request Body:**
+
+```
+{
+  "data": {
+    "userId": `userId`,
+    "projectId": `projectId`,
+    "task": `task title`,
+    "deadline": `yyyy-mm-dd'T'HH:mm`
+  }
+}
+```
+
+**Response Codes:**
+| Code | Description |
+| ---- | ---------------------- |
+| `200`| `Success` |
+| `401`| `Unauthorized` |
+| `403`| `Forbidden` |
+| `500`| `Internal Server Error`|
+
+**Example Response**
+
+-   200 (Success)
+
+```
+{
+    "message": "Task allocated successfully",
+}
+```
+
+-   401 (Unauthorized)
+
+```
+{
+    "message": "Missing authorization token",
+}
+```
+
+-   403 (Forbidden)
+
+```
+{
+    "message": "Permission denied",
 }
 ```
 
