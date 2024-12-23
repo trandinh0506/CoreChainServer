@@ -12,9 +12,9 @@ const projectSchema = new mongoose.Schema({
         type: [
             {
                 userId: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
-                description: String,
+                task: String,
                 deadline: Date,
-                status: Boolean,
+                completed: Boolean,
             },
         ],
         default: [],

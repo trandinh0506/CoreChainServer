@@ -300,6 +300,58 @@ The `req.body.data` object must include the following fields:
 
 <!-- common api -->
 
+### Get all tasks
+
+**URL:**`auth/getAllTasks`
+
+**Method** GET
+
+**Header:**
+
+| Headers       | Value          | Required | Description                         |
+| ------------- | -------------- | -------- | ----------------------------------- |
+| Authorization | Bearer <token> | Yes      | Bearer token for authentication.    |
+| projectId     | :projectId     | Yes      | The id of the project to get tasks. |
+
+**Response Codes:**
+| Code | Description |
+|------|-------------|
+| `200`| `Success` |
+| `401`| `Unauthorized` |
+| `500`| `Internal Server Error`|
+
+**Example Response**
+
+-   200 (Success)
+
+```json
+{
+    "message": [
+        {
+            "UserID": "exampleUserID",
+            "task": "exampleTask",
+            "deadline": "yyyy-mm-dd'T'HH:mm"
+        }
+    ]
+}
+```
+
+-   401 (Unauthorized)
+
+```json
+{
+    "message": "Missing authorization token"
+}
+```
+
+-   500 (Internal Server Error)
+
+```json
+{
+    "message": "Internal Server Error"
+}
+```
+
 <!-- manager api -->
 
 ### Allocate Tasks
@@ -380,3 +432,5 @@ The `req.body.data` object must include the following fields:
     "message": "Internal Server Error"
 }
 ```
+
+### Send CV
