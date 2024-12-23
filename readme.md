@@ -188,7 +188,7 @@ The `req.body.data` object must include the following fields:
 
 ### 4. Allocate Tasks
 
-**URL:**`/allocateTasks`
+**URL:**`/auth/manager/allocateTasks`
 
 **Method** POST
 
