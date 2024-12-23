@@ -15,7 +15,7 @@ Key Features:
 
 ### 1. Login
 
-**URL:**`/login`
+**URL:**`auth/login`
 
 **Method** POST
 
@@ -77,7 +77,7 @@ The `req.body.data` object must include the following fields:
 
 ### 2. Register
 
-**URL:**`/register`
+**URL:**`/auth/register`
 
 **Method** POST
 
@@ -141,7 +141,7 @@ The `req.body.data` object must include the following fields:
 
 ### 3. Logout
 
-**URL:**`/logout`
+**URL:**`auth/logout`
 
 **Method** POST
 
@@ -225,7 +225,7 @@ The `req.body.data` object must include the following fields:
 
 **Response Codes:**
 | Code | Description |
-| ---- | ---------------------- |
+| ---- | ----------- |
 | `200`| `Success` |
 | `401`| `Unauthorized` |
 | `403`| `Forbidden` |
