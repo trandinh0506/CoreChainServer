@@ -243,9 +243,9 @@ The `req.body.data` object must include the following fields:
 
 -   401 (Unauthorized)
 
-````json
+```json
 {
-    "message": "Missing authorization token",
+    "message": "Missing authorization token"
 }
 ```
 
@@ -253,9 +253,9 @@ The `req.body.data` object must include the following fields:
 
 ```json
 {
-    "message": "Permission denied",
+    "message": "Permission denied"
 }
-````
+```
 
 -   500 (Internal Server Error)
 
