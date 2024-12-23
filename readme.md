@@ -52,24 +52,24 @@ The `req.body.data` object must include the following fields:
 
 -   200 (Success)
 
-```
+```json
 {
     "message": "Login successful",
-    "token"  : "Example token",
+    "token": "Example token"
 }
 ```
 
 -   404 (Not Found)
 
-```
+```json
 {
-    "message": "User not found",
+    "message": "User not found"
 }
 ```
 
 -   500 (Internal Server Error)
 
-```
+```json
 {
     "message": "Internal Server Error"
 }
@@ -116,24 +116,24 @@ The `req.body.data` object must include the following fields:
 
 -   200 (Success)
 
-```
+```json
 {
     "message": "Register successful",
-    "token": "Example token",
+    "token": "Example token"
 }
 ```
 
 -   409 (conflict)
 
-```
+```json
 {
-    "message": "Username had already existed",
+    "message": "Username had already existed"
 }
 ```
 
 -   500 (Internal Server Error)
 
-```
+```json
 {
     "message": "Internal Server Error"
 }
@@ -162,23 +162,23 @@ The `req.body.data` object must include the following fields:
 
 -   200 (Success)
 
-```
+```json
 {
-    "message": "Logout successful",
+    "message": "Logout successful"
 }
 ```
 
 -   401 (Unauthorized)
 
-```
+```json
 {
-    "message": "Missing authorization token",
+    "message": "Missing authorization token"
 }
 ```
 
 -   500 (Internal Server Error)
 
-```
+```json
 {
     "message": "Internal Server Error"
 }
@@ -235,31 +235,31 @@ The `req.body.data` object must include the following fields:
 
 -   200 (Success)
 
-```
+```json
 {
-    "message": "Task allocated successfully",
+    "message": "Task allocated successfully"
 }
 ```
 
 -   401 (Unauthorized)
 
-```
+````json
 {
     "message": "Missing authorization token",
 }
-```
+```json
 
 -   403 (Forbidden)
 
-```
+```json
 {
     "message": "Permission denied",
 }
-```
+````
 
 -   500 (Internal Server Error)
 
-```
+```json
 {
     "message": "Internal Server Error"
 }
