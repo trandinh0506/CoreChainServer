@@ -22,7 +22,7 @@ Key Features:
 **Header:** `Content-type: application/json`
 
 **Request Body:** `req.body.data`
-**Request Body:**  
+
 The `req.body.data` object must include the following fields:
 
 | Field      | Type   | Required | Description          |
@@ -55,7 +55,8 @@ The `req.body.data` object must include the following fields:
 ```json
 {
     "message": "Login successful",
-    "token": "Example token"
+    "accessToken": "Example access token",
+    "refreshToken": "Example refresh token"
 }
 ```
 
@@ -84,7 +85,7 @@ The `req.body.data` object must include the following fields:
 **Header:** `Content-type: application/json`
 
 **Request Body:** `req.body.data`
-**Request Body:**  
+
 The `req.body.data` object must include the following fields:
 
 | Field      | Type   | Required | Description          |
@@ -121,7 +122,8 @@ The `req.body.data` object must include the following fields:
 ```json
 {
     "message": "Register successful",
-    "token": "Example token"
+    "accessToken": "Example access token",
+    "refreshToken": "Example refresh token"
 }
 ```
 
@@ -149,9 +151,10 @@ The `req.body.data` object must include the following fields:
 
 **Header:**
 
-| Headers       | Value          | Required | Description                      |
-| ------------- | -------------- | -------- | -------------------------------- |
-| Authorization | Bearer <token> | Yes      | Bearer token for authentication. |
+| Headers       | Value                 | Required | Description                       |
+| ------------- | --------------------- | -------- | --------------------------------- |
+| Authorization | Bearer `accessToken`  | Yes      | Bearer token for authentication.  |
+| RefreshToken  | Bearer `refreshToken` | Yes      | Refresh token for authentication. |
 
 **Response Codes:**
 | Code | Description |
@@ -192,17 +195,21 @@ The `req.body.data` object must include the following fields:
 
 **Method** POST
 
-**Header:**
+**Header:** `Content-type: application/json`
 
-| Headers       | Value          | Required | Description                      |
-| ------------- | -------------- | -------- | -------------------------------- |
-| Authorization | Bearer <token> | Yes      | Bearer token for authentication. |
+**Request Body:** `req.body.data`
+
+The `req.body.data` object must include the following fields:
+
+| Field   | Type   | Required | Description       |
+| ------- | ------ | -------- | ----------------- |
+| `email` | string | Yes      | The user's email. |
 
 **Response Codes:**
 | Code | Description |
 |------|-------------|
 | `200`| `Success` |
-| `401`| `Unauthorized` |
+| `404`| `Not found` |
 | `500`| `Internal Server Error`|
 
 **Example Response**
@@ -215,11 +222,11 @@ The `req.body.data` object must include the following fields:
 }
 ```
 
--   401 (Unauthorized)
+-   404 (Not found)
 
 ```json
 {
-    "message": "Missing authorization token"
+    "message": "User's email not found"
 }
 ```
 
@@ -239,13 +246,14 @@ The `req.body.data` object must include the following fields:
 
 **Headers**
 
-| Headers       | Value            | Required | Description                      |
-| ------------- | ---------------- | -------- | -------------------------------- |
-| Content-type  | application/json | Yes      |                                  |
-| Authorization | Bearer <token>   | Yes      | Bearer token for authentication. |
+| Headers       | Value                 | Required | Description                       |
+| ------------- | --------------------- | -------- | --------------------------------- |
+| Content-type  | application/json      | Yes      |                                   |
+| Authorization | Bearer `accessToken`  | Yes      | Bearer token for authentication.  |
+| RefreshToken  | Bearer `refreshToken` | Yes      | Refresh token for authentication. |
 
 **Request Body:** `req.body.data`
-**Request Body:**  
+
 The `req.body.data` object must include the following fields:
 
 | Field         | Type   | Required | Description             |
@@ -308,10 +316,11 @@ The `req.body.data` object must include the following fields:
 
 **Header:**
 
-| Headers       | Value          | Required | Description                         |
-| ------------- | -------------- | -------- | ----------------------------------- |
-| Authorization | Bearer <token> | Yes      | Bearer token for authentication.    |
-| projectId     | :projectId     | Yes      | The id of the project to get tasks. |
+| Headers       | Value                 | Required | Description                         |
+| ------------- | --------------------- | -------- | ----------------------------------- |
+| Authorization | Bearer `accessToken`  | Yes      | Bearer token for authentication.    |
+| RefreshToken  | Bearer `refreshToken` | Yes      | Refresh token for authentication.   |
+| projectId     | :projectId            | Yes      | The id of the project to get tasks. |
 
 **Response Codes:**
 | Code | Description |
@@ -362,10 +371,11 @@ The `req.body.data` object must include the following fields:
 
 **Header:**
 
-| Headers       | Value            | Required | Description                      |
-| ------------- | ---------------- | -------- | -------------------------------- |
-| Content-type  | application/json | Yes      |                                  |
-| Authorization | Bearer <token>   | Yes      | Bearer token for authentication. |
+| Headers       | Value                 | Required | Description                       |
+| ------------- | --------------------- | -------- | --------------------------------- |
+| Content-type  | application/json      | Yes      |                                   |
+| Authorization | Bearer `accessToken`  | Yes      | Bearer token for authentication.  |
+| RefreshToken  | Bearer `refreshToken` | Yes      | Refresh token for authentication. |
 
 **Request Body:** `req.body.data`
 **Request Body:**  
