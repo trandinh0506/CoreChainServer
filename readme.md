@@ -294,7 +294,7 @@ The `req.body.data` object must include the following fields:
 
 ```json
 {
-    "message": "Old password do not matched"
+    "message": "Old password does not matched"
 }
 ```
 
