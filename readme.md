@@ -339,7 +339,8 @@ The `req.body.data` object must include the following fields:
         {
             "UserID": "exampleUserID",
             "task": "exampleTask",
-            "deadline": "yyyy-mm-dd'T'HH:mm"
+            "deadline": "yyyy-mm-dd'T'HH:mm",
+            "completed": "exampleTaskCompleted (true/false)"
         }
     ]
 }
