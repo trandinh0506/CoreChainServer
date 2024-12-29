@@ -286,7 +286,8 @@ The `req.body.data` object must include the following fields:
 ```json
 {
     "message": "Password changed successfully",
-    "token": "Example token"
+    "accessToken": "Example access token",
+    "refreshToken": "Example refresh token"
 }
 ```
 
