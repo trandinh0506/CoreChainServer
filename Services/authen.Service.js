@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const bcrypt = require("brypt");
+const bcrypt = require("bcrypt");
 
 const SALT_ROUNDS = 10; // cost factor
 
