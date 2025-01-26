@@ -363,6 +363,65 @@ The `req.body.data` object must include the following fields:
 }
 ```
 
+### Get user information
+
+**URL:**`auth/getUserInfo`
+
+**Method** GET
+
+**Header:**
+
+| Headers       | Value                 | Required | Description                       |
+| ------------- | --------------------- | -------- | --------------------------------- |
+| Authorization | Bearer `accessToken`  | Yes      | Bearer token for authentication.  |
+| RefreshToken  | Bearer `refreshToken` | Yes      | Refresh token for authentication. |
+
+**Response Codes:**
+| Code | Description |
+|------|-------------|
+| `200`| `Success` |
+| `401`| `Unauthorized` |
+| `500`| `Internal Server Error`|
+
+**Example Response**
+
+-   200 (Success)
+
+```json
+{
+    "message": [
+        {
+            "fulname": "String",
+            "userName": "String",
+            "blockAddress": "String",
+            "email": "String",
+            "address": "String",
+            "identifiNumber": "String",
+            "position": "String",
+            "salary": 123,
+            "startWorkDate": "11-11-2022",
+            "role": "String"
+        }
+    ]
+}
+```
+
+-   401 (Unauthorized)
+
+```json
+{
+    "message": "Missing authorization token"
+}
+```
+
+-   500 (Internal Server Error)
+
+```json
+{
+    "message": "Internal Server Error"
+}
+```
+
 <!-- manager api -->
 
 ### Allocate Tasks
@@ -380,6 +439,7 @@ The `req.body.data` object must include the following fields:
 | RefreshToken  | Bearer `refreshToken` | Yes      | Refresh token for authentication. |
 
 **Request Body:** `req.body.data`
+
 **Request Body:**  
 The `req.body.data` object must include the following fields:
 
