@@ -3,7 +3,7 @@ const projectSchema = new mongoose.Schema({
     managerId: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
     staffs: {
         type: [
-            { userId: { type: mongoose.Schema.Types.ObjectId, ref: "user" } },
+            { staffId: { type: mongoose.Schema.Types.ObjectId, ref: "user" } },
         ],
         default: [],
     },
@@ -11,15 +11,19 @@ const projectSchema = new mongoose.Schema({
     tasks: {
         type: [
             {
-                userId: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
-                task: String,
+                staffId: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
+                title: String,
+                description: String,
                 deadline: Date,
                 completed: Boolean,
+                completedAt: Date,
             },
         ],
         default: [],
     },
+    deadline: Date,
     completed: Boolean,
+    completedAt: Date,
 });
 
 module.exports = projectSchema;
