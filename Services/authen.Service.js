@@ -9,8 +9,8 @@ class authentication {
         if (!(await isExsitedUser(username))) {
             return { status: 404, message: "User not found" };
         }
-        const { hashedPassword, userId, role } = await getUserInfo(username);
-        if (await bcrypt.compare(password, hashedPassword)) {
+        const { hashedPassword, userId, role } = await getUser(username);
+        if (!(await bcrypt.compare(password, hashedPassword))) {
             return { status: 401, message: "Password is incorrect" };
         }
         return {
@@ -22,7 +22,16 @@ class authentication {
             },
         };
     }
-    async register(data) {}
+    async register(data) {
+        const { username, password, email, role } = data;
+
+        if (await isExsitedUser(username)) {
+            return { status: 409, message: "Username had already existed" };
+        }
+        if (await this.isExsitedEmail(email)) {
+            return { status: 409, message: "Email had already existed" };
+        }
+    }
     createAccessToken(userId, role) {
         return jwt.sign({ userId, role }, process.env.SECRET_KEY, {
             expiresIn: "3m",
@@ -42,7 +51,8 @@ class authentication {
         }
     }
     async isExsitedUser(username) {}
-    async getUserInfo(username) {}
+    async isExsitedEmail(email) {}
+    async getUser(username) {}
 }
 
 module.exports = new authentication();
