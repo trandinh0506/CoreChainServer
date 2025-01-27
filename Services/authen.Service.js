@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-
+const userModel = require("../Models/user.Model");
 const SALT_ROUNDS = 10; // cost factor
 
 class authentication {
@@ -23,13 +23,39 @@ class authentication {
         };
     }
     async register(data) {
-        const { username, password, email, role } = data;
+        const { username, password, email, phone, role } = data;
 
         if (await isExsitedUser(username)) {
             return { status: 409, message: "Username had already existed" };
         }
         if (await this.isExsitedEmail(email)) {
             return { status: 409, message: "Email had already existed" };
+        }
+        if (await this.isExsitedPhone(phone)) {
+            return { status: 409, message: "Phone number had already existed" };
+        }
+
+        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+        const newUser = new User({
+            username,
+            email,
+            phone,
+            password: hashedPassword,
+            role,
+        });
+        // validate email and phone here before adding new user to database
+        try {
+            await newUser.save();
+
+            return {
+                status: 201,
+                message: "User registered successfully",
+            };
+        } catch (error) {
+            return {
+                status: 500,
+                message: "Internal server error",
+            };
         }
     }
     createAccessToken(userId, role) {
