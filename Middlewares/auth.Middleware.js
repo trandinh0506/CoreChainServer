@@ -1,6 +1,6 @@
 const authen = require("../Services/authen.Service");
 module.exports.authMdw = (req, res, next) => {
-    const skipRoutes = ["/login", "/register"];
+    const skipRoutes = ["/login", "/register", "isAuthenticated"];
     if (skipRoutes.includes(req.path)) {
         return next();
     }
