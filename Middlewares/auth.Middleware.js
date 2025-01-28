@@ -4,11 +4,12 @@ module.exports.authMdw = (req, res, next) => {
     if (skipRoutes.includes(req.path)) {
         return next();
     }
-    const accessToken = req.cookies.accessToken;
+    console.log(req.cookies);
+    const accessToken = req.cookies?.accessToken;
     if (!accessToken) {
         return res.status(401).json({ message: "Missing authorization token" });
     }
-    const { isSuccess, decoded } = authen.validate(token);
+    const { isSuccess, decoded } = authen.validate(accessToken);
     if (!isSuccess) {
         return res.status(401).json({ message: "Invalid authorization token" });
     }

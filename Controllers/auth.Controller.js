@@ -1,5 +1,5 @@
 const authService = require("../Services/authen.Service");
-const ACCESS_TOKEN_MAX_AGE = 3 * 60 * 1000;
+const ACCESS_TOKEN_MAX_AGE = 15 * 60 * 1000;
 const REFRESH_TOKEN_MAX_AGE = 60 * 60 * 1000;
 class authController {
     async login(req, res) {
@@ -20,6 +20,7 @@ class authController {
                 maxAge: REFRESH_TOKEN_MAX_AGE,
             });
             res.status(result.status).json(result.message.message);
+            return;
         }
         res.status(result.status).json(result.message);
     }

@@ -3,15 +3,14 @@ const bcrypt = require("bcrypt");
 const userModel = require("../Models/user.Model");
 
 const SALT_ROUNDS = 10;
-const ACCESS_TOKEN_EXPIRY = "3m";
+const ACCESS_TOKEN_EXPIRY = "15m";
 const REFRESH_TOKEN_EXPIRY = "1h";
 
 class Authentication {
     async login(data) {
-        const { username, password } = data;
-        console.log(username, password);
+        const { email, password } = data;
         try {
-            const user = await this.getUser(username);
+            const user = await this.getUser(email);
             if (!user) {
                 return { status: 404, message: "User not found" };
             }
@@ -43,12 +42,9 @@ class Authentication {
     }
 
     async register(data) {
-        const { username, password, email, phone, role } = data;
+        const { password, email, phone, role } = data;
         console.log(data);
         try {
-            if (await this.isExisted("username", username)) {
-                return { status: 409, message: "Username already exists" };
-            }
             if (await this.isExisted("email", email)) {
                 return { status: 409, message: "Email already exists" };
             }
@@ -59,7 +55,6 @@ class Authentication {
             const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
             const newUser = new userModel({
-                username,
                 email,
                 phone,
                 password: hashedPassword,
@@ -109,9 +104,9 @@ class Authentication {
         }
     }
 
-    async getUser(username) {
+    async getUser(email) {
         try {
-            return await userModel.findOne({ username });
+            return await userModel.findOne({ email });
         } catch (err) {
             throw new Error(`Error fetching user: ${err.message}`);
         }

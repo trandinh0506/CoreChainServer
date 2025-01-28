@@ -3,8 +3,6 @@ const managerController = require("../Controllers/manager.Controller");
 
 const managerRouter = express.Router();
 
-managerRouter.patch("/allocateTasks", managerController.allocateTasks);
-
-managerRouter.get("/getAllTasks", managerController.getAllTasks);
+managerRouter.post("/tasks", managerController.allocateTasks);
 
 module.exports = managerRouter;

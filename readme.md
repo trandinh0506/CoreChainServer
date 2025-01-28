@@ -87,11 +87,12 @@ The `req.body.data` object must include the following fields:
 
 The `req.body.data` object must include the following fields:
 
-| Field      | Type   | Required | Description          |
-| ---------- | ------ | -------- | -------------------- |
-| `email`    | string | Yes      | The user's email.    |
-| `password` | string | Yes      | The user's password. |
-| `role`     | string | Yes      | The user's role.     |
+| Field      | Type   | Required | Description              |
+| ---------- | ------ | -------- | ------------------------ |
+| `email`    | string | Yes      | The user's email.        |
+| `phone`    | string | Yes      | The user's phone number. |
+| `password` | string | Yes      | The user's password.     |
+| `role`     | string | Yes      | The user's role.         |
 
 **Example Request Body:**
 

@@ -2,8 +2,14 @@ const projectModel = require("../Models/project.Model");
 class managerService {
     async allocateTasks(data) {
         try {
-            const { userId, projectId, task, deadline } = data;
-            const newTask = { userId, task, deadline, completed: false };
+            const { staffId, projectId, title, description, deadline } = data;
+            const newTask = {
+                staffId,
+                title,
+                description,
+                deadline,
+                completed: false,
+            };
             await projectModel.updateOne(
                 { _id: projectId },
                 { $push: { tasks: newTask } }
