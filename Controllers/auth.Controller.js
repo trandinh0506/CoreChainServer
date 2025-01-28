@@ -34,11 +34,12 @@ class authController {
     async isAuthenticated(req, res) {
         try {
             const accessToken = req.cookies.accessToken;
-
+            console.log("isAuthenticated", accessToken);
             if (!accessToken) {
                 return res.status(401).json({ isAuthenticated: false });
             }
             const { isSuccess, decoded } = authenService.validate(accessToken);
+            console.log(isSuccess, decoded);
             if (isSuccess)
                 return res.status(200).json({
                     isAuthenticated: true,
