@@ -19,7 +19,7 @@ class authController {
                 sameSite: "Strict",
                 maxAge: REFRESH_TOKEN_MAX_AGE,
             });
-            res.status(result.status).json(result.message.message);
+            res.status(result.status).json(result.message.role);
             return;
         }
         res.status(result.status).json(result.message);

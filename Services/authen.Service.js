@@ -30,6 +30,7 @@ class Authentication {
                     message: "Login successful",
                     accessToken: this.createAccessToken(userId, role),
                     refreshToken: this.createRefreshToken(userId, role),
+                    role,
                 },
             };
         } catch (err) {
