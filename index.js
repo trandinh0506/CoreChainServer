@@ -11,6 +11,7 @@ const app = express();
 database.connect();
 app.use(cookieParser());
 app.use(express.json());
+app.use(cors());
 
 app.use("/auth", authRouter);
 
