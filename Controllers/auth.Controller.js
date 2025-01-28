@@ -11,13 +11,13 @@ class authController {
             res.cookie("accessToken", result.message.accessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: "Strict",
+                sameSite: "lax",
                 maxAge: ACCESS_TOKEN_MAX_AGE,
             });
             res.cookie("refreshToken", result.message.refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: "Strict",
+                sameSite: "lax",
                 maxAge: REFRESH_TOKEN_MAX_AGE,
             });
             res.status(result.status).json(result.message.role);
