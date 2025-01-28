@@ -1,3 +1,4 @@
+const authenService = require("../Services/authen.Service");
 const authService = require("../Services/authen.Service");
 const ACCESS_TOKEN_MAX_AGE = 15 * 60 * 1000;
 const REFRESH_TOKEN_MAX_AGE = 60 * 60 * 1000;
@@ -29,6 +30,23 @@ class authController {
         console.log(req.body);
         const result = await authService.register(data);
         res.status(result.status).json(result.message);
+    }
+    async isAuthenticated(req, res) {
+        try {
+            const accessToken = req.cookies.accessToken;
+
+            if (!accessToken) {
+                return res.status(401).json({ isAuthenticated: false });
+            }
+            const { isSuccess, decoded } = authenService.validate(accessToken);
+            if (isSuccess)
+                return res.status(200).json({
+                    isAuthenticated: true,
+                    user: { userId: decoded.userId, role: decoded.role },
+                });
+        } catch (err) {
+            return res.status(401).json({ isAuthenticated: false });
+        }
     }
 }
 
