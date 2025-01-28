@@ -9,11 +9,6 @@ const app = express();
 database.connect();
 app.use(express.json());
 
-// Root routes (no authentication required)
-app.get("/", (req, res) => {
-    res.send("Hello World");
-});
-
 app.use("/auth", authRouter);
 
 // Start the server
