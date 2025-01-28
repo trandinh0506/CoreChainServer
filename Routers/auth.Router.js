@@ -14,7 +14,7 @@ authRouter.use("/manager", managerRoute);
 authRouter.use("/blockchain", blockchainRoute);
 authRouter.post("/login", authController.login);
 authRouter.post("/register", authController.register);
-authRouter.get("isAuthenticated", authController.isAuthenticated);
+authRouter.get("/isAuthenticated", authController.isAuthenticated);
 authRouter.get("/profile", commonAuthController.getProfile);
 
 module.exports = authRouter;
