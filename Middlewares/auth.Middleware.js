@@ -1,5 +1,6 @@
-module.exports.requireAuth = (req, res, next) => {
-    const skipRoutes = ["/auth/login", "/auth/register"];
+module.exports.authMdw = (req, res, next) => {
+    const skipRoutes = ["/login", "/register"];
+    console.log(req.path);
     if (skipRoutes.includes(req.path)) {
         return next();
     }

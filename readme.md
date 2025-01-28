@@ -27,7 +27,7 @@ The `req.body.data` object must include the following fields:
 
 | Field      | Type   | Required | Description          |
 | ---------- | ------ | -------- | -------------------- |
-| `username` | string | Yes      | The user's username. |
+| `email`    | string | Yes      | The user's email.    |
 | `password` | string | Yes      | The user's password. |
 
 **Example Request Body:**
@@ -35,7 +35,7 @@ The `req.body.data` object must include the following fields:
 ```json
 {
     "data": {
-        "username": "exampleUser",
+        "username": "exampleUserEmail",
         "password": "examplePassword"
     }
 }
@@ -55,8 +55,7 @@ The `req.body.data` object must include the following fields:
 ```json
 {
     "message": "Login successful",
-    "accessToken": "Example access token",
-    "refreshToken": "Example refresh token"
+    "role": "role"
 }
 ```
 
@@ -90,9 +89,8 @@ The `req.body.data` object must include the following fields:
 
 | Field      | Type   | Required | Description          |
 | ---------- | ------ | -------- | -------------------- |
-| `username` | string | Yes      | The user's username. |
-| `password` | string | Yes      | The user's password. |
 | `email`    | string | Yes      | The user's email.    |
+| `password` | string | Yes      | The user's password. |
 | `role`     | string | Yes      | The user's role.     |
 
 **Example Request Body:**
@@ -100,9 +98,8 @@ The `req.body.data` object must include the following fields:
 ```json
 {
     "data": {
-        "username": "exampleUser",
-        "password": "examplePassword",
         "email": "exampleEmail",
+        "password": "examplePassword",
         "role": "exampleRole"
     }
 }
@@ -121,9 +118,7 @@ The `req.body.data` object must include the following fields:
 
 ```json
 {
-    "message": "Register successful",
-    "accessToken": "Example access token",
-    "refreshToken": "Example refresh token"
+    "message": "Register successful"
 }
 ```
 
@@ -131,7 +126,7 @@ The `req.body.data` object must include the following fields:
 
 ```json
 {
-    "message": "Username had already existed"
+    "message": "Email had already existed"
 }
 ```
 
@@ -147,14 +142,9 @@ The `req.body.data` object must include the following fields:
 
 **URL:**`auth/logout`
 
-**Method** POST
+**Method** DELETE
 
-**Header:**
-
-| Headers       | Value                 | Required | Description                       |
-| ------------- | --------------------- | -------- | --------------------------------- |
-| Authorization | Bearer `accessToken`  | Yes      | Bearer token for authentication.  |
-| RefreshToken  | Bearer `refreshToken` | Yes      | Refresh token for authentication. |
+**Header:** No header need to provide
 
 **Response Codes:**
 | Code | Description |
@@ -178,6 +168,14 @@ The `req.body.data` object must include the following fields:
 ```json
 {
     "message": "Missing authorization token"
+}
+```
+
+-   401 (Unauthorized)
+
+```json
+{
+    "message": "Invalid token"
 }
 ```
 
@@ -246,11 +244,9 @@ The `req.body.data` object must include the following fields:
 
 **Headers**
 
-| Headers       | Value                 | Required | Description                       |
-| ------------- | --------------------- | -------- | --------------------------------- |
-| Content-type  | application/json      | Yes      |                                   |
-| Authorization | Bearer `accessToken`  | Yes      | Bearer token for authentication.  |
-| RefreshToken  | Bearer `refreshToken` | Yes      | Refresh token for authentication. |
+| Headers      | Value            | Required | Description |
+| ------------ | ---------------- | -------- | ----------- |
+| Content-type | application/json | Yes      |             |
 
 **Request Body:** `req.body.data`
 
@@ -317,11 +313,9 @@ The `req.body.data` object must include the following fields:
 
 **Header:**
 
-| Headers       | Value                 | Required | Description                         |
-| ------------- | --------------------- | -------- | ----------------------------------- |
-| Authorization | Bearer `accessToken`  | Yes      | Bearer token for authentication.    |
-| RefreshToken  | Bearer `refreshToken` | Yes      | Refresh token for authentication.   |
-| projectId     | :projectId            | Yes      | The id of the project to get tasks. |
+| Headers   | Value      | Required | Description                         |
+| --------- | ---------- | -------- | ----------------------------------- |
+| projectId | :projectId | Yes      | The id of the project to get tasks. |
 
 **Response Codes:**
 | Code | Description |
@@ -365,16 +359,11 @@ The `req.body.data` object must include the following fields:
 
 ### Get user information
 
-**URL:**`auth/getUserInfo`
+**URL:**`auth/profile`
 
 **Method** GET
 
-**Header:**
-
-| Headers       | Value                 | Required | Description                       |
-| ------------- | --------------------- | -------- | --------------------------------- |
-| Authorization | Bearer `accessToken`  | Yes      | Bearer token for authentication.  |
-| RefreshToken  | Bearer `refreshToken` | Yes      | Refresh token for authentication. |
+**Header:** No header need to provide
 
 **Response Codes:**
 | Code | Description |
@@ -392,7 +381,6 @@ The `req.body.data` object must include the following fields:
     "message": [
         {
             "fulname": "String",
-            "userName": "String",
             "blockAddress": "String",
             "email": "String",
             "address": "String",
@@ -426,17 +414,15 @@ The `req.body.data` object must include the following fields:
 
 ### Allocate Tasks
 
-**URL:**`/auth/manager/allocateTasks`
+**URL:**`/auth/manager/tasks`
 
 **Method** POST
 
 **Header:**
 
-| Headers       | Value                 | Required | Description                       |
-| ------------- | --------------------- | -------- | --------------------------------- |
-| Content-type  | application/json      | Yes      |                                   |
-| Authorization | Bearer `accessToken`  | Yes      | Bearer token for authentication.  |
-| RefreshToken  | Bearer `refreshToken` | Yes      | Refresh token for authentication. |
+| Headers      | Value            | Required | Description |
+| ------------ | ---------------- | -------- | ----------- |
+| Content-type | application/json | Yes      |             |
 
 **Request Body:** `req.body.data`
 
@@ -457,7 +443,8 @@ The `req.body.data` object must include the following fields:
     "data": {
         "userId": "exampleUserId",
         "projectId": "exampleProjectId",
-        "task": "exampleTask",
+        "title": "exampleTask title",
+        "description": "exampleTask description",
         "deadline": "yyyy-mm-dd'T'HH:mm"
     }
 }

@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
     fulname: String,
-    userName: String,
     password: String,
     blockAddress: String,
     email: String,
@@ -13,6 +12,7 @@ const userSchema = new mongoose.Schema({
     salary: Number,
     startWorkDate: Date,
     role: String,
+    isActive: Boolean,
 });
 
 module.exports = userSchema;

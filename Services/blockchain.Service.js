@@ -1,13 +1,13 @@
-const Block = require('./block');
+const Block = require("./block.Service");
 
 class Blockchain {
     constructor() {
-        this.chain = [this.createGenesisBlock()]; 
+        this.chain = [this.createGenesisBlock()];
         this.difficulty = 2;
     }
 
     createGenesisBlock() {
-        return new Block(0, Date.now(), 'Genesis Block', '0');
+        return new Block(0, Date.now(), "Genesis Block", "0");
     }
 
     getLatestBlock() {
@@ -15,9 +15,9 @@ class Blockchain {
     }
 
     addBlock(newBlock) {
-        newBlock.previousHash = this.getLatestBlock().hash; 
-        newBlock.mineBlock(this.difficulty); 
-        this.chain.push(newBlock); 
+        newBlock.previousHash = this.getLatestBlock().hash;
+        newBlock.mineBlock(this.difficulty);
+        this.chain.push(newBlock);
     }
 
     isChainValid() {
