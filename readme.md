@@ -432,7 +432,7 @@ The `req.body.data` object must include the following fields:
 
 | Field         | Type      | Required | Description                |
 | ------------- | --------- | -------- | -------------------------- |
-| `userId`      | string    | Yes      | The user id assigned task. |
+| `staffId`     | string    | Yes      | The user id assigned task. |
 | `projectId`   | string    | Yes      | The project id.            |
 | `title`       | string    | Yes      | The task title.            |
 | `description` | string    | Yes      | The task description.      |
@@ -443,7 +443,7 @@ The `req.body.data` object must include the following fields:
 ```json
 {
     "data": {
-        "userId": "exampleUserId",
+        "staffId": "exampleUserId",
         "projectId": "exampleProjectId",
         "title": "exampleTask title",
         "description": "exampleTask description",
