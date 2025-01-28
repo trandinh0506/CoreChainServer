@@ -281,9 +281,7 @@ The `req.body.data` object must include the following fields:
 
 ```json
 {
-    "message": "Password changed successfully",
-    "accessToken": "Example access token",
-    "refreshToken": "Example refresh token"
+    "message": "Password changed successfully"
 }
 ```
 
@@ -333,7 +331,8 @@ The `req.body.data` object must include the following fields:
     "message": [
         {
             "UserID": "exampleUserID",
-            "task": "exampleTask",
+            "title": "exampleTask",
+            "description": "exampleTask description",
             "deadline": "yyyy-mm-dd'T'HH:mm",
             "completed": "exampleTaskCompleted (true/false)"
         }
@@ -383,6 +382,7 @@ The `req.body.data` object must include the following fields:
             "fulname": "String",
             "blockAddress": "String",
             "email": "String",
+            "phone": "0123456789",
             "address": "String",
             "identifiNumber": "String",
             "position": "String",
@@ -429,12 +429,13 @@ The `req.body.data` object must include the following fields:
 **Request Body:**  
 The `req.body.data` object must include the following fields:
 
-| Field       | Type      | Required | Description                |
-| ----------- | --------- | -------- | -------------------------- |
-| `userId`    | string    | Yes      | The user id assigned task. |
-| `projectId` | string    | Yes      | The project id.            |
-| `task`      | string    | Yes      | The task title.            |
-| `deadline`  | date/time | Yes      | The deadline of the task.  |
+| Field         | Type      | Required | Description                |
+| ------------- | --------- | -------- | -------------------------- |
+| `userId`      | string    | Yes      | The user id assigned task. |
+| `projectId`   | string    | Yes      | The project id.            |
+| `title`       | string    | Yes      | The task title.            |
+| `description` | string    | Yes      | The task description.      |
+| `deadline`    | date/time | Yes      | The deadline of the task.  |
 
 **Example Request Body:**
 
