@@ -10,14 +10,14 @@ class authController {
         if (result.status === 200) {
             res.cookie("accessToken", result.message.accessToken, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
+                secure: true,
+                sameSite: "none",
                 maxAge: ACCESS_TOKEN_MAX_AGE,
             });
             res.cookie("refreshToken", result.message.refreshToken, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
+                secure: true,
+                sameSite: "none",
                 maxAge: REFRESH_TOKEN_MAX_AGE,
             });
             res.status(result.status).json(result.message.role);
