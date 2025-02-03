@@ -42,8 +42,10 @@ class authController {
             console.log(isSuccess, decoded);
             if (isSuccess)
                 return res.status(200).json({
-                    isAuthenticated: true,
-                    user: { userId: decoded.userId, role: decoded.role },
+                    data: {
+                        isAuthenticated: true,
+                        user: { userId: decoded.userId, role: decoded.role },
+                    },
                 });
         } catch (err) {
             return res.status(401).json({ isAuthenticated: false });
