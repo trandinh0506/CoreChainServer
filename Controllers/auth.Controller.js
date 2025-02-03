@@ -36,7 +36,9 @@ class authController {
             const accessToken = req.cookies.accessToken;
             console.log("isAuthenticated", accessToken);
             if (!accessToken) {
-                return res.status(401).json({ isAuthenticated: false });
+                return res
+                    .status(401)
+                    .json({ data: { isAuthenticated: false } });
             }
             const { isSuccess, decoded } = authenService.validate(accessToken);
             console.log(isSuccess, decoded);
@@ -48,7 +50,7 @@ class authController {
                     },
                 });
         } catch (err) {
-            return res.status(401).json({ isAuthenticated: false });
+            return res.status(401).json({ data: { isAuthenticated: false } });
         }
     }
 }
