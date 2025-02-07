@@ -143,9 +143,11 @@ The `req.body.data` object must include the following fields:
 
 **URL:**`auth/logout`
 
-**Method** DELETE
+**Method** POST
 
 **Header:** No header need to provide
+
+**Body:** No body need to be provided
 
 **Response Codes:**
 | Code | Description |
@@ -176,7 +178,7 @@ The `req.body.data` object must include the following fields:
 
 ```json
 {
-    "message": "Invalid token"
+    "message": "Invalid access token"
 }
 ```
 

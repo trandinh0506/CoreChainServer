@@ -31,6 +31,41 @@ class authController {
         const result = await authService.register(data);
         res.status(result.status).json(result.message);
     }
+
+    async logout(req, res) {
+        try {
+            const { accessToken, refreshToken } = req.cookies;
+
+            if (!accessToken || !refreshToken) {
+                return res
+                    .status(401)
+                    .json({ message: "Missing authorization token" });
+            }
+            const { isSuccess } = authenService.validate(accessToken);
+
+            if (!isSuccess) {
+                return res
+                    .status(401)
+                    .json({ message: "Invalid access token" });
+            }
+            res.clearCookie("accessToken", {
+                httpOnly: true,
+                secure: true,
+                sameSite: "None",
+            });
+            res.clearCookie("refreshToken", {
+                httpOnly: true,
+                secure: true,
+                sameSite: "None",
+            });
+            return res.status(200).json({ message: "Logout successful" });
+        } catch (err) {
+            return res
+                .status(500)
+                .json({ message: "Internal server error", error: err.message });
+        }
+    }
+
     async isAuthenticated(req, res) {
         try {
             const accessToken = req.cookies.accessToken;
