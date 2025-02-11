@@ -413,6 +413,8 @@ The `req.body.data` object must include the following fields:
 }
 ```
 
+### Update Profile
+
 **URL:**`/auth/profile`
 
 **Method** POST
