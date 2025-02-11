@@ -1,5 +1,5 @@
 const express = require("express");
-const authen = require("../Services/authen.Service");
+const adminController = require("../Controllers/admin.Controller");
 const router = express.Router();
 
 router.use((req, res, next) => {
@@ -9,5 +9,7 @@ router.use((req, res, next) => {
     }
     next();
 });
+
+router.post("/create-project", adminController.createProject);
 
 module.exports = router;
