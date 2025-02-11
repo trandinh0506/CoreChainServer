@@ -413,6 +413,83 @@ The `req.body.data` object must include the following fields:
 }
 ```
 
+**URL:**`/auth/profile`
+
+**Method** POST
+
+**Header:**
+
+| Headers      | Value            | Required | Description |
+| ------------ | ---------------- | -------- | ----------- |
+| Content-type | application/json | Yes      |             |
+
+**Request Body:** `req.body.data`
+
+**Request Body:**  
+The `req.body.data` object must include the following fields:
+
+| Field            | Type   | Required | Description                 |
+| ---------------- | ------ | -------- | --------------------------- |
+| `fullName`       | string | No       | The user's fullname .       |
+| `address`        | string | No       | The user's address.         |
+| `birthday`       | string | No       | The user's birthday.        |
+| `identifiNumber` | string | No       | The user's identifi number. |
+
+**Example Request Body:**
+
+```json
+{
+    "data": {
+        "fullName": "exampleFullName",
+        "address": "exampleAddress",
+        "birthday": "exampleBirthday",
+        "identifiNumber": "exampleIdentifiNumber"
+    }
+}
+```
+
+**Response Codes:**
+| Code | Description |
+| ---- | ----------- |
+| `200`| `Success` |
+| `400`| `Failure` |
+| `401`| `Unauthorized` |
+| `500`| `Internal Server Error`|
+
+**Example Response**
+
+-   200 (Success)
+
+```json
+{
+    "message": "Profile updated successfully"
+}
+```
+
+-   400 (Failure)
+
+```json
+{
+    "message": "No valid fields to update"
+}
+```
+
+-   401 (Unauthorized)
+
+```json
+{
+    "message": "Missing authorization token"
+}
+```
+
+-   500 (Internal Server Error)
+
+```json
+{
+    "message": "Internal Server Error"
+}
+```
+
 <!-- manager api -->
 
 ### Allocate Tasks
