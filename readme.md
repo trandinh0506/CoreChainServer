@@ -577,6 +577,8 @@ The `req.body.data` object must include the following fields:
 
 <!-- admin api -->
 
+### Create Project
+
 **URL:**`/auth/admin/create-project`
 
 **Method** POST
@@ -592,11 +594,11 @@ The `req.body.data` object must include the following fields:
 **Request Body:**  
 The `req.body.data` object must include the following fields:
 
-| Field         | Type      | Required | Description                |
-| ------------- | --------- | -------- | -------------------------- |
-| `managerId`   | string    | Yes      | The user id assigned task. |
-| `projectName` | string    | Yes      | The task title.            |
-| `deadline`    | date/time | Yes      | The deadline of the task.  |
+| Field         | Type      | Required | Description                      |
+| ------------- | --------- | -------- | -------------------------------- |
+| `managerId`   | string    | Yes      | The manager id assigned project. |
+| `projectName` | string    | Yes      | The project name.                |
+| `deadline`    | date/time | Yes      | The deadline of the task.        |
 
 **Example Request Body:**
 
@@ -614,7 +616,7 @@ The `req.body.data` object must include the following fields:
 | Code | Description |
 | ---- | ----------- |
 | `200`| `Success` |
-|`400` | `Failure` |
+| `400`| `Failure` |
 | `401`| `Unauthorized` |
 | `403`| `Forbidden` |
 | `500`| `Internal Server Error`|
