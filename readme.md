@@ -496,4 +496,93 @@ The `req.body.data` object must include the following fields:
 }
 ```
 
+<!-- admin api -->
+
+**URL:**`/auth/admin/create-project`
+
+**Method** POST
+
+**Header:**
+
+| Headers      | Value            | Required | Description |
+| ------------ | ---------------- | -------- | ----------- |
+| Content-type | application/json | Yes      |             |
+
+**Request Body:** `req.body.data`
+
+**Request Body:**  
+The `req.body.data` object must include the following fields:
+
+| Field         | Type      | Required | Description                |
+| ------------- | --------- | -------- | -------------------------- |
+| `managerId`   | string    | Yes      | The user id assigned task. |
+| `projectName` | string    | Yes      | The task title.            |
+| `deadline`    | date/time | Yes      | The deadline of the task.  |
+
+**Example Request Body:**
+
+```json
+{
+    "data": {
+        "managerId": "exampleManagerId",
+        "projectName": "exampleProjectName",
+        "deadline": "yyyy-mm-dd'T'HH:mm"
+    }
+}
+```
+
+**Response Codes:**
+| Code | Description |
+| ---- | ----------- |
+| `200`| `Success` |
+|`400` | `Failure` |
+| `401`| `Unauthorized` |
+| `403`| `Forbidden` |
+| `500`| `Internal Server Error`|
+
+**Example Response**
+
+-   200 (Success)
+
+```json
+{
+    "message": {
+        "message": "Project created successfully",
+        "data": "projectId"
+    }
+}
+```
+
+-   400 (Failure)
+
+```json
+{
+    "message": "Missing required fields"
+}
+```
+
+-   401 (Unauthorized)
+
+```json
+{
+    "message": "Missing authorization token"
+}
+```
+
+-   403 (Forbidden)
+
+```json
+{
+    "message": "Permission denied"
+}
+```
+
+-   500 (Internal Server Error)
+
+```json
+{
+    "message": "Internal Server Error"
+}
+```
+
 ### Send CV
