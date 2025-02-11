@@ -16,6 +16,12 @@ class CommonController {
         }
         res.status(result.status).json(result.message);
     }
+    async updateProfile(req, res) {
+        const userId = req.user.userId;
+        const data = req.body.data;
+        const result = await commonService.updateProfile(userId, data);
+        res.status(result.status).json(result.message);
+    }
 }
 
 module.exports = new CommonController();

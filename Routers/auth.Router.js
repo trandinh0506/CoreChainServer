@@ -17,5 +17,6 @@ authRouter.post("/register", authController.register);
 authRouter.post("/logout", authController.logout);
 authRouter.get("/isAuthenticated", authController.isAuthenticated);
 authRouter.get("/profile", commonAuthController.getProfile);
+authRouter.post("/profile", commonAuthController.updateProfile);
 
 module.exports = authRouter;

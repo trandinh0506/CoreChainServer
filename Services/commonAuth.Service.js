@@ -25,6 +25,33 @@ class CommonService {
             return { status: 500, message: err.message };
         }
     }
+    async updateProfile(userId, profile) {
+        try {
+            const { fullName, address, birthday, identifiNumber } = profile;
+
+            const updateData = {};
+            if (fullName) updateData.fullName = fullName;
+            if (address) updateData.address = address;
+            if (birthday) updateData.birthday = birthday;
+            if (identifiNumber) updateData.identifiNumber = identifiNumber;
+
+            if (Object.keys(updateData).length === 0) {
+                return { status: 400, message: "No valid fields to update" };
+            }
+
+            await userModel.findByIdAndUpdate(userId, {
+                $set: updateData,
+            });
+
+            return { status: 200, message: "Profile updated successfully" };
+        } catch (error) {
+            return {
+                status: 500,
+                message:
+                    error.message || "An error occurred while updating profile",
+            };
+        }
+    }
 }
 
 module.exports = new CommonService();
