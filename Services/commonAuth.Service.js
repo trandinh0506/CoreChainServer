@@ -27,6 +27,7 @@ class CommonService {
     }
     async updateProfile(userId, profile) {
         try {
+            console.log(profile);
             const { fullName, address, birthday, identifiNumber } = profile;
 
             const updateData = {};
@@ -43,12 +44,18 @@ class CommonService {
                 $set: updateData,
             });
 
-            return { status: 200, message: "Profile updated successfully" };
+            return {
+                status: 200,
+                message: { message: "Profile updated successfully" },
+            };
         } catch (error) {
             return {
                 status: 500,
-                message:
-                    error.message || "An error occurred while updating profile",
+                message: {
+                    message:
+                        error.message ||
+                        "An error occurred while updating profile",
+                },
             };
         }
     }
