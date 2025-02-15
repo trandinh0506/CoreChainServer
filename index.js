@@ -9,14 +9,15 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 
 database.connect();
-app.use(cookieParser());
-app.use(express.json());
 app.use(
     cors({
         origin: process.env.CORS_ORIGIN,
+        methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
     })
 );
+app.use(cookieParser());
+app.use(express.json());
 
 app.use("/auth", authRouter);
 
