@@ -34,9 +34,10 @@ class managerService {
     }
 
     async getProjects(managerId) {
+        console.log({ managerId });
         try {
             const projects = await projectModel.find({ managerId });
-
+            console.log({ projects });
             if (projects.length === 0) {
                 return {
                     status: 204,
