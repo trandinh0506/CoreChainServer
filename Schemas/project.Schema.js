@@ -8,6 +8,7 @@ const projectSchema = new mongoose.Schema({
         default: [],
     },
     projectName: String,
+    description: String,
     tasks: {
         type: [
             {
