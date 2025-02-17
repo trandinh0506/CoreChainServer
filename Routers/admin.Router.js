@@ -10,6 +10,6 @@ router.use((req, res, next) => {
     next();
 });
 
-router.post("/create-project", adminController.createProject);
+router.post("/project", adminController.createProject);
 router.get("/projects", adminController.getProjects);
 module.exports = router;
