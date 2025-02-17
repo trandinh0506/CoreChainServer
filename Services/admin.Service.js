@@ -1,4 +1,5 @@
 const projectModel = require("../Models/project.Model");
+const userModel = require("../Models/user.Model");
 
 class AdminService {
     async createProject(project) {
@@ -52,6 +53,36 @@ class AdminService {
                 message: {
                     message: "Projects retrieved successfully",
                     data: projects,
+                },
+            };
+        } catch (error) {
+            return {
+                status: 500,
+                message: error.message || "Internal Server Error",
+            };
+        }
+    }
+    async getManagers() {
+        try {
+            const managers = await userModel
+                .find({ role: "manager" })
+                .select("_id fullName");
+
+            if (managers.length === 0) {
+                return {
+                    status: 204,
+                    message: {
+                        message: "No manager found",
+                        data: [],
+                    },
+                };
+            }
+
+            return {
+                status: 200,
+                message: {
+                    message: "Managers retrieved successfully",
+                    data: managers,
                 },
             };
         } catch (error) {

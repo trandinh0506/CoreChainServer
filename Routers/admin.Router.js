@@ -12,4 +12,5 @@ router.use((req, res, next) => {
 
 router.post("/project", adminController.createProject);
 router.get("/projects", adminController.getProjects);
+router.get("/managers", adminController.getManagers);
 module.exports = router;

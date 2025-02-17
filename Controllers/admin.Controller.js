@@ -9,6 +9,10 @@ class adminController {
         const result = await adminService.getProjects();
         res.status(result.status).json(result.message);
     }
+    async getManagers(req, res) {
+        const result = await adminService.getManagers();
+        res.status(result.status).json(result.message);
+    }
 }
 
 module.exports = new adminController();

@@ -816,4 +816,74 @@ The `req.body.data` object must include the following fields:
 }
 ```
 
+### Get Projects
+
+**URL:**`/auth/admin/managers`
+
+**Method:**`GET`
+
+**Body:** `No body need to provide`
+
+**Response Code:**
+| Code | Description |
+| ---- | ----------- |
+| `200`| `Success` |
+| `204`| `No-Content` |
+| `401`| `Unauthorized` |
+| `403`| `Forbidden` |
+| `500`| `Internal Server Error`|
+
+**Example Response**
+
+-   200 (Success)
+
+```json
+{
+    "message": {
+        "message": "Managers retrieved successfully",
+        "data": [
+            {
+                "managerId": "example manager id",
+                "fullName": "example manager full name"
+            }
+        ]
+    }
+}
+```
+
+-   204 (No Content)
+
+```json
+{
+    "message": {
+        "message": "No manager found",
+        "data": []
+    }
+}
+```
+
+-   401 (Unauthorized)
+
+```json
+{
+    "message": "Missing authorization token"
+}
+```
+
+-   403 (Forbidden)
+
+```json
+{
+    "message": "Permission denied"
+}
+```
+
+-   500 (Internal Server Error)
+
+```json
+{
+    "message": "Internal Server Error"
+}
+```
+
 ### Send CV
