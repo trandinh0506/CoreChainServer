@@ -12,7 +12,7 @@ class managerController {
         res.status(result.status).json(result.message);
     }
     async getProjects(req, res) {
-        result = await managerService.getProjects(req.user.userId);
+        const result = await managerService.getProjects(req.user.userId);
         res.status(result.status).json(result.message);
     }
 }
