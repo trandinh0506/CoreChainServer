@@ -654,7 +654,7 @@ The `req.body.data` object must include the following fields:
 
 ### Create Project
 
-**URL:**`/auth/admin/create-project`
+**URL:**`/auth/admin/project`
 
 **Method** POST
 
