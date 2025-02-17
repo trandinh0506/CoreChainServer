@@ -11,6 +11,10 @@ class managerController {
         const result = managerService.getAllTasks(data);
         res.status(result.status).json(result.message);
     }
+    async getProjects(req, res) {
+        result = await managerService.getProjects(req.user.userId);
+        res.status(result.status).json(result.message);
+    }
 }
 
 module.exports = new managerController();

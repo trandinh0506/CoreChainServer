@@ -32,6 +32,35 @@ class managerService {
             return { status: 500, message: err.message };
         }
     }
+
+    async getProjects(managerId) {
+        try {
+            const projects = await projectModel.find({ managerId });
+
+            if (projects.length === 0) {
+                return {
+                    status: 204,
+                    message: {
+                        message: "No projects found for this manager",
+                        data: [],
+                    },
+                };
+            }
+
+            return {
+                status: 200,
+                message: {
+                    message: "Projects retrieved successfully",
+                    data: projects,
+                },
+            };
+        } catch (error) {
+            return {
+                status: 500,
+                message: error.message || "Internal Server Error",
+            };
+        }
+    }
 }
 
 module.exports = new managerService();

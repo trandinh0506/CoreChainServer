@@ -575,6 +575,81 @@ The `req.body.data` object must include the following fields:
 }
 ```
 
+### Get Project
+
+**URL:**`/auth/manager/projects`
+
+**Method:**`GET`
+
+**Body:** `No body need to provide`
+
+**Response Code:**
+| Code | Description |
+| ---- | ----------- |
+| `200`| `Success` |
+| `204`| `No-Content` |
+| `401`| `Unauthorized` |
+| `403`| `Forbidden` |
+| `500`| `Internal Server Error`|
+
+**Example Response**
+
+-   200 (Success)
+
+```json
+{
+    "message": {
+        "message": "Projects retrieved successfully",
+        "data": [
+            {
+                "id": "example project id",
+                "managerId": "example manager id",
+                "staffs": ["staff id"],
+                "projectName": "example project name",
+                "deadline": "yyyy-MM-dd'T'HH:mm:ss",
+                "completed": "Boolean",
+                "completedAt": "yyyy-MM-dd'T'HH:mm:ss"
+            }
+        ]
+    }
+}
+```
+
+-   204 (No Content)
+
+```json
+{
+    "message": {
+        "message": "No project found for this manager",
+        "data": []
+    }
+}
+```
+
+-   401 (Unauthorized)
+
+```json
+{
+    "message": "Missing authorization token"
+}
+```
+
+-   403 (Forbidden)
+
+```json
+{
+    "message": "Permission denied"
+}
+```
+
+-   500 (Internal Server Error)
+
+```json
+{
+    "message": "Internal Server Error"
+}
+```
+
 <!-- admin api -->
 
 ### Create Project

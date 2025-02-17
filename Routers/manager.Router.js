@@ -12,5 +12,5 @@ managerRouter.use((req, res, next) => {
 });
 
 managerRouter.post("/tasks", managerController.allocateTasks);
-
+managerRouter.get("/project", managerController.getProjects);
 module.exports = managerRouter;
