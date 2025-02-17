@@ -673,6 +673,7 @@ The `req.body.data` object must include the following fields:
 | ------------- | --------- | -------- | -------------------------------- |
 | `managerId`   | string    | Yes      | The manager id assigned project. |
 | `projectName` | string    | Yes      | The project name.                |
+| `description` | string    | Yes      | The description of the project.  |
 | `deadline`    | date/time | Yes      | The deadline of the task.        |
 
 **Example Request Body:**

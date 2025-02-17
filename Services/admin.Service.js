@@ -4,15 +4,16 @@ const userModel = require("../Models/user.Model");
 class AdminService {
     async createProject(project) {
         try {
-            const { managerId, projectName, deadline } = project;
+            const { managerId, projectName, deadline, description } = project;
 
-            if (!managerId || !projectName || !deadline) {
+            if (!managerId || !projectName || !deadline || !description) {
                 return { status: 400, message: "Missing required fields" };
             }
 
             const newProject = new projectModel({
                 managerId,
                 projectName,
+                description,
                 deadline,
             });
 
