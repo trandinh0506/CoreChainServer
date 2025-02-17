@@ -5,6 +5,10 @@ class adminController {
         result = await adminService.createProject(data);
         res.status(res.status).json(result.message);
     }
+    async getProjects(req, res) {
+        const result = await adminService.getProjects();
+        res.status(res.status).json(result.message);
+    }
 }
 
 module.exports = new adminController();

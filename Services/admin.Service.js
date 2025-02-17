@@ -33,6 +33,34 @@ class AdminService {
             };
         }
     }
+    async getProjects() {
+        try {
+            const projects = await projectModel.find();
+
+            if (projects.length === 0) {
+                return {
+                    status: 204,
+                    message: {
+                        message: "No projects found",
+                        data: [],
+                    },
+                };
+            }
+
+            return {
+                status: 200,
+                message: {
+                    message: "Projects retrieved successfully",
+                    data: projects,
+                },
+            };
+        } catch (error) {
+            return {
+                status: 500,
+                message: error.message || "Internal Server Error",
+            };
+        }
+    }
 }
 
 module.exports = new AdminService();
