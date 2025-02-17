@@ -7,7 +7,7 @@ class adminController {
     }
     async getProjects(req, res) {
         const result = await adminService.getProjects();
-        res.status(res.status).json(result.message);
+        res.status(result.status).json(result.message);
     }
 }
 
