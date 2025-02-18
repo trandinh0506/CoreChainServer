@@ -6,7 +6,7 @@ const managerRouter = express.Router();
 managerRouter.use((req, res, next) => {
     const decoded = req.user;
     if (decoded.role !== "manager") {
-        res.status(403).json({ message: "Forbidden denied" });
+        return res.status(403).json({ message: "Forbidden denied" });
     }
     next();
 });
