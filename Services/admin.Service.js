@@ -26,7 +26,7 @@ class AdminService {
             const savedProject = await newProject.save();
 
             return {
-                success: true,
+                status: 201,
                 message: {
                     message: "Project created successfully",
                     data: savedProject.id,

@@ -691,7 +691,7 @@ The `req.body.data` object must include the following fields:
 **Response Codes:**
 | Code | Description |
 | ---- | ----------- |
-| `200`| `Success` |
+| `201`| `Success` |
 | `400`| `Failure` |
 | `401`| `Unauthorized` |
 | `403`| `Forbidden` |
