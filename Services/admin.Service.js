@@ -20,7 +20,7 @@ class AdminService {
                 managerId,
                 projectName,
                 description,
-                deadlineDate,
+                deadline: deadlineDate,
             });
 
             const savedProject = await newProject.save();
