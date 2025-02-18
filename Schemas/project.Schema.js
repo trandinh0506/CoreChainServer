@@ -23,7 +23,11 @@ const projectSchema = new mongoose.Schema({
         default: [],
     },
     deadline: Date,
-    completed: Boolean,
+    status: {
+        type: String,
+        enum: ["pending", "working", "done", "cancelled"], // Các trạng thái hợp lệ
+        default: "pending",
+    },
     completedAt: Date,
 });
 
