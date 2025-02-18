@@ -1,6 +1,6 @@
 const projectModel = require("../Models/project.Model");
 const userModel = require("../Models/user.Model");
-
+const moment = require("moment");
 class AdminService {
     async createProject(project) {
         try {
@@ -10,11 +10,17 @@ class AdminService {
                 return { status: 400, message: "Missing required fields" };
             }
 
+            const deadlineDate = moment(deadline, "DD-MM-YYYY").toDate();
+            if (isNaN(deadlineDate)) {
+                console.log("Invalid date", deadlineDate);
+                return { status: 400, message: "Invalid date" };
+            }
+
             const newProject = new projectModel({
                 managerId,
                 projectName,
                 description,
-                deadline,
+                deadlineDate,
             });
 
             const savedProject = await newProject.save();
@@ -27,6 +33,7 @@ class AdminService {
                 },
             };
         } catch (error) {
+            console.log("create project", error);
             return {
                 status: 500,
                 message:
