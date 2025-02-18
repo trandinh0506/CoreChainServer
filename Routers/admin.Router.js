@@ -13,4 +13,5 @@ router.use((req, res, next) => {
 router.post("/project", adminController.createProject);
 router.get("/projects", adminController.getProjects);
 router.get("/managers", adminController.getManagers);
+router.patch("/edit-project:projectId", adminController.editProject);
 module.exports = router;
