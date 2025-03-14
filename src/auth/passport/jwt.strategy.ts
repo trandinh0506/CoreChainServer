@@ -16,17 +16,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
   async validate(payload: IUser) {
-    const { _id, name, email, role } = payload;
-    if (!role || typeof role !== 'object' || !role._id) {
-      throw new Error('Invalid role data in JWT payload');
-    }
+    // , role
+    const { _id, name, email } = payload;
+    // if (!role || typeof role !== 'object' || !role._id) {
+    //   throw new Error('Invalid role data in JWT payload');
+    // }
     // const roleData = await this.rolesService.findOne(role._id);
     // const permissions = roleData ? (roleData.permissions ?? []) : [];
     return {
       _id,
       name,
       email,
-      role,
+      // role,
       // permissions,
     };
   }
