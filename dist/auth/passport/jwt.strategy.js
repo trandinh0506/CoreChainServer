@@ -26,15 +26,11 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         this.configService = configService;
     }
     async validate(payload) {
-        const { _id, name, email, role } = payload;
-        if (!role || typeof role !== 'object' || !role._id) {
-            throw new Error('Invalid role data in JWT payload');
-        }
+        const { _id, name, email } = payload;
         return {
             _id,
             name,
             email,
-            role,
         };
     }
 };
