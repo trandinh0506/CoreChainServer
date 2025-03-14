@@ -134,7 +134,6 @@ export class UsersService {
   }
 
   async update(updateUserDto: UpdateUserDto, user: IUser, id: string) {
-    console.log(id);
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Not found user with id=${id}`);
     }
