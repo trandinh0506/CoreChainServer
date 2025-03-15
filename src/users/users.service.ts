@@ -85,6 +85,28 @@ export class UsersService {
         //   email: user.email,
         // },
       });
+
+      // const employeeData = {
+      //   employeeId: createUserDto.id,
+      //   encryptedData: JSON.stringify({
+      //     name: createUserDto.name,
+      //     position: createUserDto.position,
+      //     department: createUserDto.department,
+      //     // Không lưu thông tin mật khẩu
+      //   }),
+      // };
+
+      // try {
+      //   const txHash = await this.blockchainService.addEmployee(employeeData);
+      //   return {
+      //     ...createUserDto,
+      //     blockchainTxHash: txHash,
+      //   };
+      // } catch (error) {
+      //   // Xử lý lỗi
+      //   throw error;
+      // }
+
       return newUser;
     } catch (error) {
       throw new BadRequestException(error.message);

@@ -31,6 +31,7 @@
     "@nestjs/platform-socket.io": "^11.0.11",
     "@nestjs/throttler": "^6.4.0",
     "@nestjs/websockets": "^11.0.11",
+    "@openzeppelin/contracts": "^5.2.0",
     "api-query-params": "^5.4.0",
     "bcryptjs": "^3.0.2",
     "class-transformer": "^0.5.1",
@@ -42,7 +43,8 @@
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "soft-delete-plugin-mongoose": "^1.0.17"
+    "soft-delete-plugin-mongoose": "^1.0.17",
+    "web3": "^4.16.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.5",
