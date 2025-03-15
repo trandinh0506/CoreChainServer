@@ -103,7 +103,6 @@ export class UsersService {
       //     blockchainTxHash: txHash,
       //   };
       // } catch (error) {
-      //   // Xử lý lỗi
       //   throw error;
       // }
 
