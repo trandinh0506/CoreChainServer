@@ -28,8 +28,8 @@ export class BlockchainService {
       // Check if the user is already in the wallet
       const identity = await wallet.get('admin');
       if (!identity) {
-        this.logger.error('Không tìm thấy định danh "admin" trong wallet');
-        throw new Error('Không tìm thấy định danh "admin" trong wallet');
+        this.logger.error('Identifier "admin" not found in wallet');
+        throw new Error('Identifier "admin" not found in wallet');
       }
 
       // Create a gateway to connect to the blockchain network
@@ -44,9 +44,9 @@ export class BlockchainService {
       this.network = await this.gateway.getNetwork('hrmchannel');
       this.contract = this.network.getContract('hrm-contract');
 
-      this.logger.log('Kết nối thành công với Hyperledger Fabric');
+      this.logger.log('Successfully connected to Hyperledger Fabric');
     } catch (error) {
-      this.logger.error(`Lỗi kết nối: ${error}`);
+      this.logger.error(`Connection error: ${error}`);
       throw error;
     }
   }
@@ -54,7 +54,7 @@ export class BlockchainService {
   async disconnect(): Promise<void> {
     if (this.gateway) {
       this.gateway.disconnect();
-      this.logger.log('Đã ngắt kết nối với Hyperledger Fabric');
+      this.logger.log('Disconnected from Hyperledger Fabric');
     }
   }
 
@@ -69,9 +69,9 @@ export class BlockchainService {
       // Call smart contract to create employee
       await this.contract.submitTransaction('createEmployee', id, data);
 
-      return { success: true, message: 'Đã tạo nhân viên thành công' };
+      return { success: true, message: 'Employee created successfully' };
     } catch (error) {
-      this.logger.error(`Lỗi khi tạo nhân viên: ${error}`);
+      this.logger.error(`Error creating employee: ${error}`);
       throw error;
     }
   }
@@ -87,7 +87,7 @@ export class BlockchainService {
 
       return JSON.parse(result.toString());
     } catch (error) {
-      this.logger.error(`Lỗi khi lấy thông tin nhân viên: ${error}`);
+      this.logger.error(`Error retrieving employee information: ${error}`);
       throw error;
     }
   }
@@ -102,9 +102,9 @@ export class BlockchainService {
 
       await this.contract.submitTransaction('updateEmployee', id, data);
 
-      return { success: true, message: 'Đã cập nhật nhân viên thành công' };
+      return { success: true, message: 'Employee updated successfully' };
     } catch (error) {
-      this.logger.error(`Lỗi khi cập nhật nhân viên: ${error}`);
+      this.logger.error(`Error while updating employee: ${error}`);
       throw error;
     }
   }
@@ -117,9 +117,9 @@ export class BlockchainService {
 
       await this.contract.submitTransaction('deleteEmployee', id);
 
-      return { success: true, message: 'Đã xóa nhân viên thành công' };
+      return { success: true, message: 'Employee deleted successfully' };
     } catch (error) {
-      this.logger.error(`Lỗi khi xóa nhân viên: ${error}`);
+      this.logger.error(`Error while deleting employee: ${error}`);
       throw error;
     }
   }
@@ -137,7 +137,7 @@ export class BlockchainService {
 
       return JSON.parse(result.toString());
     } catch (error) {
-      this.logger.error(`Lỗi khi truy vấn nhân viên: ${error}`);
+      this.logger.error(`Error querying employee: ${error}`);
       throw error;
     }
   }
@@ -152,7 +152,7 @@ export class BlockchainService {
 
       return JSON.parse(result.toString());
     } catch (error) {
-      this.logger.error(`Lỗi khi lấy tất cả nhân viên: ${error}`);
+      this.logger.error(`Error while getting all employees: ${error}`);
       throw error;
     }
   }
