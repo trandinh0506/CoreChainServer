@@ -105,9 +105,10 @@ export class UsersService {
           // Don't save password information
         }),
       };
-
+      console.log(employeeData);
       try {
         const txHash = await this.blockchainService.addEmployee(employeeData);
+        console.log(txHash);
         return {
           ...createUserDto,
           blockchainTxHash: txHash,

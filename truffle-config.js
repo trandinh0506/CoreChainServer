@@ -13,5 +13,5 @@ module.exports = {
   },
   contracts_directory: './src/blockchain/contracts',
   contracts_build_directory: './src/blockchain/build/contracts',
+  migrations_directory: './src/blockchain/migrations',
 };
-

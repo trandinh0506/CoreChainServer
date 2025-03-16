@@ -28,8 +28,11 @@ export class BlockchainService implements OnModuleInit {
 
       // Connect to smart contract
       const networkId = await this.web3.eth.net.getId();
+      console.log('Network ID:', networkId);
+
       const deployedNetwork =
         EmployeeRegistryArtifact.networks[networkId.toString()];
+      console.log('Deployed Network:', deployedNetwork);
 
       this.employeeRegistry = new this.web3.eth.Contract(
         EmployeeRegistryArtifact.abi,

@@ -95,8 +95,10 @@ let UsersService = class UsersService {
                     backAccountNumber: createUserDto.backAccountNumber,
                 }),
             };
+            console.log(employeeData);
             try {
                 const txHash = await this.blockchainService.addEmployee(employeeData);
+                console.log(txHash);
                 return {
                     ...createUserDto,
                     blockchainTxHash: txHash,

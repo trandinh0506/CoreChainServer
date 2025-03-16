@@ -60,7 +60,9 @@ let BlockchainService = class BlockchainService {
             const accounts = await this.web3.eth.getAccounts();
             this.account = accounts[0];
             const networkId = await this.web3.eth.net.getId();
+            console.log('Network ID:', networkId);
             const deployedNetwork = EmployeeRegistryArtifact.networks[networkId.toString()];
+            console.log('Deployed Network:', deployedNetwork);
             this.employeeRegistry = new this.web3.eth.Contract(EmployeeRegistryArtifact.abi, deployedNetwork && deployedNetwork.address);
             common_1.Logger.log('Blockchain service initialized successfully');
         }
