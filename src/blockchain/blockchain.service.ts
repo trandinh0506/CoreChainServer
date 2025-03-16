@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Web3 from 'web3';
 import { EmployeeBlockchainData } from './interfaces/employee.interface';
@@ -14,7 +14,7 @@ export class BlockchainService implements OnModuleInit {
 
   async onModuleInit() {
     try {
-      // Kết nối đến blockchain (Ganache)
+      // Connect to blockchain (Ganache)
       this.web3 = new Web3(
         this.configService.get<string>(
           'BLOCKCHAIN_URL',
@@ -22,11 +22,11 @@ export class BlockchainService implements OnModuleInit {
         ),
       );
 
-      // Lấy tài khoản mặc định
+      // Get default account
       const accounts = await this.web3.eth.getAccounts();
       this.account = accounts[0];
 
-      // Kết nối với smart contract
+      // Connect to smart contract
       const networkId = await this.web3.eth.net.getId();
       const deployedNetwork =
         EmployeeRegistryArtifact.networks[networkId.toString()];
@@ -36,18 +36,18 @@ export class BlockchainService implements OnModuleInit {
         deployedNetwork && deployedNetwork.address,
       );
 
-      console.log('Blockchain service initialized successfully');
+      Logger.log('Blockchain service initialized successfully');
     } catch (error) {
-      console.error('Failed to initialize blockchain service:', error);
+      Logger.error('Failed to initialize blockchain service:', error);
     }
   }
 
   async addEmployee(employeeData: EmployeeBlockchainData): Promise<string> {
     try {
-      // Mã hóa dữ liệu nhân viên trước khi lưu trữ (trong thực tế bạn nên mã hóa dữ liệu nhạy cảm)
+      // Encrypt employee data before storing
       const encryptedData = JSON.stringify(employeeData);
 
-      // Gọi smart contract để thêm nhân viên
+      // Add employee by smart contract
       const result = await this.employeeRegistry.methods
         .addEmployee(employeeData.employeeId, encryptedData)
         .send({ from: this.account, gas: 1000000 });
@@ -92,7 +92,7 @@ export class BlockchainService implements OnModuleInit {
       const [id, encryptedData, timestamp, isActive] =
         await this.employeeRegistry.methods.getEmployee(employeeId).call();
 
-      // Giải mã dữ liệu (trong thực tế bạn sẽ giải mã dữ liệu đã mã hóa)
+      // Decrypt the data
       const employeeData = JSON.parse(encryptedData);
 
       return {

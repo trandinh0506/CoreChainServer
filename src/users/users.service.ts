@@ -9,12 +9,14 @@ import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
 import { IUser } from './users.interface';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
+import { BlockchainService } from 'src/blockchain/blockchain.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>,
     private configService: ConfigService,
+    private blockchainService: BlockchainService,
   ) {}
 
   getHashPassword = (password: string) => {
@@ -86,25 +88,33 @@ export class UsersService {
         // },
       });
 
-      // const employeeData = {
-      //   employeeId: createUserDto.id,
-      //   encryptedData: JSON.stringify({
-      //     name: createUserDto.name,
-      //     position: createUserDto.position,
-      //     department: createUserDto.department,
-      //     // Không lưu thông tin mật khẩu
-      //   }),
-      // };
+      const employeeData = {
+        employeeId: createUserDto.employeeId,
+        encryptedData: JSON.stringify({
+          personalIdentificationNumber:
+            createUserDto.personalIdentificationNumber,
+          position: createUserDto.personalIdentificationNumber,
+          department: createUserDto.department,
+          employeeContractId: createUserDto.employeeContractId,
+          startDate: createUserDto.startDate,
+          terminationDate: createUserDto.terminationDate,
+          personalTaxIdentificationNumber:
+            createUserDto.personalTaxIdentificationNumber,
+          socialInsuranceNumber: createUserDto.socialInsuranceNumber,
+          backAccountNumber: createUserDto.backAccountNumber,
+          // Don't save password information
+        }),
+      };
 
-      // try {
-      //   const txHash = await this.blockchainService.addEmployee(employeeData);
-      //   return {
-      //     ...createUserDto,
-      //     blockchainTxHash: txHash,
-      //   };
-      // } catch (error) {
-      //   throw error;
-      // }
+      try {
+        const txHash = await this.blockchainService.addEmployee(employeeData);
+        return {
+          ...createUserDto,
+          blockchainTxHash: txHash,
+        };
+      } catch (error) {
+        throw error;
+      }
 
       return newUser;
     } catch (error) {
