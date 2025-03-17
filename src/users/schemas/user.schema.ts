@@ -59,6 +59,8 @@ export class User {
   @Prop()
   backAccountNumber: string;
 
+  @Prop({ type: Boolean, default: false })
+  isDeleted: boolean;
   //timestamp
   @Prop()
   createdAt: Date;

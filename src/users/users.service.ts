@@ -127,7 +127,7 @@ export class UsersService {
     const { filter, skip, sort, projection, population } = aqp(qs);
     delete filter.current;
     delete filter.pageSize;
-
+    filter.isDeleted = false;
     let offset = (+currentPage - 1) * +limit;
     let defaultLimit = +limit ? +limit : 10;
 
@@ -160,6 +160,7 @@ export class UsersService {
     return await this.userModel
       .findOne({
         _id: id,
+        isDeleted: false,
       })
       .select('-password -refreshToken')
       .populate({ path: 'role', select: { name: 1, _id: 1 } });
