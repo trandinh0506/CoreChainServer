@@ -24,6 +24,7 @@ export declare class User {
     personalTaxIdentificationNumber: string;
     socialInsuranceNumber: string;
     backAccountNumber: string;
+    isDeleted: boolean;
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date;

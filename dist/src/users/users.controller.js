@@ -32,8 +32,6 @@ let UsersController = class UsersController {
         return this.usersService.findOne(id);
     }
     update(updateUserDto, id, user) {
-        console.log(id);
-        console.log(user);
         return this.usersService.update(updateUserDto, user, id);
     }
     remove(id, user) {
@@ -68,7 +66,7 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Param)(':id')),
+    __param(1, (0, common_1.Param)('id')),
     __param(2, (0, customize_1.User)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [update_user_dto_1.UpdateUserDto, String, Object]),

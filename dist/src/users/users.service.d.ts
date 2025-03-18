@@ -36,13 +36,13 @@ export declare class UsersService {
     }>, {}, mongoose.Document<unknown, {}, User> & User & {
         _id: mongoose.Types.ObjectId;
     }, "findOne">;
-    create(createUserDto: CreateUserDto, user: IUser): Promise<(mongoose.Document<unknown, {}, mongoose.Document<unknown, {}, User> & User & {
-        _id: mongoose.Types.ObjectId;
-    }> & mongoose.Document<unknown, {}, User> & User & {
-        _id: mongoose.Types.ObjectId;
-    } & Required<{
-        _id: mongoose.Types.ObjectId;
-    }>) | {
+    PRIVATE_FIELDS: string[];
+    splitData(updateUserDto: UpdateUserDto): {
+        employeeId: string;
+        privateData: Record<string, any>;
+        publicData: Record<string, any>;
+    };
+    create(createUserDto: CreateUserDto, user: IUser): Promise<{
         blockchainTxHash: string;
         name: string;
         email: string;

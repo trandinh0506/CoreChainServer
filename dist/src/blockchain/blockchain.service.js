@@ -111,6 +111,7 @@ let BlockchainService = class BlockchainService {
     async getEmployee(employeeId) {
         try {
             const [id, encryptedData, timestamp, isActive] = await this.employeeRegistry.methods.getEmployee(employeeId).call();
+            console.log(id, encryptedData, timestamp, isActive);
             const employeeData = JSON.parse(encryptedData);
             return {
                 ...employeeData,

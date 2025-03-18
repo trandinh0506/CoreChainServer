@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Web3 from 'web3';
 import { EmployeeBlockchainData } from './interfaces/employee.interface';
@@ -65,7 +70,13 @@ export class BlockchainService implements OnModuleInit {
   async updateEmployee(employeeData: EmployeeBlockchainData): Promise<string> {
     try {
       const encryptedData = JSON.stringify(employeeData);
-
+      // try {
+      //   console.log(employeeData.employeeId);
+      //   const employee = await this.getEmployee(employeeData.employeeId);
+      //   console.log(employee);
+      // } catch (error) {
+      //   throw new BadRequestException('Employee not found !');
+      // }
       const result = await this.employeeRegistry.methods
         .updateEmployee(employeeData.employeeId, encryptedData)
         .send({ from: this.account, gas: 1000000 });
@@ -94,7 +105,7 @@ export class BlockchainService implements OnModuleInit {
     try {
       const [id, encryptedData, timestamp, isActive] =
         await this.employeeRegistry.methods.getEmployee(employeeId).call();
-
+      console.log(id, encryptedData, timestamp, isActive);
       // Decrypt the data
       const employeeData = JSON.parse(encryptedData);
 

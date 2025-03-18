@@ -63,7 +63,33 @@ export class UsersService {
       })
       .populate({ path: 'role', select: { name: 1 } });
   }
-
+  PRIVATE_FIELDS = [
+    'personalIdentificationNumber',
+    'position',
+    'department',
+    'employeeContractId',
+    'startDate',
+    'terminationDate',
+    'personalTaxIdentificationNumber',
+    'socialInsuranceNumber',
+    'backAccountNumber',
+  ];
+  splitData(updateUserDto: UpdateUserDto) {
+    const publicData: Record<string, any> = {};
+    const privateData: Record<string, any> = {};
+    let employeeId: string;
+    for (const [key, value] of Object.entries(updateUserDto)) {
+      if (this.PRIVATE_FIELDS.includes(key)) {
+        privateData[key] = value;
+      } else {
+        publicData[key] = value;
+      }
+      if (key === 'employeeId') {
+        employeeId = value;
+      }
+    }
+    return { employeeId, privateData, publicData };
+  }
   async create(createUserDto: CreateUserDto, user: IUser) {
     try {
       const { name, email, password, role } = createUserDto;
@@ -82,13 +108,14 @@ export class UsersService {
         email,
         password: hashPassword,
         // role: userRole?._id,
-        // createdBy: {
-        //   _id: user._id,
-        //   email: user.email,
-        // },
+        createdBy: {
+          _id: user._id,
+          email: user.email,
+        },
       });
 
       const employeeData = {
+        recordId: newUser._id,
         employeeId: createUserDto.employeeId,
         encryptedData: JSON.stringify({
           personalIdentificationNumber:
@@ -116,8 +143,7 @@ export class UsersService {
       } catch (error) {
         throw error;
       }
-
-      return newUser;
+      // return newUser;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -142,6 +168,8 @@ export class UsersService {
       .sort(sort as any)
       .populate(population)
       .exec();
+    const employees = await this.blockchainService.getAllEmployeeIds();
+    console.log(employees);
     return {
       meta: {
         current: currentPage,
@@ -167,7 +195,6 @@ export class UsersService {
   }
 
   async update(updateUserDto: UpdateUserDto, user: IUser, id: string) {
-    console.log(id);
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Not found user with id=${id}`);
     }
@@ -176,16 +203,36 @@ export class UsersService {
     });
     if (!idExist) throw new BadRequestException('User not found !');
 
+    const { employeeId, privateData, publicData } =
+      this.splitData(updateUserDto);
+    if (Object.keys(privateData).length !== 0) {
+      if (!employeeId) {
+        throw new BadRequestException(
+          'Can not update. Must have employee ID !',
+        );
+      }
+      const updateData = {
+        employeeId: employeeId,
+        encryptedData: JSON.stringify(privateData),
+      };
+      try {
+        const txHash = await this.blockchainService.updateEmployee(updateData);
+        console.log(txHash);
+      } catch (error) {
+        throw error;
+      }
+    }
+
     return await this.userModel.updateOne(
       {
         _id: id,
       },
       {
-        ...updateUserDto,
-        // updatedBy: {
-        //   _id: user._id,
-        //   email: user.email,
-        // },
+        ...publicData,
+        updatedBy: {
+          _id: user._id,
+          email: user.email,
+        },
       },
     );
   }
@@ -203,10 +250,10 @@ export class UsersService {
     await this.userModel.updateOne(
       { _id: id },
       {
-        // deletedBy: {
-        //   _id: user._id,
-        //   email: user.email,
-        // },
+        deletedBy: {
+          _id: user._id,
+          email: user.email,
+        },
       },
     );
     return this.userModel.softDelete({

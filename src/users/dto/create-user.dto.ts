@@ -29,6 +29,7 @@ export class CreateUserDto {
   // @IsNumber({}, { message: 'Working hours must be number !' })
   workingHours: number;
 
+  //private infomation
   @IsNotEmpty({ message: 'Employee ID must not be empty !' })
   @IsString()
   employeeId: string;
@@ -36,15 +37,19 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Personal Identificaion Number must not be empty !' })
   @IsString()
   personalIdentificationNumber: string;
+
   @IsOptional()
   @IsMongoId()
   position: mongoose.Schema.Types.ObjectId;
+
   @IsOptional()
   @IsMongoId()
   department: mongoose.Schema.Types.ObjectId;
+
   @IsOptional()
   @IsMongoId()
   employeeContractId: mongoose.Schema.Types.ObjectId;
+
   @IsOptional()
   @IsDate()
   startDate: Date;

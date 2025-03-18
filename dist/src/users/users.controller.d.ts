@@ -5,13 +5,7 @@ import { IUser } from './users.interface';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
-    create(createUserDto: CreateUserDto, user: IUser): Promise<(import("mongoose").Document<unknown, {}, import("mongoose").Document<unknown, {}, import("./schemas/user.schema").User> & import("./schemas/user.schema").User & {
-        _id: import("mongoose").Types.ObjectId;
-    }> & import("mongoose").Document<unknown, {}, import("./schemas/user.schema").User> & import("./schemas/user.schema").User & {
-        _id: import("mongoose").Types.ObjectId;
-    } & Required<{
-        _id: import("mongoose").Types.ObjectId;
-    }>) | {
+    create(createUserDto: CreateUserDto, user: IUser): Promise<{
         blockchainTxHash: string;
         name: string;
         email: string;

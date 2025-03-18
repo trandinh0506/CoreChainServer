@@ -57,6 +57,17 @@ let UsersService = class UsersService {
                 console.log(error);
             }
         };
+        this.PRIVATE_FIELDS = [
+            'personalIdentificationNumber',
+            'position',
+            'department',
+            'employeeContractId',
+            'startDate',
+            'terminationDate',
+            'personalTaxIdentificationNumber',
+            'socialInsuranceNumber',
+            'backAccountNumber',
+        ];
     }
     isValidPassword(password, hashPassword) {
         return (0, bcryptjs_1.compareSync)(password, hashPassword);
@@ -67,6 +78,23 @@ let UsersService = class UsersService {
             email: username,
         })
             .populate({ path: 'role', select: { name: 1 } });
+    }
+    splitData(updateUserDto) {
+        const publicData = {};
+        const privateData = {};
+        let employeeId;
+        for (const [key, value] of Object.entries(updateUserDto)) {
+            if (this.PRIVATE_FIELDS.includes(key)) {
+                privateData[key] = value;
+            }
+            else {
+                publicData[key] = value;
+            }
+            if (key === 'employeeId') {
+                employeeId = value;
+            }
+        }
+        return { employeeId, privateData, publicData };
     }
     async create(createUserDto, user) {
         try {
@@ -80,8 +108,13 @@ let UsersService = class UsersService {
                 name,
                 email,
                 password: hashPassword,
+                createdBy: {
+                    _id: user._id,
+                    email: user.email,
+                },
             });
             const employeeData = {
+                recordId: newUser._id,
                 employeeId: createUserDto.employeeId,
                 encryptedData: JSON.stringify({
                     personalIdentificationNumber: createUserDto.personalIdentificationNumber,
@@ -107,7 +140,6 @@ let UsersService = class UsersService {
             catch (error) {
                 throw error;
             }
-            return newUser;
         }
         catch (error) {
             throw new common_1.BadRequestException(error.message);
@@ -117,6 +149,7 @@ let UsersService = class UsersService {
         const { filter, skip, sort, projection, population } = (0, api_query_params_1.default)(qs);
         delete filter.current;
         delete filter.pageSize;
+        filter.isDeleted = false;
         let offset = (+currentPage - 1) * +limit;
         let defaultLimit = +limit ? +limit : 10;
         const totalItems = (await this.userModel.find(filter)).length;
@@ -129,6 +162,8 @@ let UsersService = class UsersService {
             .sort(sort)
             .populate(population)
             .exec();
+        const employees = await this.blockchainService.getAllEmployeeIds();
+        console.log(employees);
         return {
             meta: {
                 current: currentPage,
@@ -146,12 +181,12 @@ let UsersService = class UsersService {
         return await this.userModel
             .findOne({
             _id: id,
+            isDeleted: false,
         })
             .select('-password -refreshToken')
             .populate({ path: 'role', select: { name: 1, _id: 1 } });
     }
     async update(updateUserDto, user, id) {
-        console.log(id);
         if (!mongoose_2.default.Types.ObjectId.isValid(id)) {
             throw new common_1.BadRequestException(`Not found user with id=${id}`);
         }
@@ -160,10 +195,31 @@ let UsersService = class UsersService {
         });
         if (!idExist)
             throw new common_1.BadRequestException('User not found !');
+        const { employeeId, privateData, publicData } = this.splitData(updateUserDto);
+        if (Object.keys(privateData).length !== 0) {
+            if (!employeeId) {
+                throw new common_1.BadRequestException('Can not update. Must have employee ID !');
+            }
+            const updateData = {
+                employeeId: employeeId,
+                encryptedData: JSON.stringify(privateData),
+            };
+            try {
+                const txHash = await this.blockchainService.updateEmployee(updateData);
+                console.log(txHash);
+            }
+            catch (error) {
+                throw error;
+            }
+        }
         return await this.userModel.updateOne({
             _id: id,
         }, {
-            ...updateUserDto,
+            ...publicData,
+            updatedBy: {
+                _id: user._id,
+                email: user.email,
+            },
         });
     }
     async remove(id, user) {
@@ -174,7 +230,12 @@ let UsersService = class UsersService {
         const ADMIN_EMAIL = this.configService.get('ADMIN_EMAIL');
         if (foundUser && foundUser.email === ADMIN_EMAIL)
             throw new common_1.BadRequestException('Cannot delete admin account !');
-        await this.userModel.updateOne({ _id: id }, {});
+        await this.userModel.updateOne({ _id: id }, {
+            deletedBy: {
+                _id: user._id,
+                email: user.email,
+            },
+        });
         return this.userModel.softDelete({
             _id: id,
         });

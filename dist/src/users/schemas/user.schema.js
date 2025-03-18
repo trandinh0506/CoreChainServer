@@ -95,6 +95,10 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "backAccountNumber", void 0);
 __decorate([
+    (0, mongoose_1.Prop)({ type: Boolean, default: false }),
+    __metadata("design:type", Boolean)
+], User.prototype, "isDeleted", void 0);
+__decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", Date)
 ], User.prototype, "createdAt", void 0);

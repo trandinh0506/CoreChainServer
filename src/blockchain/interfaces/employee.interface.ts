@@ -1,6 +1,5 @@
-import mongoose from 'mongoose';
-
 export interface EmployeeBlockchainData {
+  // recordId: string;
   employeeId: string;
   encryptedData: string;
   timestamp?: number;
