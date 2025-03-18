@@ -107,6 +107,7 @@ export class UsersService {
         name,
         email,
         password: hashPassword,
+        employeeId: createUserDto.employeeId,
         // role: userRole?._id,
         createdBy: {
           _id: user._id,
@@ -115,12 +116,11 @@ export class UsersService {
       });
 
       const employeeData = {
-        recordId: newUser._id,
         employeeId: createUserDto.employeeId,
         encryptedData: JSON.stringify({
           personalIdentificationNumber:
             createUserDto.personalIdentificationNumber,
-          position: createUserDto.personalIdentificationNumber,
+          position: createUserDto.position,
           department: createUserDto.department,
           employeeContractId: createUserDto.employeeContractId,
           startDate: createUserDto.startDate,
@@ -185,6 +185,7 @@ export class UsersService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Not found user with id=${id}`);
     }
+
     return await this.userModel
       .findOne({
         _id: id,
@@ -193,8 +194,30 @@ export class UsersService {
       .select('-password -refreshToken')
       .populate({ path: 'role', select: { name: 1, _id: 1 } });
   }
+  // find private
+  // const privateData = await this.blockchainService.getEmployee(publicData.employeeId);
+  // return {
+  async findPrivateOne(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException(`Not found user with id=${id}`);
+    }
+    const publicEmployee = await this.userModel
+      .findById(id)
+      .select('-password -refreshToken')
+      .populate({ path: 'role', select: { name: 1, _id: 1 } })
+      .lean();
+    const privateEmployee = await this.blockchainService.getEmployee(
+      publicEmployee.employeeId,
+    );
 
+    return {
+      ...publicEmployee,
+      ...privateEmployee,
+    };
+  }
+  // }
   async update(updateUserDto: UpdateUserDto, user: IUser, id: string) {
+    //validate
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Not found user with id=${id}`);
     }
@@ -203,6 +226,7 @@ export class UsersService {
     });
     if (!idExist) throw new BadRequestException('User not found !');
 
+    //update in blockchain
     const { employeeId, privateData, publicData } =
       this.splitData(updateUserDto);
     if (Object.keys(privateData).length !== 0) {
@@ -247,6 +271,7 @@ export class UsersService {
 
     if (foundUser && foundUser.email === ADMIN_EMAIL)
       throw new BadRequestException('Cannot delete admin account !');
+
     await this.userModel.updateOne(
       { _id: id },
       {
@@ -256,6 +281,12 @@ export class UsersService {
         },
       },
     );
+    const employee = await this.userModel
+      .findOne({ _id: id })
+      .select('employeeId');
+    console.log(employee);
+    await this.blockchainService.deactivateEmployee(employee.employeeId);
+
     return this.userModel.softDelete({
       _id: id,
     });

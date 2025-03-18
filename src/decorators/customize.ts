@@ -35,7 +35,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       exception instanceof HttpException
         ? exception.getResponse()
         : 'Internal Server Error';
-
+    console.log(exception);
     response.status(status).json({
       statusCode: status,
       message: message,

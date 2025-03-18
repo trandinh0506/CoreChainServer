@@ -15,15 +15,6 @@ export declare class User {
     }>;
     refreshToken: string;
     employeeId: string;
-    personalIdentificationNumber: string;
-    position: mongoose.Schema.Types.ObjectId;
-    department: mongoose.Schema.Types.ObjectId;
-    employeeContractId: mongoose.Schema.Types.ObjectId;
-    startDate: Date;
-    terminationDate: Date;
-    personalTaxIdentificationNumber: string;
-    socialInsuranceNumber: string;
-    backAccountNumber: string;
     isDeleted: boolean;
     createdAt: Date;
     updatedAt: Date;

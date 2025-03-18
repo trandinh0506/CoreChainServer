@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   Logger,
   OnModuleInit,
 } from '@nestjs/common';
@@ -70,13 +71,7 @@ export class BlockchainService implements OnModuleInit {
   async updateEmployee(employeeData: EmployeeBlockchainData): Promise<string> {
     try {
       const encryptedData = JSON.stringify(employeeData);
-      // try {
-      //   console.log(employeeData.employeeId);
-      //   const employee = await this.getEmployee(employeeData.employeeId);
-      //   console.log(employee);
-      // } catch (error) {
-      //   throw new BadRequestException('Employee not found !');
-      // }
+
       const result = await this.employeeRegistry.methods
         .updateEmployee(employeeData.employeeId, encryptedData)
         .send({ from: this.account, gas: 1000000 });
@@ -84,7 +79,13 @@ export class BlockchainService implements OnModuleInit {
       return result.transactionHash;
     } catch (error) {
       console.error('Error updating employee on blockchain:', error);
-      throw error;
+      if (error.message.includes('Employee is not active')) {
+        throw new BadRequestException('Cannot update an inactive employee.');
+      } else {
+        throw new InternalServerErrorException(
+          'Blockchain transaction failed.',
+        );
+      }
     }
   }
 
@@ -103,15 +104,17 @@ export class BlockchainService implements OnModuleInit {
 
   async getEmployee(employeeId: string): Promise<EmployeeBlockchainData> {
     try {
-      const [id, encryptedData, timestamp, isActive] =
-        await this.employeeRegistry.methods.getEmployee(employeeId).call();
+      const employee = (await this.employeeRegistry.methods
+        .getEmployee(employeeId)
+        .call()) as EmployeeBlockchainData;
+      const [id, encryptedData, timestamp, isActive] = Object.values(employee);
+
       console.log(id, encryptedData, timestamp, isActive);
       // Decrypt the data
-      const employeeData = JSON.parse(encryptedData);
-
+      const employeeData = JSON.parse(JSON.parse(encryptedData).encryptedData);
       return {
         ...employeeData,
-        timestamp: Number(timestamp),
+        timestamp: new Date(Number(timestamp) * 1000),
         isActive,
       };
     } catch (error) {

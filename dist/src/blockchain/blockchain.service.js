@@ -93,7 +93,12 @@ let BlockchainService = class BlockchainService {
         }
         catch (error) {
             console.error('Error updating employee on blockchain:', error);
-            throw error;
+            if (error.message.includes('Employee is not active')) {
+                throw new common_1.BadRequestException('Cannot update an inactive employee.');
+            }
+            else {
+                throw new common_1.InternalServerErrorException('Blockchain transaction failed.');
+            }
         }
     }
     async deactivateEmployee(employeeId) {
@@ -110,12 +115,15 @@ let BlockchainService = class BlockchainService {
     }
     async getEmployee(employeeId) {
         try {
-            const [id, encryptedData, timestamp, isActive] = await this.employeeRegistry.methods.getEmployee(employeeId).call();
+            const employee = (await this.employeeRegistry.methods
+                .getEmployee(employeeId)
+                .call());
+            const [id, encryptedData, timestamp, isActive] = Object.values(employee);
             console.log(id, encryptedData, timestamp, isActive);
-            const employeeData = JSON.parse(encryptedData);
+            const employeeData = JSON.parse(JSON.parse(encryptedData).encryptedData);
             return {
                 ...employeeData,
-                timestamp: Number(timestamp),
+                timestamp: new Date(Number(timestamp) * 1000),
                 isActive,
             };
         }

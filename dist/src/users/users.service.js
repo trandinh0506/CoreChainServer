@@ -108,17 +108,17 @@ let UsersService = class UsersService {
                 name,
                 email,
                 password: hashPassword,
+                employeeId: createUserDto.employeeId,
                 createdBy: {
                     _id: user._id,
                     email: user.email,
                 },
             });
             const employeeData = {
-                recordId: newUser._id,
                 employeeId: createUserDto.employeeId,
                 encryptedData: JSON.stringify({
                     personalIdentificationNumber: createUserDto.personalIdentificationNumber,
-                    position: createUserDto.personalIdentificationNumber,
+                    position: createUserDto.position,
                     department: createUserDto.department,
                     employeeContractId: createUserDto.employeeContractId,
                     startDate: createUserDto.startDate,
@@ -186,6 +186,21 @@ let UsersService = class UsersService {
             .select('-password -refreshToken')
             .populate({ path: 'role', select: { name: 1, _id: 1 } });
     }
+    async findPrivateOne(id) {
+        if (!mongoose_2.default.Types.ObjectId.isValid(id)) {
+            throw new common_1.BadRequestException(`Not found user with id=${id}`);
+        }
+        const publicEmployee = await this.userModel
+            .findById(id)
+            .select('-password -refreshToken')
+            .populate({ path: 'role', select: { name: 1, _id: 1 } })
+            .lean();
+        const privateEmployee = await this.blockchainService.getEmployee(publicEmployee.employeeId);
+        return {
+            ...publicEmployee,
+            ...privateEmployee,
+        };
+    }
     async update(updateUserDto, user, id) {
         if (!mongoose_2.default.Types.ObjectId.isValid(id)) {
             throw new common_1.BadRequestException(`Not found user with id=${id}`);
@@ -236,6 +251,11 @@ let UsersService = class UsersService {
                 email: user.email,
             },
         });
+        const employee = await this.userModel
+            .findOne({ _id: id })
+            .select('employeeId');
+        console.log(employee);
+        await this.blockchainService.deactivateEmployee(employee.employeeId);
         return this.userModel.softDelete({
             _id: id,
         });
