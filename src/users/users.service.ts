@@ -10,6 +10,7 @@ import { IUser } from './users.interface';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
 import { BlockchainService } from 'src/blockchain/blockchain.service';
+import { EncryptionUntils } from 'src/security/encryptionUtils';
 
 @Injectable()
 export class UsersService {
@@ -17,6 +18,7 @@ export class UsersService {
     @InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>,
     private configService: ConfigService,
     private blockchainService: BlockchainService,
+    private encryptionUntils: EncryptionUntils,
   ) {}
 
   getHashPassword = (password: string) => {
@@ -117,7 +119,7 @@ export class UsersService {
 
       const employeeData = {
         employeeId: createUserDto.employeeId,
-        encryptedData: JSON.stringify({
+        encryptedData: this.encryptionUntils.encrypt({
           personalIdentificationNumber:
             createUserDto.personalIdentificationNumber,
           position: createUserDto.position,
@@ -194,9 +196,7 @@ export class UsersService {
       .select('-password -refreshToken')
       .populate({ path: 'role', select: { name: 1, _id: 1 } });
   }
-  // find private
-  // const privateData = await this.blockchainService.getEmployee(publicData.employeeId);
-  // return {
+
   async findPrivateOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Not found user with id=${id}`);
@@ -237,7 +237,7 @@ export class UsersService {
       }
       const updateData = {
         employeeId: employeeId,
-        encryptedData: JSON.stringify(privateData),
+        encryptedData: this.encryptionUntils.encrypt(privateData),
       };
       try {
         const txHash = await this.blockchainService.updateEmployee(updateData);

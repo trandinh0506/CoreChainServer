@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import Web3 from 'web3';
 import { EmployeeBlockchainData } from './interfaces/employee.interface';
 import * as EmployeeRegistryArtifact from './build/contracts/EmployeeRegistry.json';
+import { EncryptionUntils } from 'src/security/encryptionUtils';
 // import * as EmployeeRegistryArtifact from './contracts/EmployeeRegistry.sol';
 @Injectable()
 export class BlockchainService implements OnModuleInit {
@@ -16,7 +17,10 @@ export class BlockchainService implements OnModuleInit {
   private employeeRegistry: any;
   private account: string;
 
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    private encryptionUntils: EncryptionUntils,
+  ) {}
 
   async onModuleInit() {
     try {
@@ -54,7 +58,7 @@ export class BlockchainService implements OnModuleInit {
   async addEmployee(employeeData: EmployeeBlockchainData): Promise<string> {
     try {
       // Encrypt employee data before storing
-      const encryptedData = JSON.stringify(employeeData);
+      const encryptedData = this.encryptionUntils.encrypt(employeeData);
 
       // Add employee by smart contract
       const result = await this.employeeRegistry.methods
@@ -70,7 +74,7 @@ export class BlockchainService implements OnModuleInit {
 
   async updateEmployee(employeeData: EmployeeBlockchainData): Promise<string> {
     try {
-      const encryptedData = JSON.stringify(employeeData);
+      const encryptedData = this.encryptionUntils.encrypt(employeeData);
 
       const result = await this.employeeRegistry.methods
         .updateEmployee(employeeData.employeeId, encryptedData)
@@ -111,7 +115,9 @@ export class BlockchainService implements OnModuleInit {
 
       console.log(id, encryptedData, timestamp, isActive);
       // Decrypt the data
-      const employeeData = JSON.parse(JSON.parse(encryptedData).encryptedData);
+      const employeeData = this.encryptionUntils.decrypt(
+        this.encryptionUntils.decrypt(encryptedData).encryptedData,
+      );
       return {
         ...employeeData,
         timestamp: new Date(Number(timestamp) * 1000),

@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schemas/user.schema';
 import { BlockchainService } from 'src/blockchain/blockchain.service';
 import { BlockchainModule } from 'src/blockchain/blockchain.module';
+import { EncryptionUntils } from 'src/security/encryptionUtils';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { BlockchainModule } from 'src/blockchain/blockchain.module';
       // { name: Role.name, schema: RoleSchema },
     ]),
     BlockchainModule,
+    EncryptionUntils,
   ],
   controllers: [UsersController],
   providers: [UsersService],
