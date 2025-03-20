@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { IUser } from 'src/users/users.interface';
+import { IUser } from '../users/users.interface';
 import { ConfigService } from '@nestjs/config';
 import ms, { StringValue } from 'ms';
 import { Response } from 'express';
