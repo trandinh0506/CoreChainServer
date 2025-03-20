@@ -17,6 +17,7 @@ const auth_module_1 = require("./auth/auth.module");
 const users_module_1 = require("./users/users.module");
 const throttler_1 = require("@nestjs/throttler");
 const blockchain_module_1 = require("./blockchain/blockchain.module");
+const security_module_1 = require("./security/security.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -46,6 +47,7 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
             blockchain_module_1.BlockchainModule,
+            security_module_1.SecurityModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

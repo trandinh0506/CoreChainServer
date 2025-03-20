@@ -41,6 +41,9 @@ var __importStar = (this && this.__importStar) || (function () {
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -50,29 +53,56 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const web3_1 = __importDefault(require("web3"));
 const EmployeeRegistryArtifact = __importStar(require("./build/contracts/EmployeeRegistry.json"));
+const security_service_1 = require("../security/security.service");
 let BlockchainService = class BlockchainService {
-    constructor(configService) {
+    constructor(configService, securityService, blockchainProvider) {
         this.configService = configService;
+        this.securityService = securityService;
+        this.blockchainProvider = blockchainProvider;
     }
     async onModuleInit() {
         try {
-            this.web3 = new web3_1.default(this.configService.get('BLOCKCHAIN_URL', 'http://localhost:7545'));
-            const accounts = await this.web3.eth.getAccounts();
-            this.account = accounts[0];
-            const networkId = await this.web3.eth.net.getId();
-            console.log('Network ID:', networkId);
-            const deployedNetwork = EmployeeRegistryArtifact.networks[networkId.toString()];
-            console.log('Deployed Network:', deployedNetwork);
-            this.employeeRegistry = new this.web3.eth.Contract(EmployeeRegistryArtifact.abi, deployedNetwork && deployedNetwork.address);
-            common_1.Logger.log('Blockchain service initialized successfully');
+            this.web3 = new web3_1.default(this.configService.get('BLOCKCHAIN_ENDPOINT', 'http://localhost:7545'));
+            const privateKey = this.configService.get('PRIVATE_KEY');
+            if (privateKey) {
+                const account = this.web3.eth.accounts.privateKeyToAccount(privateKey);
+                this.web3.eth.accounts.wallet.add(account);
+                this.account = account.address;
+            }
+            else {
+                const accounts = await this.web3.eth.getAccounts();
+                this.account = accounts[0];
+            }
+            const contractAddress = this.configService.get('CONTRACT_ADDRESS');
+            this.employeeRegistry = new this.web3.eth.Contract(EmployeeRegistryArtifact.abi, contractAddress);
+            common_1.Logger.log('Blockchain service initialized successfully with Chainstack');
         }
         catch (error) {
             common_1.Logger.error('Failed to initialize blockchain service:', error);
         }
     }
+    async getBalance(address) {
+        const web3 = this.blockchainProvider.web3;
+        const balance = await web3.eth.getBalance(address);
+        return web3.utils.fromWei(balance, 'ether');
+    }
+    async callContractMethod(methodName, ...args) {
+        const contract = this.blockchainProvider.contract;
+        return contract.methods[methodName](...args).call();
+    }
+    async executeContractMethod(methodName, ...args) {
+        const contract = this.blockchainProvider.contract;
+        const account = this.blockchainProvider.account;
+        const tx = contract.methods[methodName](...args);
+        const gas = await tx.estimateGas({ from: account });
+        return tx.send({
+            from: account,
+            gas,
+        });
+    }
     async addEmployee(employeeData) {
         try {
-            const encryptedData = JSON.stringify(employeeData);
+            const encryptedData = this.securityService.encrypt(employeeData);
             const result = await this.employeeRegistry.methods
                 .addEmployee(employeeData.employeeId, encryptedData)
                 .send({ from: this.account, gas: 1000000 });
@@ -85,7 +115,7 @@ let BlockchainService = class BlockchainService {
     }
     async updateEmployee(employeeData) {
         try {
-            const encryptedData = JSON.stringify(employeeData);
+            const encryptedData = this.securityService.encrypt(employeeData);
             const result = await this.employeeRegistry.methods
                 .updateEmployee(employeeData.employeeId, encryptedData)
                 .send({ from: this.account, gas: 1000000 });
@@ -120,7 +150,7 @@ let BlockchainService = class BlockchainService {
                 .call());
             const [id, encryptedData, timestamp, isActive] = Object.values(employee);
             console.log(id, encryptedData, timestamp, isActive);
-            const employeeData = JSON.parse(JSON.parse(encryptedData).encryptedData);
+            const employeeData = this.securityService.decrypt(this.securityService.decrypt(encryptedData).encryptedData);
             return {
                 ...employeeData,
                 timestamp: new Date(Number(timestamp) * 1000),
@@ -145,6 +175,8 @@ let BlockchainService = class BlockchainService {
 exports.BlockchainService = BlockchainService;
 exports.BlockchainService = BlockchainService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [config_1.ConfigService])
+    __param(2, (0, common_1.Inject)('BLOCKCHAIN_PROVIDER')),
+    __metadata("design:paramtypes", [config_1.ConfigService,
+        security_service_1.SecurityService, Object])
 ], BlockchainService);
 //# sourceMappingURL=blockchain.service.js.map

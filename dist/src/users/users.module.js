@@ -13,6 +13,7 @@ const users_controller_1 = require("./users.controller");
 const mongoose_1 = require("@nestjs/mongoose");
 const user_schema_1 = require("./schemas/user.schema");
 const blockchain_module_1 = require("../blockchain/blockchain.module");
+const security_module_1 = require("../security/security.module");
 let UsersModule = class UsersModule {
 };
 exports.UsersModule = UsersModule;
@@ -23,6 +24,7 @@ exports.UsersModule = UsersModule = __decorate([
                 { name: user_schema_1.User.name, schema: user_schema_1.UserSchema },
             ]),
             blockchain_module_1.BlockchainModule,
+            security_module_1.SecurityModule,
         ],
         controllers: [users_controller_1.UsersController],
         providers: [users_service_1.UsersService],

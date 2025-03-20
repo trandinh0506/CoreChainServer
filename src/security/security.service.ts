@@ -1,6 +1,9 @@
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import CryptoJS from 'crypto-js';
-export class EncryptionUntils {
+
+@Injectable()
+export class SecurityService {
   private secretKey: string;
   constructor(private configService: ConfigService) {
     this.secretKey = this.configService.get<string>('SECRET_KEY');

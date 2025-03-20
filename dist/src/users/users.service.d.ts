@@ -6,11 +6,13 @@ import { ConfigService } from '@nestjs/config';
 import { IUser } from './users.interface';
 import mongoose from 'mongoose';
 import { BlockchainService } from 'src/blockchain/blockchain.service';
+import { SecurityService } from 'src/security/security.service';
 export declare class UsersService {
     private userModel;
     private configService;
     private blockchainService;
-    constructor(userModel: SoftDeleteModel<UserDocument>, configService: ConfigService, blockchainService: BlockchainService);
+    private securityService;
+    constructor(userModel: SoftDeleteModel<UserDocument>, configService: ConfigService, blockchainService: BlockchainService, securityService: SecurityService);
     getHashPassword: (password: string) => string;
     isValidPassword(password: string, hashPassword: string): boolean;
     getUserByToken: (refreshToken: string) => Promise<mongoose.Document<unknown, {}, mongoose.Document<unknown, {}, User> & User & {

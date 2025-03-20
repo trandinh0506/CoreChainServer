@@ -24,11 +24,13 @@ const bcryptjs_1 = require("bcryptjs");
 const api_query_params_1 = __importDefault(require("api-query-params"));
 const mongoose_2 = __importDefault(require("mongoose"));
 const blockchain_service_1 = require("../blockchain/blockchain.service");
+const security_service_1 = require("../security/security.service");
 let UsersService = class UsersService {
-    constructor(userModel, configService, blockchainService) {
+    constructor(userModel, configService, blockchainService, securityService) {
         this.userModel = userModel;
         this.configService = configService;
         this.blockchainService = blockchainService;
+        this.securityService = securityService;
         this.getHashPassword = (password) => {
             const salt = (0, bcryptjs_1.genSaltSync)(10);
             const hash = (0, bcryptjs_1.hashSync)(password, salt);
@@ -116,7 +118,7 @@ let UsersService = class UsersService {
             });
             const employeeData = {
                 employeeId: createUserDto.employeeId,
-                encryptedData: JSON.stringify({
+                encryptedData: this.securityService.encrypt({
                     personalIdentificationNumber: createUserDto.personalIdentificationNumber,
                     position: createUserDto.position,
                     department: createUserDto.department,
@@ -217,7 +219,7 @@ let UsersService = class UsersService {
             }
             const updateData = {
                 employeeId: employeeId,
-                encryptedData: JSON.stringify(privateData),
+                encryptedData: this.securityService.encrypt(privateData),
             };
             try {
                 const txHash = await this.blockchainService.updateEmployee(updateData);
@@ -266,6 +268,7 @@ exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(user_schema_1.User.name)),
     __metadata("design:paramtypes", [Object, config_1.ConfigService,
-        blockchain_service_1.BlockchainService])
+        blockchain_service_1.BlockchainService,
+        security_service_1.SecurityService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

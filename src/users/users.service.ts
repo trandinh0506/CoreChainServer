@@ -10,7 +10,7 @@ import { IUser } from './users.interface';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
 import { BlockchainService } from 'src/blockchain/blockchain.service';
-import { EncryptionUntils } from 'src/security/encryptionUtils';
+import { SecurityService } from 'src/security/security.service';
 
 @Injectable()
 export class UsersService {
@@ -18,7 +18,7 @@ export class UsersService {
     @InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>,
     private configService: ConfigService,
     private blockchainService: BlockchainService,
-    private encryptionUntils: EncryptionUntils,
+    private securityService: SecurityService,
   ) {}
 
   getHashPassword = (password: string) => {
@@ -119,7 +119,7 @@ export class UsersService {
 
       const employeeData = {
         employeeId: createUserDto.employeeId,
-        encryptedData: this.encryptionUntils.encrypt({
+        encryptedData: this.securityService.encrypt({
           personalIdentificationNumber:
             createUserDto.personalIdentificationNumber,
           position: createUserDto.position,
@@ -237,7 +237,7 @@ export class UsersService {
       }
       const updateData = {
         employeeId: employeeId,
-        encryptedData: this.encryptionUntils.encrypt(privateData),
+        encryptedData: this.securityService.encrypt(privateData),
       };
       try {
         const txHash = await this.blockchainService.updateEmployee(updateData);

@@ -11,13 +11,15 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const blockchain_service_1 = require("./blockchain.service");
 const blockchain_controller_1 = require("./blockchain.controller");
+const blockchain_provider_1 = require("./blockchain.provider");
+const security_module_1 = require("../security/security.module");
 let BlockchainModule = class BlockchainModule {
 };
 exports.BlockchainModule = BlockchainModule;
 exports.BlockchainModule = BlockchainModule = __decorate([
     (0, common_1.Module)({
-        imports: [config_1.ConfigModule],
-        providers: [blockchain_service_1.BlockchainService],
+        imports: [config_1.ConfigModule, security_module_1.SecurityModule],
+        providers: [blockchain_service_1.BlockchainService, blockchain_provider_1.BlockchainProvider],
         controllers: [blockchain_controller_1.BlockchainController],
         exports: [blockchain_service_1.BlockchainService],
     })

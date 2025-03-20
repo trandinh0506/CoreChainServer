@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { BlockchainModule } from './blockchain/blockchain.module';
+import { SecurityModule } from './security/security.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { BlockchainModule } from './blockchain/blockchain.module';
     AuthModule,
     UsersModule,
     BlockchainModule,
+    SecurityModule,
   ],
   controllers: [AppController],
   providers: [AppService],

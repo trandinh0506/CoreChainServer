@@ -2,11 +2,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { BlockchainService } from './blockchain.service';
 import { BlockchainController } from './blockchain.controller';
-import { EncryptionUntils } from 'src/security/encryptionUtils';
+import { BlockchainProvider } from './blockchain.provider';
+import { SecurityModule } from 'src/security/security.module';
 
 @Module({
-  imports: [ConfigModule, EncryptionUntils],
-  providers: [BlockchainService],
+  imports: [ConfigModule, SecurityModule],
+  providers: [BlockchainService, BlockchainProvider],
   controllers: [BlockchainController],
   exports: [BlockchainService],
 })
