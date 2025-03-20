@@ -1,3 +1,4 @@
+// all gateways handle
 import {
   WebSocketGateway,
   WebSocketServer,
@@ -8,7 +9,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { WsService } from './ws.service';
 
-@WebSocketGateway()
+@WebSocketGateway({ namespace: '/' })
 export class WsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -22,8 +23,9 @@ export class WsGateway
   }
 
   handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
-    this.wsService.registerClient(client);
+    const namespace = client.nsp.name;
+    console.log(`Client connected: ${client.id} to namespace: ${namespace}`);
+    this.wsService.registerClient(client, namespace);
   }
 
   handleDisconnect(client: Socket) {
