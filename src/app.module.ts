@@ -7,6 +7,8 @@ import { softDeletePlugin } from 'soft-delete-plugin-mongoose';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { BlockchainModule } from './blockchain/blockchain.module';
+import { SecurityModule } from './security/security.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     UsersModule,
+    BlockchainModule,
+    SecurityModule,
   ],
   controllers: [AppController],
   providers: [AppService],

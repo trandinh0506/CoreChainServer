@@ -37,14 +37,17 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
+  @Get('/private/:id')
+  findPrivateOne(@Param('id') id: string) {
+    return this.usersService.findPrivateOne(id);
+  }
+
   @Patch(':id')
   update(
     @Body() updateUserDto: UpdateUserDto,
-    @Param(':id') id: string,
+    @Param('id') id: string,
     @User() user: IUser,
   ) {
-    console.log(id);
-    console.log(user);
     return this.usersService.update(updateUserDto, user, id);
   }
 
