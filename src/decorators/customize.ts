@@ -23,6 +23,8 @@ export const SkipCheckPermission = () =>
   SetMetadata(IS_PUBLIC_PERMISSION, true);
 
 export const RESPONSE_MESSAGE = 'response_message';
+export const ADMIN_ROLE = 'ADMIN';
+export const USER_ROLE = 'USER';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {

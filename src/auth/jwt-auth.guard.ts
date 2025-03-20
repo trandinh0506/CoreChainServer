@@ -38,20 +38,22 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     // //check permissions
-    // const targetMethod = request.method;
-    // const targetEndpoint = request.route?.path as string;
+    const targetMethod = request.method;
+    const targetEndpoint = request.route?.path as string;
+    const permissions = user?.permissions ?? [];
+    console.log(permissions);
+    console.log(targetMethod, targetEndpoint);
 
-    // const permissions = user?.permissions ?? [];
-    // let isExist = permissions.find(
-    //   (permission) =>
-    //     targetMethod === permission.method &&
-    //     targetEndpoint === permission.apiPath,
-    // );
-    // if (targetEndpoint.startsWith('/api/v1/auth')) isExist = true;
-    // if (!isExist && !isSkipPermission)
-    //   throw new ForbiddenException(
-    //     'You do not have permission to access this endpoint',
-    //   );
+    let isExist = permissions.find(
+      (permission) =>
+        targetMethod === permission.method &&
+        targetEndpoint === '/api/v1/' + permission.apiPath,
+    );
+    if (targetEndpoint.startsWith('/api/v1/auth')) isExist = true;
+    if (!isExist)
+      throw new ForbiddenException(
+        'You do not have permission to access this endpoint',
+      );
 
     return user;
   }

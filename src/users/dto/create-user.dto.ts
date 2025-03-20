@@ -22,7 +22,10 @@ export class CreateUserDto {
   password: string;
 
   @IsNotEmpty({ message: 'Role must not be empty !' })
-  role: string;
+  role: {
+    _id: mongoose.Schema.Types.ObjectId;
+    name: string;
+  };
   //permissions: [string]
   @IsOptional()
   @Transform(({ value }) => (value === undefined ? 0 : value))
