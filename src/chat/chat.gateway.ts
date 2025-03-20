@@ -1,15 +1,43 @@
-import { WebSocketGateway, SubscribeMessage, MessageBody } from '@nestjs/websockets';
+import {
+  WebSocketGateway,
+  SubscribeMessage,
+  MessageBody,
+} from '@nestjs/websockets';
+import { WsService } from 'src/ws/ws.service';
 import { ChatService } from './chat.service';
-import { CreateChatDto } from './dto/create-chat.dto';
-import { UpdateChatDto } from './dto/update-chat.dto';
+import { CreateConversationDto } from './dto/create-conversation.dto';
+import { CreateMessageDto } from './dto/create-message.dto';
 
-@WebSocketGateway()
+@WebSocketGateway({ namespace: '/chat' })
 export class ChatGateway {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly wsService: WsService,
+  ) {}
 
-  @SubscribeMessage('createChat')
-  create(@MessageBody() createChatDto: CreateChatDto) {
-    return this.chatService.create(createChatDto);
+  // conversation
+  @SubscribeMessage('createConversation')
+  create(@MessageBody() createConversationDto: CreateConversationDto) {
+    return this.chatService.create(createConversationDto);
+  }
+
+  @SubscribeMessage('getConversationById')
+  getById(@MessageBody() conversationId: string) {
+    return this.chatService.getConversationById(conversationId);
+  }
+
+  @SubscribeMessage('getConversationByUserIdAndOtherId')
+  getByUserIdAndOtherId(
+    @MessageBody() userId: string,
+    @MessageBody() otherId: string,
+  ) {
+    return this.chatService.getOrCreateDirectConversation(userId, otherId);
+  }
+
+  // meessage
+  @SubscribeMessage('sendMessage')
+  sendMessage(@MessageBody() createMessageDto: CreateMessageDto) {
+    return this.chatService.createMessage(createMessageDto);
   }
 
   @SubscribeMessage('findAllChat')
@@ -20,11 +48,6 @@ export class ChatGateway {
   @SubscribeMessage('findOneChat')
   findOne(@MessageBody() id: number) {
     return this.chatService.findOne(id);
-  }
-
-  @SubscribeMessage('updateChat')
-  update(@MessageBody() updateChatDto: UpdateChatDto) {
-    return this.chatService.update(updateChatDto.id, updateChatDto);
   }
 
   @SubscribeMessage('removeChat')
