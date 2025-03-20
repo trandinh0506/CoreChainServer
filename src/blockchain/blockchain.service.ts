@@ -86,7 +86,7 @@ export class BlockchainService implements OnModuleInit {
         contractAddress,
       );
 
-      Logger.log('Blockchain service initialized successfully with Chainstack');
+      Logger.log('Blockchain service initialized successfully with Sepolia');
     } catch (error) {
       Logger.error('Failed to initialize blockchain service:', error);
     }

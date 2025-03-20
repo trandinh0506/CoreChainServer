@@ -227,6 +227,7 @@ export class UsersService {
     if (!idExist) throw new BadRequestException('User not found !');
 
     //update in blockchain
+    let txHash: string;
     const { employeeId, privateData, publicData } =
       this.splitData(updateUserDto);
     if (Object.keys(privateData).length !== 0) {
@@ -240,7 +241,7 @@ export class UsersService {
         encryptedData: this.securityService.encrypt(privateData),
       };
       try {
-        const txHash = await this.blockchainService.updateEmployee(updateData);
+        txHash = await this.blockchainService.updateEmployee(updateData);
         console.log(txHash);
       } catch (error) {
         throw error;
@@ -253,6 +254,7 @@ export class UsersService {
       },
       {
         ...publicData,
+        txHash,
         updatedBy: {
           _id: user._id,
           email: user.email,

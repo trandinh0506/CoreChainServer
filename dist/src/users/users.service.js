@@ -212,6 +212,7 @@ let UsersService = class UsersService {
         });
         if (!idExist)
             throw new common_1.BadRequestException('User not found !');
+        let txHash;
         const { employeeId, privateData, publicData } = this.splitData(updateUserDto);
         if (Object.keys(privateData).length !== 0) {
             if (!employeeId) {
@@ -222,7 +223,7 @@ let UsersService = class UsersService {
                 encryptedData: this.securityService.encrypt(privateData),
             };
             try {
-                const txHash = await this.blockchainService.updateEmployee(updateData);
+                txHash = await this.blockchainService.updateEmployee(updateData);
                 console.log(txHash);
             }
             catch (error) {
@@ -233,6 +234,7 @@ let UsersService = class UsersService {
             _id: id,
         }, {
             ...publicData,
+            txHash,
             updatedBy: {
                 _id: user._id,
                 email: user.email,

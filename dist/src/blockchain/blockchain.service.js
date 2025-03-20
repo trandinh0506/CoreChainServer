@@ -75,7 +75,7 @@ let BlockchainService = class BlockchainService {
             }
             const contractAddress = this.configService.get('CONTRACT_ADDRESS');
             this.employeeRegistry = new this.web3.eth.Contract(EmployeeRegistryArtifact.abi, contractAddress);
-            common_1.Logger.log('Blockchain service initialized successfully with Chainstack');
+            common_1.Logger.log('Blockchain service initialized successfully with Sepolia');
         }
         catch (error) {
             common_1.Logger.error('Failed to initialize blockchain service:', error);
