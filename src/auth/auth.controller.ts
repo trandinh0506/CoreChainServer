@@ -14,14 +14,14 @@ import { Public, User } from 'src/decorators/customize';
 // import { RegisterUserDto, UserLoginDto } from 'src/users/dto/create-user.dto';
 import { Request, Response } from 'express';
 import { IUser } from 'src/users/users.interface';
-// import { RolesService } from 'src/roles/roles.service';
+import { RolesService } from 'src/roles/roles.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
-    // private roleService: RolesService,
+    private roleService: RolesService,
   ) {}
 
   @Public()
@@ -34,8 +34,8 @@ export class AuthController {
 
   @Get('/account')
   async handleGetAccount(@User() user: IUser) {
-    // const temp = (await this.roleService.findOne(user.role._id)) as any;
-    // user.permissions = temp.permissions;
+    const temp = (await this.roleService.findOne(user.role._id)) as any;
+    user.permissions = temp.permissions;
     return { user };
   }
 

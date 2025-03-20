@@ -102,15 +102,13 @@ export class UsersService {
         );
       }
 
-      // const userRole = await this.roleModel.findOne({ name: USER_ROLE });
-
       const hashPassword = this.getHashPassword(password);
       let newUser = await this.userModel.create({
         name,
         email,
         password: hashPassword,
         employeeId: createUserDto.employeeId,
-        // role: userRole?._id,
+        role: role?._id,
         createdBy: {
           _id: user._id,
           email: user.email,

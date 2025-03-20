@@ -5,7 +5,7 @@ import { IUser } from '../users/users.interface';
 import { ConfigService } from '@nestjs/config';
 import ms, { StringValue } from 'ms';
 import { Response } from 'express';
-// import { RolesService } from 'src/roles/roles.service';
+import { RolesService } from 'src/roles/roles.service';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +13,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
-    // private rolesService: RolesService,
+    private rolesService: RolesService,
   ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
@@ -21,12 +21,13 @@ export class AuthService {
     if (user) {
       const isValid = this.usersService.isValidPassword(pass, user.password);
       if (isValid === true) {
+        console.log(user.role);
         const userRole = user.role as unknown as { _id: string; name: string };
-        // const temp = await this.rolesService.findOne(userRole._id);
+        const temp = await this.rolesService.findOne(userRole._id);
 
         const objUser = {
           ...user.toObject(),
-          // permissions: temp?.permissions ?? [],
+          permissions: temp?.permissions ?? [],
         };
         return objUser;
       }
@@ -100,7 +101,7 @@ export class AuthService {
 
         //fetch user's role
         const userRole = user.role as unknown as { _id: string; name: string };
-        // const temp = await this.rolesService.findOne(userRole._id);
+        const temp = await this.rolesService.findOne(userRole._id);
 
         response.clearCookie('refresh_token');
         response.cookie('refresh_token', refresh_token, {
@@ -115,7 +116,7 @@ export class AuthService {
             name,
             email,
             role,
-            // permissions: temp?.permissions ?? [],
+            permissions: temp?.permissions ?? [],
           },
         };
       } else {

@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { timestamp } from 'rxjs';
+import { Role } from 'src/roles/schemas/role.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -15,11 +16,8 @@ export class User {
   @Prop()
   password: string;
 
-  @Prop()
-  role: string;
-
-  @Prop()
-  permissions: Array<string>;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Role.name })
+  role: mongoose.Schema.Types.ObjectId;
 
   @Prop()
   walletAddress: string;
