@@ -108,7 +108,7 @@ export class UsersService {
         email,
         password: hashPassword,
         employeeId: createUserDto.employeeId,
-        role: role?._id,
+        role: role,
         createdBy: {
           _id: user._id,
           email: user.email,
@@ -143,7 +143,7 @@ export class UsersService {
       } catch (error) {
         throw error;
       }
-      // return newUser;
+      return newUser;
     } catch (error) {
       throw new BadRequestException(error.message);
     }

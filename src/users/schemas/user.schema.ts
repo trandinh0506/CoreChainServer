@@ -35,7 +35,6 @@ export class User {
   @Prop()
   refreshToken: string;
 
-  //private infomation
   @Prop()
   employeeId: string;
 

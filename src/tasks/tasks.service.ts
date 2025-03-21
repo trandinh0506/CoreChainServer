@@ -7,7 +7,6 @@ export class TasksService {
   create(createTaskDto: CreateTaskDto) {
     return 'This action adds a new task';
   }
-
   findAll() {
     return `This action returns all tasks`;
   }

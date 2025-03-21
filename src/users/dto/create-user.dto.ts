@@ -22,14 +22,11 @@ export class CreateUserDto {
   password: string;
 
   @IsNotEmpty({ message: 'Role must not be empty !' })
-  role: {
-    _id: mongoose.Schema.Types.ObjectId;
-    name: string;
-  };
-  //permissions: [string]
-  @IsOptional()
+  role: mongoose.Schema.Types.ObjectId;
+
+  @IsNotEmpty({ message: 'Working hours must not be empty !' })
   @Transform(({ value }) => (value === undefined ? 0 : value))
-  // @IsNumber({}, { message: 'Working hours must be number !' })
+  @IsNumber({}, { message: 'Working hours must be number !' })
   workingHours: number;
 
   //private infomation
@@ -45,7 +42,7 @@ export class CreateUserDto {
   @IsMongoId()
   positionId: mongoose.Schema.Types.ObjectId;
 
-  @IsOptional()
+  @IsNotEmpty({ message: 'DepartmentId must not be empty !' })
   @IsMongoId()
   departmentId: mongoose.Schema.Types.ObjectId;
 
@@ -60,13 +57,17 @@ export class CreateUserDto {
   @IsDate()
   terminationDate: Date;
 
-  @IsOptional()
+  @IsNotEmpty({
+    message: 'Personal Tax Idenification Number must not be empty !',
+  })
   @IsString()
   personalTaxIdentificationNumber: string;
-  @IsOptional()
+
+  @IsNotEmpty({ message: 'Social Insurance Number must not be empty !' })
   @IsString()
   socialInsuranceNumber: string;
-  @IsOptional()
+
+  @IsNotEmpty({ message: 'Bank Account must not be empty !' })
   @IsString()
   backAccountNumber: string;
 }

@@ -27,11 +27,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
   handleRequest(err, user, info, context: ExecutionContext) {
     const request: Request = context.switchToHttp().getRequest();
-
     const isSkipPermission = this.reflector.getAllAndOverride<Boolean>(
       IS_PUBLIC_PERMISSION,
       [context.getHandler(), context.getClass()],
     );
+
     // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) {
       throw err || new UnauthorizedException('Token is absent or invalid');
@@ -50,11 +50,19 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         targetEndpoint === '/api/v1/' + permission.apiPath,
     );
     if (targetEndpoint.startsWith('/api/v1/auth')) isExist = true;
+
+    if (
+      targetEndpoint === '/api/v1/users/private/:id' &&
+      targetMethod === 'GET' &&
+      !isExist
+    ) {
+      if (request.params.id === user.employeeId.toString()) isExist = true;
+    }
+
     if (!isExist)
       throw new ForbiddenException(
         'You do not have permission to access this endpoint',
       );
-
     return user;
   }
 }

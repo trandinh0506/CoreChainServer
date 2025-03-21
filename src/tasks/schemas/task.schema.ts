@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { timestamp } from 'rxjs';
-import { Role } from 'src/roles/schemas/role.schema';
+import { Priority, Status } from 'src/projects/schemas/project.schema';
 
 export type TaskDocument = HydratedDocument<Task>;
 
@@ -9,6 +8,39 @@ export type TaskDocument = HydratedDocument<Task>;
 export class Task {
   @Prop()
   name: string;
+
+  @Prop()
+  title: string;
+
+  @Prop()
+  description: string;
+
+  @Prop()
+  attachments: Array<string>;
+
+  @Prop({ type: Object })
+  createdBy: {
+    _id: mongoose.Schema.Types.ObjectId;
+    email: string;
+  };
+
+  @Prop()
+  assignedTo: mongoose.Schema.Types.ObjectId;
+
+  @Prop()
+  projectId: mongoose.Schema.Types.ObjectId;
+
+  @Prop()
+  priority: Priority;
+
+  @Prop()
+  status: Status;
+
+  @Prop()
+  startDate: Date;
+
+  @Prop()
+  DueDate: Date;
 
   @Prop({ type: Boolean, default: false })
   isDeleted: boolean;
@@ -21,12 +53,6 @@ export class Task {
 
   @Prop()
   deletedAt: Date;
-
-  @Prop({ type: Object })
-  createdBy: {
-    _id: mongoose.Schema.Types.ObjectId;
-    email: string;
-  };
 
   @Prop({ type: Object })
   updatedBy: {
