@@ -183,7 +183,7 @@ export class UsersService {
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Not found user with id=${id}`);
+      throw new BadRequestException(`Invalid user ID`);
     }
 
     return await this.userModel
@@ -197,7 +197,7 @@ export class UsersService {
 
   async findPrivateOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Not found user with id=${id}`);
+      throw new BadRequestException(`Invalid user ID`);
     }
     const publicEmployee = await this.userModel
       .findById(id)
@@ -217,7 +217,7 @@ export class UsersService {
   async update(updateUserDto: UpdateUserDto, user: IUser, id: string) {
     //validate
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Not found user with id=${id}`);
+      throw new BadRequestException(`Invalid user ID`);
     }
     const idExist = await this.userModel.findOne({
       _id: id,
@@ -263,7 +263,7 @@ export class UsersService {
 
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Not found user with id=${id}`);
+      throw new BadRequestException(`Invalid user ID`);
     }
 
     const foundUser = await this.userModel.findById(id);

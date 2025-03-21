@@ -11,6 +11,7 @@ import { BlockchainModule } from './blockchain/blockchain.module';
 import { SecurityModule } from './security/security.module';
 import { RolesModule } from './roles/roles.module';
 import { PermissionsModule } from './permissions/permissions.module';
+import { DepartmentsModule } from './departments/departments.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { PermissionsModule } from './permissions/permissions.module';
     SecurityModule,
     RolesModule,
     PermissionsModule,
+    DepartmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
