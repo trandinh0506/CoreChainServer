@@ -12,6 +12,8 @@ import { SecurityModule } from './security/security.module';
 import { RolesModule } from './roles/roles.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { DepartmentsModule } from './departments/departments.module';
+import { ProjectsModule } from './projects/projects.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -43,6 +45,8 @@ import { DepartmentsModule } from './departments/departments.module';
     RolesModule,
     PermissionsModule,
     DepartmentsModule,
+    ProjectsModule,
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -120,8 +120,8 @@ export class UsersService {
         encryptedData: this.securityService.encrypt({
           personalIdentificationNumber:
             createUserDto.personalIdentificationNumber,
-          position: createUserDto.position,
-          department: createUserDto.department,
+          position: createUserDto.positionId,
+          department: createUserDto.departmentId,
           employeeContractId: createUserDto.employeeContractId,
           startDate: createUserDto.startDate,
           terminationDate: createUserDto.terminationDate,

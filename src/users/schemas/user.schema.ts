@@ -38,24 +38,7 @@ export class User {
   //private infomation
   @Prop()
   employeeId: string;
-  @Prop()
-  // personalIdentificationNumber: string;
-  // @Prop()
-  // position: mongoose.Schema.Types.ObjectId;
-  // @Prop()
-  // department: mongoose.Schema.Types.ObjectId;
-  // @Prop()
-  // employeeContractId: mongoose.Schema.Types.ObjectId;
-  // @Prop()
-  // startDate: Date;
-  // @Prop()
-  // terminationDate: Date;
-  // @Prop()
-  // personalTaxIdentificationNumber: string;
-  // @Prop()
-  // socialInsuranceNumber: string;
-  // @Prop()
-  // backAccountNumber: string;
+
   @Prop({ type: Boolean, default: false })
   isDeleted: boolean;
   //timestamp

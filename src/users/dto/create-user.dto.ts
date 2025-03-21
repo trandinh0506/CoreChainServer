@@ -43,11 +43,11 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsMongoId()
-  position: mongoose.Schema.Types.ObjectId;
+  positionId: mongoose.Schema.Types.ObjectId;
 
   @IsOptional()
   @IsMongoId()
-  department: mongoose.Schema.Types.ObjectId;
+  departmentId: mongoose.Schema.Types.ObjectId;
 
   @IsOptional()
   @IsMongoId()
