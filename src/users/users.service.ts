@@ -191,7 +191,10 @@ export class UsersService {
         isDeleted: false,
       })
       .select('-password -refreshToken')
-      .populate({ path: 'role', select: { name: 1, _id: 1 } });
+      .populate([
+        { path: 'role', select: { name: 1, _id: 1 } },
+        { path: 'position', select: '_id title' },
+      ]);
   }
 
   async findPrivateOne(id: string) {

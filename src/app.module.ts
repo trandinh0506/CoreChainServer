@@ -16,6 +16,7 @@ import { ProjectsModule } from './projects/projects.module';
 import { TasksModule } from './tasks/tasks.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { PositionsModule } from './positions/positions.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { PositionsModule } from './positions/positions.module';
     TasksModule,
     FeedbackModule,
     PositionsModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
