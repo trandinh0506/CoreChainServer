@@ -33,10 +33,15 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse();
     const status =
       exception instanceof HttpException ? exception.getStatus() : 500;
-    const message =
-      exception instanceof HttpException
-        ? exception.getResponse()
-        : 'Internal Server Error';
+
+    let message;
+    if (exception instanceof HttpException) {
+      message = exception.getResponse();
+    } else if (exception instanceof Error) {
+      message = exception.message;
+    } else {
+      message = 'Internal Server Error';
+    }
     console.log(exception);
     response.status(status).json({
       statusCode: status,
