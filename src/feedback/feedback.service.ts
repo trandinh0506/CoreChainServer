@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,6 +12,8 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { SecurityService } from 'src/security/security.service';
 import { DecryptRequestDto } from './dto/decrypt-request.dto';
 import { IUser } from 'src/users/users.interface';
+import aqp from 'api-query-params';
+import mongoose from 'mongoose';
 
 @Injectable()
 export class FeedbackService {
@@ -34,20 +41,20 @@ export class FeedbackService {
       isFlagged: this.shouldFlagFeedback(createFeedbackDto.content),
     });
   }
-  // prettier-ignore
   private shouldFlagFeedback(content: string): boolean {
-  const flagWords = [
-  'threat', 'illegal', 'violence', 'harassment', 'bomb', 'kill', 'attack', 'murder', 'assault', 'shoot',
-  'stab', 'hijack', 'terrorist', 'explode', 'gun', 'rifle', 'pistol', 'knife', 'rape', 'abuse', 'robbery',
-  'kidnap', 'hostage','arson','strangle','torture','execute', 'decapitate', 'suicide', 'self-harm','cutting',
-  'overdose','hanging','jump', 'slit','poison','suffocate','die alone','depressed','no way out', 'pedophile',
-  'molest','trafficking','prostitution','slave','incest','grooming','exploitation','child abuse','blackmail',
-  'porn', 'nude','xxx','sex','explicit','hardcore','strip','escort','onlyfans','camgirl','fetish','bdsm',
-  'bestiality','necrophilia',
-  'cocaine', 'heroin','meth','drug','weed','marijuana','ecstasy','overdose','smuggle','cartel','narcotic',
-  'racist', 'homophobic','hate crime','lynch','ethnic cleansing','nazi','white supremacy','genocide','discrimination',
-];
-
+    // Violence, Suicide, Abuse and exploitation, Sensitive and sexual, banned substances, Extremist and hateful language
+    // prettier-ignore
+    const flagWords = [
+      'threat', 'illegal', 'violence', 'harassment', 'bomb', 'kill', 'attack', 'murder', 'assault', 'shoot',
+      'stab', 'hijack', 'terrorist', 'explode', 'gun', 'rifle', 'pistol', 'knife', 'rape', 'abuse', 'robbery',
+      'kidnap', 'hostage','arson','strangle','torture','execute', 'decapitate', 'suicide', 'self-harm','cutting',
+      'overdose','hanging','jump', 'slit','poison','suffocate','die alone','depressed','no way out', 'pedophile',
+      'molest','trafficking','prostitution','slave','incest','grooming','exploitation','child abuse','blackmail',
+      'porn', 'nude','xxx','sex','explicit','hardcore','strip','escort','onlyfans','camgirl','fetish','bdsm',
+      'bestiality','necrophilia',
+      'cocaine', 'heroin','meth','drug','weed','marijuana','ecstasy','overdose','smuggle','cartel','narcotic',
+      'racist', 'homophobic','hate crime','lynch','ethnic cleansing','nazi','white supremacy','genocide','discrimination',
+    ];
 
     return flagWords.some((word) => content.toLowerCase().includes(word));
   }
@@ -57,9 +64,7 @@ export class FeedbackService {
     decryptRequest: DecryptRequestDto,
     user: IUser,
   ): Promise<string> {
-    const feedback = await this.feedbackModel.findOne({
-      where: { id: feedbackId },
-    });
+    const feedback = await this.feedbackModel.findById(feedbackId);
     if (!feedback) {
       throw new Error('Feedback not found');
     }
@@ -89,7 +94,7 @@ export class FeedbackService {
       decryptRequest.secretKey,
     );
     if (decryptedId === null) {
-      throw new Error('Incorrect secret key !');
+      throw new BadRequestException('Incorrect secret key !');
     }
 
     await this.feedbackModel.updateOne(
@@ -111,21 +116,56 @@ export class FeedbackService {
     return decryptedId;
   }
 
-  create(createFeedbackDto: CreateFeedbackDto) {
-    return 'This action adds a new feedback';
+  async findAll(currentPage: number, limit: number, qs: string) {
+    const { filter, skip, sort, projection, population } = aqp(qs);
+    delete filter.current;
+    delete filter.pageSize;
+    filter.isDeleted = false;
+    let offset = (+currentPage - 1) * +limit;
+    let defaultLimit = +limit ? +limit : 10;
+
+    const totalItems = (await this.feedbackModel.find(filter)).length;
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+
+    const result = await this.feedbackModel
+      .find(filter)
+      .skip(offset)
+      .limit(defaultLimit)
+      .sort(sort as any)
+      .populate(population)
+      .exec();
+
+    return {
+      meta: {
+        current: currentPage,
+        pageSize: limit,
+        pages: totalPages,
+        total: totalItems,
+      },
+      result,
+    };
   }
 
-  trace(id: string) {}
-
-  findAll() {
-    return `This action returns all feedback`;
+  async findOne(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException(`Invalid feedback ID`);
+    }
+    return this.feedbackModel.findById(id);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} feedback`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} feedback`;
+  async remove(id: string, user: IUser) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException(`Invalid feedback ID`);
+    }
+    await this.feedbackModel.updateOne(
+      { _id: id },
+      {
+        deletedBy: {
+          _id: user._id,
+          email: user.email,
+        },
+      },
+    );
+    return this.feedbackModel.softDelete({ _id: id });
   }
 }

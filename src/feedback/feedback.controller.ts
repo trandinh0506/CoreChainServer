@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
@@ -20,7 +21,7 @@ export class FeedbackController {
 
   @Post()
   create(@Body() createFeedbackDto: CreateFeedbackDto) {
-    return this.feedbackService.create(createFeedbackDto);
+    return this.feedbackService.createFeedback(createFeedbackDto);
   }
 
   @Post('decrypt/:id')
@@ -33,17 +34,21 @@ export class FeedbackController {
   }
 
   @Get()
-  findAll() {
-    return this.feedbackService.findAll();
+  findAll(
+    @Query('current') currentPage: string,
+    @Query('pageSize') limit: string,
+    @Query() qs: string,
+  ) {
+    return this.feedbackService.findAll(+currentPage, +limit, qs);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.feedbackService.findOne(+id);
+    return this.feedbackService.findOne(id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.feedbackService.remove(+id);
+  remove(@Param('id') id: string, @User() user: IUser) {
+    return this.feedbackService.remove(id, user);
   }
 }

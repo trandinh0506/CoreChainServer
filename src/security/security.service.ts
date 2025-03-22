@@ -10,7 +10,7 @@ export class SecurityService {
   private readonly iv: Buffer;
 
   constructor(private configService: ConfigService) {
-    const secretKey = this.configService.get<string>('SECRET_KEY');
+    this.secretKey = this.configService.get<string>('SECRET_KEY');
     if (!this.secretKey) {
       throw new Error('SECRET_KEY is not defined');
     }
