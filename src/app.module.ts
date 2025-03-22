@@ -14,6 +14,7 @@ import { PermissionsModule } from './permissions/permissions.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { ProjectsModule } from './projects/projects.module';
 import { TasksModule } from './tasks/tasks.module';
+import { FeedbackModule } from './feedback/feedback.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { TasksModule } from './tasks/tasks.module';
     DepartmentsModule,
     ProjectsModule,
     TasksModule,
+    FeedbackModule,
   ],
   controllers: [AppController],
   providers: [AppService],
