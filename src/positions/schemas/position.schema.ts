@@ -1,45 +1,23 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument, mongo } from 'mongoose';
 import { timestamp } from 'rxjs';
 import { Role } from 'src/roles/schemas/role.schema';
 
-export type UserDocument = HydratedDocument<User>;
+export type PositionDocument = HydratedDocument<Position>;
 
 @Schema({ timestamps: true })
-export class User {
+export class Position {
   @Prop()
-  name: string;
-
-  @Prop()
-  email: string;
+  title: string;
 
   @Prop()
-  password: string;
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Role.name })
-  role: mongoose.Schema.Types.ObjectId;
+  description: string;
 
   @Prop()
-  walletAddress: string;
+  parentId: mongoose.Schema.Types.ObjectId;
 
   @Prop()
-  workingHours: number;
-
-  @Prop()
-  feedback: Array<{
-    email: string;
-    content: string;
-    createdAt: Date;
-  }>;
-
-  @Prop()
-  refreshToken: string;
-
-  @Prop()
-  employeeId: string;
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId })
-  position: mongoose.Schema.Types.ObjectId;
+  level: number;
 
   @Prop({ type: Boolean, default: false })
   isDeleted: boolean;
@@ -72,4 +50,4 @@ export class User {
   };
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+export const PositionSchema = SchemaFactory.createForClass(Position);
