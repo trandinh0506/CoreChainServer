@@ -28,10 +28,15 @@ export class ChatGateway {
 
   @SubscribeMessage('getConversationByUserIdAndOtherId')
   getByUserIdAndOtherId(
-    @MessageBody() userId: string,
-    @MessageBody() otherId: string,
+    @MessageBody() data: { userId: string; otherId: string },
   ) {
-    return this.chatService.getOrCreateDirectConversation(userId, otherId);
+    return this.chatService.getOrCreateDirectConversation(data);
+  }
+  @SubscribeMessage('getRecentConversations')
+  getRecentConversations(
+    @MessageBody() data: { userId: string; lastConversationId?: string },
+  ) {
+    return this.chatService.getRecentConversations(data);
   }
 
   // meessage

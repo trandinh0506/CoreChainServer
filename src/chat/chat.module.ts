@@ -13,8 +13,8 @@ import { Message, MessageSchema } from './schemas/message.schema';
   imports: [
     MongooseModule.forFeature([
       { name: Conversation.name, schema: ConversationSchema },
+      { name: Message.name, schema: MessageSchema },
     ]),
-    MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
   ],
   providers: [ChatGateway, ChatService, WsService],
 })

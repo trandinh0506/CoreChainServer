@@ -9,7 +9,15 @@ import {
 import { Server, Socket } from 'socket.io';
 import { WsService } from './ws.service';
 
-@WebSocketGateway({ namespace: '/' })
+@WebSocketGateway({
+  namespace: '/',
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  },
+})
 export class WsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {

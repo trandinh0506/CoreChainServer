@@ -6,6 +6,7 @@ import { AllExceptionsFilter } from 'src/decorators/customize';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { TransformInterceptor } from './core/transform.interceptor';
 import cookieParser from 'cookie-parser';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // app.useGlobalFilters(new AllExceptionsFilter());
@@ -15,6 +16,13 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
   app.useGlobalGuards(new JwtAuthGuard(reflector));
   app.useGlobalInterceptors(new TransformInterceptor(reflector));
+
+  app.enableCors({
+    origin: configService.get<string>('ORIGIN'),
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+  });
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   app.useGlobalPipes(
     new ValidationPipe({

@@ -1,11 +1,27 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument, Types, Document } from 'mongoose';
+import { User } from 'src/users/schemas/user.schema';
 
 export type ConversationDocument = HydratedDocument<Conversation>;
+export interface PopulatedUser {
+  _id: Types.ObjectId;
+  name: string;
+}
 
-@Schema()
-export class Conversation {
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], required: true })
+export type ConversationPopulated = Conversation & {
+  participants: PopulatedUser[];
+};
+
+export type ConversationPopulatedDocument =
+  HydratedDocument<ConversationPopulated>;
+
+@Schema({ timestamps: true })
+export class Conversation extends Document {
+  @Prop({
+    type: [{ type: Types.ObjectId }],
+    ref: User.name,
+    required: true,
+  })
   participants: Types.ObjectId[];
 
   @Prop()
@@ -13,7 +29,7 @@ export class Conversation {
 
   @Prop({
     type: {
-      _id: { type: Types.ObjectId, ref: 'User' },
+      _id: { type: Types.ObjectId, ref: User.name },
       name: String,
     },
   })
@@ -22,23 +38,11 @@ export class Conversation {
     name: string;
   };
 
-  @Prop({ type: Types.ObjectId, ref: 'User' })
+  @Prop({ type: Types.ObjectId, ref: User.name })
   createdBy?: Types.ObjectId;
+
+  @Prop({ type: Date, default: Date.now })
+  lastActivity: Date;
 }
 
 export const ConversationSchema = SchemaFactory.createForClass(Conversation);
-
-// export interface Message {
-//   _id: Types.ObjectId;
-//   senderId: string;
-//   content?: string;
-//   attachments?: string[];
-//   status: 'sent' | 'received' | 'read';
-//   readBy: {
-//     _id: Types.ObjectId;
-//     name: string;
-//     avt: string;
-//   }[];
-//   createdAt: Date;
-//   isDeleted: boolean;
-// }

@@ -16,6 +16,7 @@ export class WsService {
       this.clients.set(namespace, new Map());
     }
     this.clients.get(namespace).set(client.id, client);
+    console.log({ clients: this.clients });
   }
 
   removeClient(client: Socket) {

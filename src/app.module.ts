@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { BlockchainModule } from './blockchain/blockchain.module';
 import { ChatModule } from './chat/chat.module';
+import { WsModule } from './ws/ws.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ChatModule } from './chat/chat.module';
     AuthModule,
     UsersModule,
     BlockchainModule,
+    WsModule,
     ChatModule,
   ],
   controllers: [AppController],
