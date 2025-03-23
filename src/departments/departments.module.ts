@@ -3,6 +3,7 @@ import { DepartmentsService } from './departments.service';
 import { DepartmentsController } from './departments.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Department, DepartmentSchema } from './schemas/department.schema';
+import { User, UserSchema } from 'src/users/schemas/user.schema';
 
 @Module({
   imports: [

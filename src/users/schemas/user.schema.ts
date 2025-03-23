@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { timestamp } from 'rxjs';
+import { Department } from 'src/departments/schemas/department.schema';
+import { Position } from 'src/positions/schemas/position.schema';
 import { Role } from 'src/roles/schemas/role.schema';
 
 export type UserDocument = HydratedDocument<User>;
@@ -18,6 +20,9 @@ export class User {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Role.name })
   role: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Department.name })
+  department: mongoose.Schema.Types.ObjectId;
 
   @Prop()
   walletAddress: string;
@@ -38,7 +43,7 @@ export class User {
   @Prop()
   employeeId: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Position.name })
   position: mongoose.Schema.Types.ObjectId;
 
   @Prop({ type: Boolean, default: false })

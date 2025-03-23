@@ -50,12 +50,12 @@ export class CreateUserDto {
   @IsMongoId()
   employeeContractId: mongoose.Schema.Types.ObjectId;
 
-  @IsOptional()
-  @IsDate()
-  startDate: Date;
-  @IsOptional()
-  @IsDate()
-  terminationDate: Date;
+  // @IsOptional()
+  // @IsDate()
+  // startDate: Date;
+  // @IsOptional()
+  // @IsDate()
+  // terminationDate: Date;
 
   @IsNotEmpty({
     message: 'Personal Tax Idenification Number must not be empty !',

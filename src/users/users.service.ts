@@ -122,8 +122,6 @@ export class UsersService {
             createUserDto.personalIdentificationNumber,
           department: createUserDto.departmentId,
           employeeContractId: createUserDto.employeeContractId,
-          startDate: createUserDto.startDate,
-          terminationDate: createUserDto.terminationDate,
           personalTaxIdentificationNumber:
             createUserDto.personalTaxIdentificationNumber,
           socialInsuranceNumber: createUserDto.socialInsuranceNumber,
@@ -191,7 +189,10 @@ export class UsersService {
         isDeleted: false,
       })
       .select('-password -refreshToken')
-      .populate({ path: 'role', select: { name: 1, _id: 1 } });
+      .populate([
+        { path: 'role', select: { name: 1, _id: 1 } },
+        { path: 'position', select: '_id title' },
+      ]);
   }
 
   async findPrivateOne(id: string) {
