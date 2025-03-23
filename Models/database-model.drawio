@@ -1,44 +1,47 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 OPR/117.0.0.0" version="26.1.0">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 OPR/117.0.0.0" version="26.1.1">
   <diagram name="Trang-1" id="6lRMdNZCeuYs8_WIxGct">
-    <mxGraphModel dx="435" dy="250" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1114" dy="639" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="edtFd7OV8kf5VaEeZKkt-4" value="User" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;" parent="1" vertex="1">
-          <mxGeometry x="50" y="40" width="240" height="514" as="geometry" />
+          <mxGeometry x="50" y="40" width="240" height="540" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-49" value="_id: mongoose.Schema.Types.ObjectId" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-4" vertex="1">
           <mxGeometry y="26" width="240" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="edtFd7OV8kf5VaEeZKkt-5" value="email: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-4" vertex="1">
+        <mxCell id="kw82diBBPcrC9gqR29XW-34" value="EmployeeId: ObjectId" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-4" vertex="1">
           <mxGeometry y="56" width="240" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="edtFd7OV8kf5VaEeZKkt-6" value="password&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-4" vertex="1">
+        <mxCell id="edtFd7OV8kf5VaEeZKkt-5" value="email: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-4" vertex="1">
           <mxGeometry y="82" width="240" height="26" as="geometry" />
         </mxCell>
+        <mxCell id="edtFd7OV8kf5VaEeZKkt-6" value="password&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-4" vertex="1">
+          <mxGeometry y="108" width="240" height="26" as="geometry" />
+        </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-47" value="role: string&lt;div&gt;&lt;div&gt;permission: [string]&lt;/div&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-4" vertex="1">
-          <mxGeometry y="108" width="240" height="42" as="geometry" />
+          <mxGeometry y="134" width="240" height="42" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-7" value="walletAddress: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-4" vertex="1">
-          <mxGeometry y="150" width="240" height="28" as="geometry" />
+          <mxGeometry y="176" width="240" height="28" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-14" value="createdAt: datetime" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-4" vertex="1">
-          <mxGeometry y="178" width="240" height="30" as="geometry" />
+          <mxGeometry y="204" width="240" height="30" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-15" value="createdBy: {_id: &lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;mongoose.Schema.Types.ObjectId,&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;email: string}&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-4" vertex="1">
-          <mxGeometry y="208" width="240" height="54" as="geometry" />
+          <mxGeometry y="234" width="240" height="54" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-61" value="isDeleted: boolean" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-4" vertex="1">
-          <mxGeometry y="262" width="240" height="30" as="geometry" />
+          <mxGeometry y="288" width="240" height="30" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-17" value="deletedAt: datetime" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-4" vertex="1">
-          <mxGeometry y="292" width="240" height="30" as="geometry" />
+          <mxGeometry y="318" width="240" height="30" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-16" value="deletedBy {_id:&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;mongoose.Schema.Types.ObjectId,&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;email: string}&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;working hours: number&lt;br&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-4" vertex="1">
-          <mxGeometry y="322" width="240" height="98" as="geometry" />
+          <mxGeometry y="348" width="240" height="98" as="geometry" />
         </mxCell>
         <mxCell id="hpcjHhujDGf5BCyLf7xm-4" value="Feedback: [&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;{&lt;br&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;email: string,&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;content: string,&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;createdAt: datetime&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;}&lt;br&gt;&lt;/div&gt;&lt;div&gt;]&lt;/div&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-4" vertex="1">
-          <mxGeometry y="420" width="240" height="94" as="geometry" />
+          <mxGeometry y="446" width="240" height="94" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-23" value="Block" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;" parent="1" vertex="1">
           <mxGeometry x="340" y="40" width="240" height="168" as="geometry" />
@@ -59,34 +62,67 @@
           <mxGeometry y="138" width="240" height="30" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-33" value="BlockData" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;" parent="1" vertex="1">
-          <mxGeometry x="640" y="40" width="190" height="450" as="geometry" />
+          <mxGeometry x="640" y="40" width="280" height="742" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-34" value="email?: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
-          <mxGeometry y="26" width="190" height="26" as="geometry" />
+          <mxGeometry y="26" width="280" height="26" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-48" value="phone?: string" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
-          <mxGeometry y="52" width="190" height="30" as="geometry" />
+          <mxGeometry y="52" width="280" height="30" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-43" value="name?: string" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
-          <mxGeometry y="82" width="190" height="30" as="geometry" />
+          <mxGeometry y="82" width="280" height="30" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-45" value="birthday?: datetime" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
-          <mxGeometry y="112" width="190" height="30" as="geometry" />
+          <mxGeometry y="112" width="280" height="30" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-46" value="salary?: number" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
-          <mxGeometry y="142" width="190" height="30" as="geometry" />
+          <mxGeometry y="142" width="280" height="30" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-44" value="role?: string" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
-          <mxGeometry y="172" width="190" height="30" as="geometry" />
+          <mxGeometry y="172" width="280" height="30" as="geometry" />
         </mxCell>
         <mxCell id="vyKMncAaBuGmrBEd7uzb-3" value="&lt;div&gt;&lt;span data-end=&quot;70&quot; data-start=&quot;55&quot;&gt;adjustments: [&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span data-end=&quot;70&quot; data-start=&quot;55&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;{&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span data-end=&quot;70&quot; data-start=&quot;55&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;amount: number,&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span data-end=&quot;70&quot; data-start=&quot;55&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;reason: string,&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span data-end=&quot;70&quot; data-start=&quot;55&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;updatedBy:&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;{&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span data-end=&quot;70&quot; data-start=&quot;55&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;_id: ,&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span data-end=&quot;70&quot; data-start=&quot;55&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;email: string&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span data-end=&quot;70&quot; data-start=&quot;55&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;}&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span data-end=&quot;70&quot; data-start=&quot;55&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;}&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;]&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
-          <mxGeometry y="202" width="190" height="168" as="geometry" />
+          <mxGeometry y="202" width="280" height="168" as="geometry" />
         </mxCell>
         <mxCell id="vyKMncAaBuGmrBEd7uzb-4" value="KPI: number (complete / is allocated)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
-          <mxGeometry y="370" width="190" height="80" as="geometry" />
+          <mxGeometry y="370" width="280" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nSZZfyKYvixu-nadPz-V-1" value="posittionId: ObjectId" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
+          <mxGeometry y="410" width="280" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="nSZZfyKYvixu-nadPz-V-3" value="&lt;div style=&quot;color: rgb(204, 204, 204); background-color: rgb(31, 31, 31); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 15px; line-height: 20px; white-space: pre;&quot;&gt;&lt;span style=&quot;color: #9cdcfe;&quot;&gt;personalIdentificationNumber&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
+          <mxGeometry y="436" width="280" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ccH49liPs6FKaZ8h0LeP-5" value="employeeID: string&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
+          <mxGeometry y="462" width="280" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ccH49liPs6FKaZ8h0LeP-6" value="employeeContractId: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
+          <mxGeometry y="492" width="280" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ccH49liPs6FKaZ8h0LeP-7" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
+          <mxGeometry y="518" width="280" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="ccH49liPs6FKaZ8h0LeP-8" value="startDate: datetime&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
+          <mxGeometry y="556" width="280" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="ccH49liPs6FKaZ8h0LeP-9" value="terminationDate: datetime" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
+          <mxGeometry y="592" width="280" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ccH49liPs6FKaZ8h0LeP-10" value="personalTaxIdentificationNumber: string&lt;div&gt;&lt;br/&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
+          <mxGeometry y="618" width="280" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="ccH49liPs6FKaZ8h0LeP-11" value="bankAccountNumber: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
+          <mxGeometry y="664" width="280" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ccH49liPs6FKaZ8h0LeP-12" value="socialInsuranceNumber: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
+          <mxGeometry y="690" width="280" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="nSZZfyKYvixu-nadPz-V-2" value="&lt;div style=&quot;color: rgb(204, 204, 204); background-color: rgb(31, 31, 31); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 15px; line-height: 20px; white-space: pre;&quot;&gt;&lt;span style=&quot;color: rgb(156, 220, 254);&quot;&gt;departmentId&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-33" vertex="1">
+          <mxGeometry y="716" width="280" height="26" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-51" value="Project" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;" parent="1" vertex="1">
-          <mxGeometry x="440" y="1220" width="360" height="440" as="geometry" />
+          <mxGeometry x="480" y="1040" width="360" height="840" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-52" value="_id: mongoose.Schema.Types.ObjectId" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
           <mxGeometry y="26" width="360" height="30" as="geometry" />
@@ -97,35 +133,62 @@
         <mxCell id="edtFd7OV8kf5VaEeZKkt-54" value="description: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
           <mxGeometry y="82" width="360" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="edtFd7OV8kf5VaEeZKkt-55" value="manager: {_id: mongoose.Schema.Types.ObjectId, email: string&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;}&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
-          <mxGeometry y="108" width="360" height="30" as="geometry" />
+        <mxCell id="kw82diBBPcrC9gqR29XW-11" value="attachments: Array&amp;lt;string&amp;gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
+          <mxGeometry y="108" width="360" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="edtFd7OV8kf5VaEeZKkt-56" value="staffs: [{_id: mongoose.Schema.Types.ObjectId, email: string&lt;span style=&quot;color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); background-color: transparent;&quot;&gt;}]&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
-          <mxGeometry y="138" width="360" height="28" as="geometry" />
+        <mxCell id="edtFd7OV8kf5VaEeZKkt-55" value="manager: {_id: mongoose.Schema.Types.ObjectId, email: string&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;}&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
+          <mxGeometry y="134" width="360" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="edtFd7OV8kf5VaEeZKkt-56" value="teamMembers: [&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;{&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;_id: mongoose.Schema.Types.ObjectId,&amp;nbsp;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;email: string&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); background-color: transparent;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;}&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); background-color: transparent;&quot;&gt;]&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
+          <mxGeometry y="164" width="360" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-12" value="tasks: Array&amp;lt;ObjectId&amp;gt;;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;.&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
+          <mxGeometry y="256" width="360" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-13" value="expenses: [&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;cost: number,&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;reason: string&lt;br&gt;&lt;/div&gt;&lt;div&gt;]&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
+          <mxGeometry y="330" width="360" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-14" value="revenue: number" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
+          <mxGeometry y="410" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-7" value="priority: enum" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
+          <mxGeometry y="436" width="360" height="26" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-72" value="status: enum" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
-          <mxGeometry y="166" width="360" height="30" as="geometry" />
+          <mxGeometry y="462" width="360" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-15" value="progress: number" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
+          <mxGeometry y="492" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-8" value="startDate: date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
+          <mxGeometry y="518" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-9" value="endDate: date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
+          <mxGeometry y="544" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-10" value="actualEndDate: date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
+          <mxGeometry y="570" width="360" height="26" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-57" value="createdAt: datetime" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
-          <mxGeometry y="196" width="360" height="30" as="geometry" />
+          <mxGeometry y="596" width="360" height="30" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-58" value="createdBy: {_id:&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;mongoose.Schema.Types.ObjectId,&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;email: string}&lt;/div&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
-          <mxGeometry y="226" width="360" height="54" as="geometry" />
+          <mxGeometry y="626" width="360" height="54" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-76" value="updatedAt: datetime" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
-          <mxGeometry y="280" width="360" height="30" as="geometry" />
+          <mxGeometry y="680" width="360" height="30" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-75" value="updatedBy: {_id:&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;mongoose.Schema.Types.ObjectId,&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;email: string}&lt;/div&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
-          <mxGeometry y="310" width="360" height="50" as="geometry" />
+          <mxGeometry y="710" width="360" height="50" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-59" value="deletedAt: datetime" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
-          <mxGeometry y="360" width="360" height="30" as="geometry" />
+          <mxGeometry y="760" width="360" height="30" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-60" value="deletedBy: {_id:&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;mongoose.Schema.Types.ObjectId,&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;email: string}&lt;/div&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-51" vertex="1">
-          <mxGeometry y="390" width="360" height="50" as="geometry" />
+          <mxGeometry y="790" width="360" height="50" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-62" value="Task" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;" parent="1" vertex="1">
-          <mxGeometry x="440" y="700" width="360" height="440" as="geometry" />
+          <mxGeometry x="950" y="1040" width="360" height="616" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-63" value="_id: mongoose.Schema.Types.ObjectId" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
           <mxGeometry y="26" width="360" height="30" as="geometry" />
@@ -133,35 +196,50 @@
         <mxCell id="edtFd7OV8kf5VaEeZKkt-64" value="name: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
           <mxGeometry y="56" width="360" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="edtFd7OV8kf5VaEeZKkt-65" value="description: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
+        <mxCell id="kw82diBBPcrC9gqR29XW-2" value="title: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
           <mxGeometry y="82" width="360" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="edtFd7OV8kf5VaEeZKkt-66" value="manager: {_id: mongoose.Schema.Types.ObjectId, email: string&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;}&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
-          <mxGeometry y="108" width="360" height="30" as="geometry" />
+        <mxCell id="edtFd7OV8kf5VaEeZKkt-65" value="description: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
+          <mxGeometry y="108" width="360" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="edtFd7OV8kf5VaEeZKkt-74" value="staff: {_id: mongoose.Schema.Types.ObjectId, email: string&lt;span style=&quot;color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); background-color: transparent;&quot;&gt;}&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
-          <mxGeometry y="138" width="360" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="edtFd7OV8kf5VaEeZKkt-73" value="status: enum" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
-          <mxGeometry y="168" width="360" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="edtFd7OV8kf5VaEeZKkt-68" value="createdAt: datetime" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
-          <mxGeometry y="198" width="360" height="30" as="geometry" />
+        <mxCell id="kw82diBBPcrC9gqR29XW-4" value="attachments: Array&amp;lt;string&amp;gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
+          <mxGeometry y="134" width="360" height="26" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-69" value="createdBy: {_id:&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;mongoose.Schema.Types.ObjectId,&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;email: string}&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
-          <mxGeometry y="228" width="360" height="52" as="geometry" />
+          <mxGeometry y="160" width="360" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="edtFd7OV8kf5VaEeZKkt-74" value="assignedTo: {&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;_id: mongoose.Schema.Types.ObjectId,&amp;nbsp;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;email: string&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); background-color: transparent;&quot;&gt;}&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
+          <mxGeometry y="212" width="360" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-1" value="projectId: ObjectId" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
+          <mxGeometry y="292" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-3" value="priority: enum" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
+          <mxGeometry y="318" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="edtFd7OV8kf5VaEeZKkt-73" value="status: enum" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
+          <mxGeometry y="344" width="360" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-5" value="startDate: date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
+          <mxGeometry y="374" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-6" value="dueDate: date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
+          <mxGeometry y="400" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="edtFd7OV8kf5VaEeZKkt-68" value="createdAt: datetime" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
+          <mxGeometry y="426" width="360" height="30" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-78" value="updatedAt: datetime" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
-          <mxGeometry y="280" width="360" height="30" as="geometry" />
+          <mxGeometry y="456" width="360" height="30" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-77" value="updatedBy: {_id:&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;mongoose.Schema.Types.ObjectId,&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;email: string}&lt;/div&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
-          <mxGeometry y="310" width="360" height="50" as="geometry" />
+          <mxGeometry y="486" width="360" height="50" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-70" value="deletedAt: datetime" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
-          <mxGeometry y="360" width="360" height="30" as="geometry" />
+          <mxGeometry y="536" width="360" height="30" as="geometry" />
         </mxCell>
         <mxCell id="edtFd7OV8kf5VaEeZKkt-71" value="deletedBy: {_id:&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;mongoose.Schema.Types.ObjectId,&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;email: string}&lt;/div&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="edtFd7OV8kf5VaEeZKkt-62" vertex="1">
-          <mxGeometry y="390" width="360" height="50" as="geometry" />
+          <mxGeometry y="566" width="360" height="50" as="geometry" />
         </mxCell>
         <mxCell id="hpcjHhujDGf5BCyLf7xm-1" value="&lt;div&gt;Employee Relation&lt;/div&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;" parent="1" vertex="1">
           <mxGeometry x="20" y="1220" width="240" height="128" as="geometry" />
@@ -171,6 +249,60 @@
         </mxCell>
         <mxCell id="hpcjHhujDGf5BCyLf7xm-6" value="&lt;div&gt;Feedback: string,&lt;/div&gt;&lt;div&gt;// isPublic: Boolean&lt;/div&gt;&lt;div&gt;email: string (hash/no hash)&lt;/div&gt;createdAt: datetime (CUD)" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="hpcjHhujDGf5BCyLf7xm-1" vertex="1">
           <mxGeometry y="56" width="240" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-16" value="Department" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1010" y="40" width="240" height="168" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-17" value="_id: mongoose.Schema.Types.ObjectId" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="kw82diBBPcrC9gqR29XW-16" vertex="1">
+          <mxGeometry y="26" width="240" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-18" value="hash: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="kw82diBBPcrC9gqR29XW-16" vertex="1">
+          <mxGeometry y="56" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-19" value="prevHash: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="kw82diBBPcrC9gqR29XW-16" vertex="1">
+          <mxGeometry y="82" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-20" value="data: BlockData" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="kw82diBBPcrC9gqR29XW-16" vertex="1">
+          <mxGeometry y="108" width="240" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-21" value="createdAt: datetime" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="kw82diBBPcrC9gqR29XW-16" vertex="1">
+          <mxGeometry y="138" width="240" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-22" value="Role" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1320" y="40" width="240" height="168" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-23" value="_id: mongoose.Schema.Types.ObjectId" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="kw82diBBPcrC9gqR29XW-22" vertex="1">
+          <mxGeometry y="26" width="240" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-24" value="hash: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="kw82diBBPcrC9gqR29XW-22" vertex="1">
+          <mxGeometry y="56" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-25" value="prevHash: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="kw82diBBPcrC9gqR29XW-22" vertex="1">
+          <mxGeometry y="82" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-26" value="data: BlockData" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="kw82diBBPcrC9gqR29XW-22" vertex="1">
+          <mxGeometry y="108" width="240" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-27" value="createdAt: datetime" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="kw82diBBPcrC9gqR29XW-22" vertex="1">
+          <mxGeometry y="138" width="240" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-28" value="Permission" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1660" y="40" width="240" height="168" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-29" value="_id: mongoose.Schema.Types.ObjectId" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="kw82diBBPcrC9gqR29XW-28" vertex="1">
+          <mxGeometry y="26" width="240" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-30" value="hash: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="kw82diBBPcrC9gqR29XW-28" vertex="1">
+          <mxGeometry y="56" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-31" value="prevHash: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="kw82diBBPcrC9gqR29XW-28" vertex="1">
+          <mxGeometry y="82" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-32" value="data: BlockData" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="kw82diBBPcrC9gqR29XW-28" vertex="1">
+          <mxGeometry y="108" width="240" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kw82diBBPcrC9gqR29XW-33" value="createdAt: datetime" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="kw82diBBPcrC9gqR29XW-28" vertex="1">
+          <mxGeometry y="138" width="240" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

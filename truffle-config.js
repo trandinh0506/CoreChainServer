@@ -1,3 +1,10 @@
+const HDWalletProvider = require('@truffle/hdwallet-provider');
+require('dotenv').config();
+
+const MNEMONIC = process.env.MNEMONIC;
+const INFURA_API_KEY = process.env.INFURA_API_KEY;
+const BLOCKCHAIN_ENDPOINT = process.env.BLOCKCHAIN_ENDPOINT;
+
 module.exports = {
   networks: {
     development: {
@@ -5,10 +12,23 @@ module.exports = {
       port: 7545,
       network_id: '*',
     },
+    sepolia: {
+      provider: () =>
+        new HDWalletProvider(
+          MNEMONIC,
+          BLOCKCHAIN_ENDPOINT,
+          // 'https://ethereum-sepolia-rpc.publicnode.com',
+        ),
+      network_id: 11155111, // Sepolia network ID
+      gas: 5500000,
+      confirmations: 2,
+      timeoutBlocks: 200,
+      skipDryRun: true,
+    },
   },
   compilers: {
     solc: {
-      version: '0.8.0',
+      version: '0.8.19',
     },
   },
   contracts_directory: './src/blockchain/contracts',

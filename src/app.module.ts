@@ -10,6 +10,16 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { BlockchainModule } from './blockchain/blockchain.module';
 import { ChatModule } from './chat/chat.module';
 import { WsModule } from './ws/ws.module';
+import { SecurityModule } from './security/security.module';
+import { RolesModule } from './roles/roles.module';
+import { PermissionsModule } from './permissions/permissions.module';
+import { DepartmentsModule } from './departments/departments.module';
+import { ProjectsModule } from './projects/projects.module';
+import { TasksModule } from './tasks/tasks.module';
+import { FeedbackModule } from './feedback/feedback.module';
+import { PositionsModule } from './positions/positions.module';
+import { FilesModule } from './files/files.module';
+import { ContractsModule } from './contracts/contracts.module';
 
 @Module({
   imports: [
@@ -39,6 +49,16 @@ import { WsModule } from './ws/ws.module';
     BlockchainModule,
     WsModule,
     ChatModule,
+    SecurityModule,
+    RolesModule,
+    PermissionsModule,
+    DepartmentsModule,
+    ProjectsModule,
+    TasksModule,
+    FeedbackModule,
+    PositionsModule,
+    FilesModule,
+    ContractsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -3,10 +3,16 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IUser } from 'src/users/users.interface';
+import { RolesService } from 'src/roles/roles.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private rolesService: RolesService,
+    private userService: UsersService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -16,19 +22,22 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
   async validate(payload: IUser) {
-    // , role
-    const { _id, name, email } = payload;
-    // if (!role || typeof role !== 'object' || !role._id) {
-    //   throw new Error('Invalid role data in JWT payload');
-    // }
-    // const roleData = await this.rolesService.findOne(role._id);
-    // const permissions = roleData ? (roleData.permissions ?? []) : [];
+    const { _id, name, email, role } = payload;
+    if (!role || typeof role !== 'object' || !role._id) {
+      throw new Error('Invalid role data in JWT payload');
+    }
+    const roleData = await this.rolesService.findOne(role._id);
+    const permissions = roleData ? (roleData.permissions ?? []) : [];
+    console.log(_id);
+    const employee = await this.userService.findOne(_id);
+    console.log(employee);
     return {
       _id,
       name,
       email,
-      // role,
-      // permissions,
+      role,
+      permissions,
+      employeeId: employee.employeeId,
     };
   }
 }

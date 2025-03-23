@@ -1,6 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { timestamp } from 'rxjs';
+import { Department } from 'src/departments/schemas/department.schema';
+import { Position } from 'src/positions/schemas/position.schema';
+import { Role } from 'src/roles/schemas/role.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -15,11 +18,11 @@ export class User {
   @Prop()
   password: string;
 
-  @Prop()
-  role: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Role.name })
+  role: mongoose.Schema.Types.ObjectId;
 
-  @Prop()
-  permissions: Array<string>;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Department.name })
+  department: mongoose.Schema.Types.ObjectId;
 
   @Prop()
   walletAddress: string;
@@ -37,28 +40,14 @@ export class User {
   @Prop()
   refreshToken: string;
 
-  //private infomation
   @Prop()
   employeeId: string;
-  @Prop()
-  personalIdentificationNumber: string;
-  @Prop()
-  position: mongoose.Schema.Types.ObjectId;
-  @Prop()
-  department: mongoose.Schema.Types.ObjectId;
-  @Prop()
-  employeeContractId: mongoose.Schema.Types.ObjectId;
-  @Prop()
-  startDate: Date;
-  @Prop()
-  terminationDate: Date;
-  @Prop()
-  personalTaxIdentificationNumber: string;
-  @Prop()
-  socialInsuranceNumber: string;
-  @Prop()
-  backAccountNumber: string;
 
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Position.name })
+  position: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ type: Boolean, default: false })
+  isDeleted: boolean;
   //timestamp
   @Prop()
   createdAt: Date;

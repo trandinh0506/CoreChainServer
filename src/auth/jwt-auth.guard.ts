@@ -27,32 +27,42 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
   handleRequest(err, user, info, context: ExecutionContext) {
     const request: Request = context.switchToHttp().getRequest();
-
     const isSkipPermission = this.reflector.getAllAndOverride<Boolean>(
       IS_PUBLIC_PERMISSION,
       [context.getHandler(), context.getClass()],
     );
+
     // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) {
       throw err || new UnauthorizedException('Token is absent or invalid');
     }
 
     // //check permissions
-    // const targetMethod = request.method;
-    // const targetEndpoint = request.route?.path as string;
+    const targetMethod = request.method;
+    const targetEndpoint = request.route?.path as string;
+    const permissions = user?.permissions ?? [];
+    console.log(permissions);
+    console.log(targetMethod, targetEndpoint);
 
-    // const permissions = user?.permissions ?? [];
-    // let isExist = permissions.find(
-    //   (permission) =>
-    //     targetMethod === permission.method &&
-    //     targetEndpoint === permission.apiPath,
-    // );
-    // if (targetEndpoint.startsWith('/api/v1/auth')) isExist = true;
-    // if (!isExist && !isSkipPermission)
-    //   throw new ForbiddenException(
-    //     'You do not have permission to access this endpoint',
-    //   );
+    let isExist = permissions.find(
+      (permission) =>
+        targetMethod === permission.method &&
+        targetEndpoint === '/api/v1/' + permission.apiPath,
+    );
+    if (targetEndpoint.startsWith('/api/v1/auth')) isExist = true;
 
+    if (
+      targetEndpoint === '/api/v1/users/private/:id' &&
+      targetMethod === 'GET' &&
+      !isExist
+    ) {
+      if (request.params.id === user.employeeId.toString()) isExist = true;
+    }
+
+    if (!isExist)
+      throw new ForbiddenException(
+        'You do not have permission to access this endpoint',
+      );
     return user;
   }
 }

@@ -22,13 +22,14 @@ export class CreateUserDto {
   password: string;
 
   @IsNotEmpty({ message: 'Role must not be empty !' })
-  role: string;
-  //permissions: [string]
-  @IsOptional()
+  role: mongoose.Schema.Types.ObjectId;
+
+  @IsNotEmpty({ message: 'Working hours must not be empty !' })
   @Transform(({ value }) => (value === undefined ? 0 : value))
-  // @IsNumber({}, { message: 'Working hours must be number !' })
+  @IsNumber({}, { message: 'Working hours must be number !' })
   workingHours: number;
 
+  //private infomation
   @IsNotEmpty({ message: 'Employee ID must not be empty !' })
   @IsString()
   employeeId: string;
@@ -36,29 +37,37 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Personal Identificaion Number must not be empty !' })
   @IsString()
   personalIdentificationNumber: string;
+
   @IsOptional()
   @IsMongoId()
   position: mongoose.Schema.Types.ObjectId;
-  @IsOptional()
+
+  @IsNotEmpty({ message: 'DepartmentId must not be empty !' })
   @IsMongoId()
-  department: mongoose.Schema.Types.ObjectId;
+  departmentId: mongoose.Schema.Types.ObjectId;
+
   @IsOptional()
   @IsMongoId()
   employeeContractId: mongoose.Schema.Types.ObjectId;
-  @IsOptional()
-  @IsDate()
-  startDate: Date;
-  @IsOptional()
-  @IsDate()
-  terminationDate: Date;
 
-  @IsOptional()
+  // @IsOptional()
+  // @IsDate()
+  // startDate: Date;
+  // @IsOptional()
+  // @IsDate()
+  // terminationDate: Date;
+
+  @IsNotEmpty({
+    message: 'Personal Tax Idenification Number must not be empty !',
+  })
   @IsString()
   personalTaxIdentificationNumber: string;
-  @IsOptional()
+
+  @IsNotEmpty({ message: 'Social Insurance Number must not be empty !' })
   @IsString()
   socialInsuranceNumber: string;
-  @IsOptional()
+
+  @IsNotEmpty({ message: 'Bank Account must not be empty !' })
   @IsString()
   backAccountNumber: string;
 }
