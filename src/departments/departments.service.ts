@@ -16,16 +16,8 @@ export class DepartmentsService {
   ) {}
 
   async create(createDepartmentDto: CreateDepartmentDto, user: IUser) {
-    const {
-      name,
-      code,
-      description,
-      managerId,
-      employeeIds,
-      status,
-      budget,
-      projectIds,
-    } = createDepartmentDto;
+    const { name, code, description, manager, status, budget, projectIds } =
+      createDepartmentDto;
     const isExist = await this.departmentModel.findOne({ code: code });
     if (isExist) {
       throw new BadRequestException('Department already exist !');
@@ -34,8 +26,7 @@ export class DepartmentsService {
       name,
       code,
       description,
-      managerId,
-      employeeIds,
+      manager,
       status,
       budget,
       projectIds,

@@ -1,32 +1,55 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
+import { timestamp } from 'rxjs';
+import { Position } from 'src/positions/schemas/position.schema';
+import { Role } from 'src/roles/schemas/role.schema';
 import { User } from 'src/users/schemas/user.schema';
 
-export type DepartmentDocument = HydratedDocument<Department>;
+export type ContractDocument = HydratedDocument<Contract>;
 
 @Schema({ timestamps: true })
-export class Department {
+export class Contract {
   @Prop()
-  name: string;
+  contractCode: string;
 
   @Prop()
-  code: string;
+  type: string;
 
   @Prop()
-  description: string;
+  file: string;
 
   @Prop()
-  manager: string;
+  startDate: Date;
+
+  @Prop()
+  endDate: Date;
 
   @Prop()
   status: string;
 
-  @Prop()
-  budget: number;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
+  employee: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId })
-  // ref: Project.name
-  projectIds: Array<mongoose.Schema.Types.ObjectId>;
+  @Prop()
+  salary: number;
+
+  @Prop()
+  allowances: number;
+
+  @Prop()
+  insurance: string;
+
+  @Prop()
+  workingHours: number;
+
+  @Prop()
+  leavePolicy: string;
+
+  @Prop()
+  terminationTerms: string;
+
+  @Prop()
+  confidentialityClause: string;
 
   @Prop({ type: Boolean, default: false })
   isDeleted: boolean;
@@ -59,4 +82,4 @@ export class Department {
   };
 }
 
-export const DepartmentSchema = SchemaFactory.createForClass(Department);
+export const ContractSchema = SchemaFactory.createForClass(Contract);

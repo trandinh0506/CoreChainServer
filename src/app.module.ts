@@ -17,6 +17,7 @@ import { TasksModule } from './tasks/tasks.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { PositionsModule } from './positions/positions.module';
 import { FilesModule } from './files/files.module';
+import { ContractsModule } from './contracts/contracts.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { FilesModule } from './files/files.module';
     FeedbackModule,
     PositionsModule,
     FilesModule,
+    ContractsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

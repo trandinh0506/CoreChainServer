@@ -122,8 +122,6 @@ export class UsersService {
             createUserDto.personalIdentificationNumber,
           department: createUserDto.departmentId,
           employeeContractId: createUserDto.employeeContractId,
-          startDate: createUserDto.startDate,
-          terminationDate: createUserDto.terminationDate,
           personalTaxIdentificationNumber:
             createUserDto.personalTaxIdentificationNumber,
           socialInsuranceNumber: createUserDto.socialInsuranceNumber,
