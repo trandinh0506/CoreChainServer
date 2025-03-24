@@ -119,15 +119,15 @@ export class BlockchainService implements OnModuleInit {
     });
   }
 
-  async addEmployee(employeeData: EmployeeBlockchainData): Promise<string> {
+  async addEmployee(employeeData: any, employeeId: string): Promise<string> {
     try {
       // Encrypt employee data before storing
       const encryptedData = this.securityService.encrypt(employeeData);
-
+      console.log(encryptedData);
       // Add employee by smart contract
       const result = await this.employeeRegistry.methods
-        .addEmployee(employeeData.employeeId, encryptedData)
-        .send({ from: this.account, gas: 1000000 });
+        .addEmployee(employeeId, encryptedData)
+        .send({ from: this.account, gas: 5000000 });
 
       return result.transactionHash;
     } catch (error) {
@@ -170,7 +170,7 @@ export class BlockchainService implements OnModuleInit {
     }
   }
 
-  async getEmployee(employeeId: string): Promise<EmployeeBlockchainData> {
+  async getEmployee(employeeId: string) {
     try {
       const employee = (await this.employeeRegistry.methods
         .getEmployee(employeeId)
@@ -179,9 +179,7 @@ export class BlockchainService implements OnModuleInit {
 
       console.log(id, encryptedData, timestamp, isActive);
       // Decrypt the data
-      const employeeData = this.securityService.decrypt(
-        this.securityService.decrypt(encryptedData).encryptedData,
-      );
+      const employeeData = this.securityService.decrypt(encryptedData);
       return {
         ...employeeData,
         timestamp: new Date(Number(timestamp) * 1000),

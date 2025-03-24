@@ -94,7 +94,15 @@ export class UsersService {
   }
   async create(createUserDto: CreateUserDto, user: IUser) {
     try {
-      const { name, email, password, role } = createUserDto;
+      const {
+        name,
+        email,
+        password,
+        role,
+        workingHours,
+        positionId,
+        departmentId,
+      } = createUserDto;
       const isExist = await this.userModel.findOne({ email });
       if (isExist) {
         throw new BadRequestException(
@@ -108,7 +116,10 @@ export class UsersService {
         email,
         password: hashPassword,
         employeeId: createUserDto.employeeId,
+        position: positionId,
+        department: departmentId,
         role: role,
+        workingHours,
         createdBy: {
           _id: user._id,
           email: user.email,
@@ -116,23 +127,39 @@ export class UsersService {
       });
 
       const employeeData = {
-        employeeId: createUserDto.employeeId,
-        encryptedData: this.securityService.encrypt({
-          personalIdentificationNumber:
-            createUserDto.personalIdentificationNumber,
-          department: createUserDto.departmentId,
-          employeeContractId: createUserDto.employeeContractId,
-          personalTaxIdentificationNumber:
-            createUserDto.personalTaxIdentificationNumber,
-          socialInsuranceNumber: createUserDto.socialInsuranceNumber,
-          backAccountNumber: createUserDto.backAccountNumber,
-          // Don't save password information
-        }),
+        personalIdentificationNumber:
+          createUserDto.personalIdentificationNumber,
+        dateOfBirth: createUserDto.dateOfBirth,
+        personalPhoneNumber: createUserDto.personalPhoneNumber,
+        male: createUserDto.male,
+        nationality: createUserDto.nationality,
+        permanentAddress: createUserDto.permanentAddress,
+        biometricData: createUserDto.biometricData,
+        employeeContractCode: createUserDto.employeeContractCode,
+        salary: createUserDto.salary,
+        allowances: createUserDto.allowances,
+        loansSupported: createUserDto.loansSupported,
+        healthCheckRecordCode: createUserDto.healthCheckRecordCode,
+        medicalHistory: createUserDto.medicalHistory,
+        healthInsuranceCode: createUserDto.healthInsuranceCode,
+        lifeInsuranceCode: createUserDto.lifeInsuranceCode,
+        personalTaxIdentificationNumber:
+          createUserDto.personalTaxIdentificationNumber,
+        socialInsuranceNumber: createUserDto.socialInsuranceNumber,
+        backAccountNumber: createUserDto.backAccountNumber,
       };
-      console.log(employeeData);
       try {
-        const txHash = await this.blockchainService.addEmployee(employeeData);
+        const txHash = await this.blockchainService.addEmployee(
+          employeeData,
+          createUserDto.employeeId,
+        );
         console.log(txHash);
+        await this.userModel.updateOne(
+          { _id: newUser._id },
+          {
+            blockchainTxHash: txHash,
+          },
+        );
         return {
           ...createUserDto,
           blockchainTxHash: txHash,
@@ -192,6 +219,7 @@ export class UsersService {
       .populate([
         { path: 'role', select: { name: 1, _id: 1 } },
         { path: 'position', select: '_id title' },
+        { path: 'department', select: '_id name' },
       ]);
   }
 
@@ -202,12 +230,16 @@ export class UsersService {
     const publicEmployee = await this.userModel
       .findById(id)
       .select('-password -refreshToken')
-      .populate({ path: 'role', select: { name: 1, _id: 1 } })
+      .populate([
+        { path: 'role', select: { name: 1, _id: 1 } },
+        { path: 'position', select: '_id title' },
+        { path: 'department', select: '_id name' },
+      ])
       .lean();
+    //handle private data
     const privateEmployee = await this.blockchainService.getEmployee(
       publicEmployee.employeeId,
     );
-
     return {
       ...publicEmployee,
       ...privateEmployee,

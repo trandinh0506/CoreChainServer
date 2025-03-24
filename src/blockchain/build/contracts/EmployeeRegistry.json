@@ -144,8 +144,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [],
@@ -158,8 +157,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.8.19+commit.7dd6d404\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"employeeId\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"EmployeeAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"employeeId\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"EmployeeDeactivated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"employeeId\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"EmployeeUpdated\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_employeeId\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_encryptedData\",\"type\":\"string\"}],\"name\":\"addEmployee\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_employeeId\",\"type\":\"string\"}],\"name\":\"deactivateEmployee\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getAllEmployeeIds\",\"outputs\":[{\"internalType\":\"string[]\",\"name\":\"\",\"type\":\"string[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_employeeId\",\"type\":\"string\"}],\"name\":\"getEmployee\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_employeeId\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_encryptedData\",\"type\":\"string\"}],\"name\":\"updateEmployee\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/src/blockchain/contracts/EmployeeRegistry.sol\":\"EmployeeRegistry\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/src/blockchain/contracts/EmployeeRegistry.sol\":{\"keccak256\":\"0x6f9d01a035cbf6e297c225167f98d32771a07ec85c7d48d7dbb5f01462d9c9db\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5621a219af7779a68d3425cbb174f385b28abcd23e37662ccad6c18363cada0e\",\"dweb:/ipfs/QmNnruA9XqY9avyLq7SJDi3euPvDw9xx9wfH3Qb2qfE9SU\"]}},\"version\":1}",
@@ -12914,13 +12912,12 @@
     "11155111": {
       "events": {},
       "links": {},
-      "address": "0x0A8604D3Ca6aee76F774bAE0b6608CDf369CE09D",
-      "transactionHash": "0xdbb71b53a496133fafa36fdee19513cf7381a00fa664e5a7fb9a8d49f5405bb6"
+      "address": "0x3fB97F3310Bc4BFd85C1C9046Dbf69254221d339",
+      "transactionHash": "0x6bb7cda1463b0dee95423c1cc37d97670a2a4b49ebb7655d1f094d78fedbf7dc"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2025-03-20T03:30:18.390Z",
-  "networkType": "ethereum",
+  "updatedAt": "2025-03-24T04:27:44.748Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

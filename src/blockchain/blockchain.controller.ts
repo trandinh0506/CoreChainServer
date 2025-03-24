@@ -15,8 +15,11 @@ export class BlockchainController {
   constructor(private readonly blockchainService: BlockchainService) {}
 
   @Post('employee')
-  async addEmployee(@Body() employeeData: EmployeeBlockchainData) {
-    const txHash = await this.blockchainService.addEmployee(employeeData);
+  async addEmployee(@Body() employeeData: any, @Body() employeeId: string) {
+    const txHash = await this.blockchainService.addEmployee(
+      employeeData,
+      employeeId,
+    );
     return { success: true, transactionHash: txHash };
   }
 

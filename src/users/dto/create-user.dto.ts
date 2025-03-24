@@ -30,42 +30,77 @@ export class CreateUserDto {
   workingHours: number;
 
   //private infomation
-  @IsNotEmpty({ message: 'Employee ID must not be empty !' })
-  @IsString()
-  employeeId: string;
-
   @IsNotEmpty({ message: 'Personal Identificaion Number must not be empty !' })
   @IsString()
   personalIdentificationNumber: string;
 
-  @IsOptional()
+  @IsNotEmpty({ message: 'Employee ID must not be empty !' })
+  @IsString()
+  employeeId: string;
+
+  @IsNotEmpty()
+  dateOfBirth: Date;
+
+  @IsNotEmpty()
+  personalPhoneNumber: string;
+
+  @IsNotEmpty()
+  male: boolean;
+
+  @IsNotEmpty()
+  nationality: string;
+
+  @IsNotEmpty()
+  permanentAddress: string;
+
+  @IsNotEmpty()
+  biometricData: string;
+
+  @IsNotEmpty()
   @IsMongoId()
-  position: mongoose.Schema.Types.ObjectId;
+  positionId: mongoose.Schema.Types.ObjectId;
 
   @IsNotEmpty({ message: 'DepartmentId must not be empty !' })
   @IsMongoId()
   departmentId: mongoose.Schema.Types.ObjectId;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsMongoId()
-  employeeContractId: mongoose.Schema.Types.ObjectId;
+  employeeContractCode: mongoose.Schema.Types.ObjectId;
 
-  // @IsOptional()
-  // @IsDate()
-  // startDate: Date;
-  // @IsOptional()
-  // @IsDate()
-  // terminationDate: Date;
+  @IsNotEmpty()
+  @IsNumber()
+  salary: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  allowances: number;
+
+  @IsOptional()
+  @IsNumber()
+  loansSupported: number;
+
+  @IsOptional()
+  healthCheckRecordCode: string[];
+
+  @IsNotEmpty()
+  medicalHistory: string;
+
+  @IsNotEmpty()
+  healthInsuranceCode: string;
+
+  @IsNotEmpty()
+  lifeInsuranceCode: string;
+
+  @IsNotEmpty({ message: 'Social Insurance Number must not be empty !' })
+  @IsString()
+  socialInsuranceNumber: string;
 
   @IsNotEmpty({
     message: 'Personal Tax Idenification Number must not be empty !',
   })
   @IsString()
   personalTaxIdentificationNumber: string;
-
-  @IsNotEmpty({ message: 'Social Insurance Number must not be empty !' })
-  @IsString()
-  socialInsuranceNumber: string;
 
   @IsNotEmpty({ message: 'Bank Account must not be empty !' })
   @IsString()
