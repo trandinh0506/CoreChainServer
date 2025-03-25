@@ -111,20 +111,6 @@ export class UsersService {
       }
 
       const hashPassword = this.getHashPassword(password);
-      let newUser = await this.userModel.create({
-        name,
-        email,
-        password: hashPassword,
-        employeeId: createUserDto.employeeId,
-        position: positionId,
-        department: departmentId,
-        role: role,
-        workingHours,
-        createdBy: {
-          _id: user._id,
-          email: user.email,
-        },
-      });
 
       const employeeData = {
         personalIdentificationNumber:
@@ -148,26 +134,32 @@ export class UsersService {
         socialInsuranceNumber: createUserDto.socialInsuranceNumber,
         backAccountNumber: createUserDto.backAccountNumber,
       };
-      try {
-        const txHash = await this.blockchainService.addEmployee(
-          employeeData,
-          createUserDto.employeeId,
-        );
-        console.log(txHash);
-        await this.userModel.updateOne(
-          { _id: newUser._id },
-          {
-            blockchainTxHash: txHash,
-          },
-        );
-        return {
-          ...createUserDto,
-          blockchainTxHash: txHash,
-        };
-      } catch (error) {
-        throw error;
-      }
-      return newUser;
+      const txHash = await this.blockchainService.addEmployee(
+        employeeData,
+        createUserDto.employeeId,
+      );
+      console.log(txHash);
+
+      let newUser = await this.userModel.create({
+        name,
+        email,
+        password: hashPassword,
+        employeeId: createUserDto.employeeId,
+        position: positionId,
+        department: departmentId,
+        role: role,
+        workingHours,
+        blockchainTxHash: txHash,
+        createdBy: {
+          _id: user._id,
+          email: user.email,
+        },
+      });
+      return {
+        ...createUserDto,
+        blockchainTxHash: txHash,
+      };
+      // return newUser;
     } catch (error) {
       throw new BadRequestException(error.message);
     }

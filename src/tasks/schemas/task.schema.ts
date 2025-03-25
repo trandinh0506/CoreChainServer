@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { Priority, Status } from 'src/projects/schemas/project.schema';
 
 export type TaskDocument = HydratedDocument<Task>;
 
@@ -31,10 +30,10 @@ export class Task {
   projectId: mongoose.Schema.Types.ObjectId;
 
   @Prop()
-  priority: Priority;
+  priority: number;
 
   @Prop()
-  status: Status;
+  status: number;
 
   @Prop()
   startDate: Date;

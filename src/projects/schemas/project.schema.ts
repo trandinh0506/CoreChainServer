@@ -1,22 +1,21 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { Task } from 'src/tasks/schemas/task.schema';
 
 export type ProjectDocument = HydratedDocument<Project>;
 
-export enum Status {
-  PENDING = 'Pending',
-  IN_PROGRESS = 'In Progress',
-  COMPLETED = 'Completed',
-  ON_HOLD = 'On Hold',
-  CANCELLED = 'Cancelled',
-}
-export enum Priority {
-  LOW = 'Low',
-  MEDIUM = 'Medium',
-  HIGH = 'High',
-  CRITICAL = 'Critical',
-}
+// export enum Status {
+//   PENDING = 'Pending',
+//   IN_PROGRESS = 'In Progress',
+//   COMPLETED = 'Completed',
+//   ON_HOLD = 'On Hold',
+//   CANCELLED = 'Cancelled',
+// }
+// export enum Priority {
+//   LOW = 'Low',
+//   MEDIUM = 'Medium',
+//   HIGH = 'High',
+//   CRITICAL = 'Critical',
+// }
 @Schema({ timestamps: true })
 export class Project {
   @Prop()
@@ -31,7 +30,7 @@ export class Project {
   @Prop()
   teamMembers: Array<mongoose.Schema.Types.ObjectId>;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Task.name })
+  @Prop()
   tasks: Array<mongoose.Schema.Types.ObjectId>;
 
   @Prop()
@@ -44,10 +43,10 @@ export class Project {
   revenue: number;
 
   @Prop()
-  priority: Priority;
+  priority: number;
 
   @Prop()
-  status: Status;
+  status: number;
 
   @Prop()
   progess: number;

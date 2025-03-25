@@ -1,5 +1,7 @@
+import { Optional } from '@nestjs/common';
 import { Transform } from 'class-transformer';
 import {
+  IsArray,
   IsDate,
   IsEmail,
   IsMongoId,
@@ -9,7 +11,6 @@ import {
   IsString,
 } from 'class-validator';
 import mongoose from 'mongoose';
-import { Priority, Status } from 'src/projects/schemas/project.schema';
 
 export class CreateTaskDto {
   @IsNotEmpty()
@@ -22,13 +23,8 @@ export class CreateTaskDto {
   description: string;
 
   @IsOptional()
+  @IsArray()
   attachments: Array<string>;
-
-  @IsNotEmpty()
-  createdBy: {
-    _id: mongoose.Schema.Types.ObjectId;
-    email: string;
-  };
 
   @IsNotEmpty()
   assignedTo: mongoose.Schema.Types.ObjectId;
@@ -37,14 +33,14 @@ export class CreateTaskDto {
   projectId: mongoose.Schema.Types.ObjectId;
 
   @IsNotEmpty()
-  priority: Priority;
+  priority: number;
 
   @IsNotEmpty()
-  status: Status;
+  status: number;
 
   @IsNotEmpty()
   startDate: Date;
 
   @IsNotEmpty()
-  DueDate: Date;
+  dueDate: Date;
 }
