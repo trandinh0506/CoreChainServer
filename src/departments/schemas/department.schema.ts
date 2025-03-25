@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument, mongo } from 'mongoose';
+import { Project } from 'src/projects/schemas/project.schema';
 import { User } from 'src/users/schemas/user.schema';
 
 export type DepartmentDocument = HydratedDocument<Department>;
@@ -16,7 +17,10 @@ export class Department {
   description: string;
 
   @Prop()
-  manager: string;
+  manager: mongoose.Schema.Types.ObjectId;
+
+  @Prop()
+  employees: Array<mongoose.Schema.Types.ObjectId>;
 
   @Prop()
   status: string;
@@ -24,8 +28,9 @@ export class Department {
   @Prop()
   budget: number;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId })
-  // ref: Project.name
+  @Prop({
+    // type: [{ type: mongoose.Schema.Types.ObjectId, ref: Project.name }],
+  })
   projectIds: Array<mongoose.Schema.Types.ObjectId>;
 
   @Prop({ type: Boolean, default: false })

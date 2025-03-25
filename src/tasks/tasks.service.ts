@@ -6,14 +6,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Task, TaskDocument } from './schemas/task.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
-import mongoose from 'mongoose';
-import { ProjectsService } from 'src/projects/projects.service';
+import mongoose, { ObjectId } from 'mongoose';
+// import { ProjectsService } from 'src/projects/projects.service';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectModel(Task.name) private taskModel: SoftDeleteModel<TaskDocument>,
-    private projectService: ProjectsService,
+    // private projectService: ProjectsService,
   ) {}
   async create(createTaskDto: CreateTaskDto, user: IUser) {
     const {
@@ -46,6 +46,18 @@ export class TasksService {
     });
     return newTask;
   }
+
+  async countTask(status: number, id: string) {
+    if (status === 0) {
+      return this.taskModel.countDocuments({
+        projectId: new mongoose.Types.ObjectId(id),
+      });
+    }
+    return this.taskModel.countDocuments({
+      status,
+      projectId: new mongoose.Types.ObjectId(id),
+    });
+  }
   async findAll(currentPage: number, limit: number, qs: string) {
     let { filter, skip, sort, projection, population = [] } = aqp(qs);
     delete filter.current;
@@ -66,22 +78,22 @@ export class TasksService {
       .populate(population)
       .exec();
     //find project and add project.name to task
-    const projectIds = result
-      .map((task) => task.projectId?.toString())
-      .filter(Boolean);
+    // const projectIds = result
+    //   .map((task) => task.projectId?.toString())
+    //   .filter(Boolean);
 
-    const projects = await Promise.all(
-      projectIds.map((id) => this.projectService.findOne(id)),
-    );
+    // const projects = await Promise.all(
+    //   projectIds.map((id) => this.projectService.findOne(id)),
+    // );
 
-    const projectMap = new Map(
-      projects.map((project) => [project._id.toString(), project.name]),
-    );
+    // const projectMap = new Map(
+    //   projects.map((project) => [project._id.toString(), project.name]),
+    // );
 
-    const tasksWithProjectName = result.map((task) => ({
-      ...task.toObject(),
-      projectName: projectMap.get(task.projectId?.toString()) || null,
-    }));
+    // const tasksWithProjectName = result.map((task) => ({
+    //   ...task.toObject(),
+    //   projectName: projectMap.get(task.projectId?.toString()) || null,
+    // }));
     return {
       meta: {
         current: currentPage,
@@ -89,7 +101,8 @@ export class TasksService {
         pages: totalPages,
         total: totalItems,
       },
-      result: tasksWithProjectName,
+      // result: tasksWithProjectName,
+      result,
     };
   }
 
@@ -101,12 +114,12 @@ export class TasksService {
       .findOne({ _id: id })
       .populate([{ path: 'assignedTo', select: '_id name email' }])
       .lean();
-    const project = await this.projectService.findOne(
-      task.projectId.toString(),
-    );
+    // const project = await this.projectService.findOne(
+    //   task.projectId.toString(),
+    // );
     return {
       ...task,
-      projectName: project.name,
+      // projectName: project.name,
     };
   }
 

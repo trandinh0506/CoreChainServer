@@ -7,12 +7,14 @@ import { Project, ProjectDocument } from './schemas/project.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
+import { TasksService } from 'src/tasks/tasks.service';
 
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectModel(Project.name)
     private projectModel: SoftDeleteModel<ProjectDocument>,
+    private taskService: TasksService,
   ) {}
   async create(createProjectDto: CreateProjectDto, user: IUser) {
     const {
@@ -58,13 +60,28 @@ export class ProjectsService {
     const totalItems = (await this.projectModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    const result = await this.projectModel
+    const projects = await this.projectModel
       .find(filter)
       .skip(offset)
       .limit(defaultLimit)
       .sort(sort as any)
       .populate(population)
       .exec();
+
+    const projectIds = projects.map((p) => p._id);
+
+    const taskCompletedCounts = await Promise.all(
+      projectIds.map((id) => this.taskService.countTask(3, id.toString())),
+    );
+    const taskTotalCounts = await Promise.all(
+      projectIds.map((id) => this.taskService.countTask(0, id.toString())),
+    );
+
+    projects.forEach((project, index) => {
+      const taskCompleted = taskCompletedCounts[index] || 0;
+      const taskTotal = taskTotalCounts[index] || 1;
+      project.progress = (taskCompleted / taskTotal) * 100;
+    });
 
     return {
       meta: {
@@ -73,16 +90,22 @@ export class ProjectsService {
         pages: totalPages,
         total: totalItems,
       },
-      result,
+      projects,
     };
   }
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid project ID`);
     }
-    return this.projectModel
+    const project = await this.projectModel
       .findOne({ _id: id })
-      .populate([{ path: 'teamMembers', select: '_id name email' }]);
+      .populate([{ path: 'teamMembers', select: '_id name email' }])
+      .lean();
+    const taskCompleted = await this.taskService.countTask(3, id);
+    const taskAmount = await this.taskService.countTask(0, id);
+    console.log(taskCompleted, taskAmount);
+    project.progress = (taskCompleted / taskAmount) * 100;
+    return project;
   }
 
   async update(id: string, updateProjectDto: UpdateProjectDto, user: IUser) {

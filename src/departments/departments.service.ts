@@ -77,8 +77,8 @@ export class DepartmentsService {
     return this.departmentModel
       .findById(id)
       .populate([
-        { path: 'managerId', select: '_id name email' },
-        { path: 'employeeIds', select: '_id name email' },
+        { path: 'manager', select: '_id name email' },
+        { path: 'employees', select: '_id name email' },
       ])
       .exec();
   }

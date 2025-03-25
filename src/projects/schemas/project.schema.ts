@@ -52,7 +52,7 @@ export class Project {
   status: number;
 
   @Prop()
-  progess: number;
+  progress: number;
 
   @Prop()
   startDate: Date;

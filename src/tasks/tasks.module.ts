@@ -14,11 +14,15 @@ import { User, UserSchema } from 'src/users/schemas/user.schema';
   imports: [
     MongooseModule.forFeature([
       { name: Task.name, schema: TaskSchema },
-      { name: Project.name, schema: ProjectSchema },
+      // { name: Project.name, schema: ProjectSchema },
     ]),
-    ProjectsModule,
+    //   ProjectsModule,
   ],
   controllers: [TasksController],
-  providers: [TasksService, ProjectsService],
+  providers: [
+    TasksService,
+    // ProjectsService
+  ],
+  exports: [TasksService],
 })
 export class TasksModule {}
