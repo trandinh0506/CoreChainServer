@@ -80,7 +80,9 @@ export class ProjectsService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid project ID`);
     }
-    return this.projectModel.findById(id);
+    return this.projectModel
+      .findOne({ _id: id })
+      .populate([{ path: 'teamMembers', select: '_id name email' }]);
   }
 
   async update(id: string, updateProjectDto: UpdateProjectDto, user: IUser) {

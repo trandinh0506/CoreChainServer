@@ -7,11 +7,13 @@ import { Task, TaskDocument } from './schemas/task.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
 import mongoose from 'mongoose';
+import { ProjectsService } from 'src/projects/projects.service';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectModel(Task.name) private taskModel: SoftDeleteModel<TaskDocument>,
+    private projectService: ProjectsService,
   ) {}
   async create(createTaskDto: CreateTaskDto, user: IUser) {
     const {
@@ -45,7 +47,7 @@ export class TasksService {
     return newTask;
   }
   async findAll(currentPage: number, limit: number, qs: string) {
-    const { filter, skip, sort, projection, population } = aqp(qs);
+    let { filter, skip, sort, projection, population = [] } = aqp(qs);
     delete filter.current;
     delete filter.pageSize;
     filter.isDeleted = false;
@@ -54,7 +56,7 @@ export class TasksService {
 
     const totalItems = (await this.taskModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-
+    population.push({ path: 'assignedTo', select: '_id name email' });
     const result = await this.taskModel
       .find(filter)
       .select('-password')
@@ -63,7 +65,23 @@ export class TasksService {
       .sort(sort as any)
       .populate(population)
       .exec();
+    //find project and add project.name to task
+    const projectIds = result
+      .map((task) => task.projectId?.toString())
+      .filter(Boolean);
 
+    const projects = await Promise.all(
+      projectIds.map((id) => this.projectService.findOne(id)),
+    );
+
+    const projectMap = new Map(
+      projects.map((project) => [project._id.toString(), project.name]),
+    );
+
+    const tasksWithProjectName = result.map((task) => ({
+      ...task.toObject(),
+      projectName: projectMap.get(task.projectId?.toString()) || null,
+    }));
     return {
       meta: {
         current: currentPage,
@@ -71,7 +89,7 @@ export class TasksService {
         pages: totalPages,
         total: totalItems,
       },
-      result,
+      result: tasksWithProjectName,
     };
   }
 
@@ -79,7 +97,17 @@ export class TasksService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid task ID`);
     }
-    return this.taskModel.findById(id);
+    const task = await this.taskModel
+      .findOne({ _id: id })
+      .populate([{ path: 'assignedTo', select: '_id name email' }])
+      .lean();
+    const project = await this.projectService.findOne(
+      task.projectId.toString(),
+    );
+    return {
+      ...task,
+      projectName: project.name,
+    };
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto, user: IUser) {

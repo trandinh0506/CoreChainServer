@@ -27,6 +27,7 @@ export class CreateTaskDto {
   attachments: Array<string>;
 
   @IsNotEmpty()
+  @IsMongoId()
   assignedTo: mongoose.Schema.Types.ObjectId;
 
   @IsNotEmpty()
