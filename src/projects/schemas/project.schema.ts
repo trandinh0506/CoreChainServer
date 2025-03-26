@@ -29,13 +29,16 @@ export class Project {
   @Prop()
   attachments: Array<string>;
 
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
+  manager: mongoose.Schema.Types.ObjectId;
+
   @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId }],
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: User.name }],
   })
   teamMembers: Array<mongoose.Schema.Types.ObjectId>;
 
   @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId }],
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: Task.name }],
   })
   tasks: Array<mongoose.Schema.Types.ObjectId>;
 

@@ -39,7 +39,7 @@ export class DepartmentsService {
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
-    const { filter, skip, sort, projection, population } = aqp(qs);
+    let { filter, skip, sort, projection, population } = aqp(qs);
 
     delete filter.current;
     delete filter.pageSize;
@@ -50,7 +50,8 @@ export class DepartmentsService {
 
     const totalItems = (await this.departmentModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-
+    // population.push({ path: 'manager', select: '_id name email' });
+    // population.push({ path: 'employees', select: '_id name email' });
     const result = await this.departmentModel
       .find(filter)
       .skip(offset)
@@ -74,13 +75,15 @@ export class DepartmentsService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid department ID`);
     }
-    return this.departmentModel
-      .findById(id)
-      .populate([
-        { path: 'manager', select: '_id name email' },
-        { path: 'employees', select: '_id name email' },
-      ])
-      .exec();
+    return (
+      this.departmentModel
+        .findById(id)
+        // .populate([
+        //   { path: 'manager', select: '_id name email' },
+        //   { path: 'employees', select: '_id name email' },
+        // ])
+        .exec()
+    );
   }
 
   async update(

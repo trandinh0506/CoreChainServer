@@ -59,7 +59,9 @@ export class ProjectsService {
 
     const totalItems = (await this.projectModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-    // population.push({ path: 'tasks', select: 'name' });
+    population.push({ path: 'tasks', select: 'name' });
+    population.push({ path: 'manager', select: 'name email' });
+    population.push({ path: 'teamMembers', select: 'name email' });
     const projects = await this.projectModel
       .find(filter)
       .skip(offset)
@@ -68,20 +70,20 @@ export class ProjectsService {
       .populate(population)
       .exec();
 
-    // const projectIds = projects.map((p) => p._id);
+    const projectIds = projects.map((p) => p._id);
 
-    // const taskCompletedCounts = await Promise.all(
-    //   projectIds.map((id) => this.taskService.countTask(3, id.toString())),
-    // );
-    // const taskTotalCounts = await Promise.all(
-    //   projectIds.map((id) => this.taskService.countTask(0, id.toString())),
-    // );
+    const taskCompletedCounts = await Promise.all(
+      projectIds.map((id) => this.taskService.countTask(3, id.toString())),
+    );
+    const taskTotalCounts = await Promise.all(
+      projectIds.map((id) => this.taskService.countTask(0, id.toString())),
+    );
 
-    // projects.forEach((project, index) => {
-    //   const taskCompleted = taskCompletedCounts[index] || 0;
-    //   const taskTotal = taskTotalCounts[index] || 1;
-    //   project.progress = (taskCompleted / taskTotal) * 100;
-    // });
+    projects.forEach((project, index) => {
+      const taskCompleted = taskCompletedCounts[index] || 0;
+      const taskTotal = taskTotalCounts[index] || 1;
+      project.progress = (taskCompleted / taskTotal) * 100;
+    });
 
     return {
       meta: {
@@ -97,7 +99,13 @@ export class ProjectsService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid project ID`);
     }
-    const project = await this.projectModel.findOne({ _id: id }).lean();
+    const project = await this.projectModel
+      .findOne({ _id: id })
+      .populate([
+        { path: 'teamMembers', select: 'name email' },
+        { path: 'manager', select: 'name email' },
+      ])
+      .lean();
     const taskCompleted = await this.taskService.countTask(3, id);
     const taskAmount = await this.taskService.countTask(0, id);
     console.log(taskCompleted, taskAmount);
