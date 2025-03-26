@@ -32,7 +32,7 @@ export class ContractsService {
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
-    const { filter, skip, sort, projection, population } = aqp(qs);
+    let { filter, skip, sort, projection, population = [] } = aqp(qs);
     delete filter.current;
     delete filter.pageSize;
     filter.isDeleted = false;
@@ -41,7 +41,7 @@ export class ContractsService {
 
     const totalItems = (await this.contractModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-
+    population.push({ path: 'employee', select: 'name email' });
     const result = await this.contractModel
       .find(filter)
       .skip(offset)

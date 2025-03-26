@@ -1,5 +1,6 @@
 import { Transform } from 'class-transformer';
 import {
+  IsArray,
   IsDate,
   IsEmail,
   IsMongoId,
@@ -9,7 +10,6 @@ import {
   IsString,
 } from 'class-validator';
 import mongoose from 'mongoose';
-import { Priority, Status } from '../schemas/project.schema';
 
 export class CreateProjectDto {
   @IsNotEmpty()
@@ -22,9 +22,11 @@ export class CreateProjectDto {
   attachments: Array<string>;
 
   @IsNotEmpty()
+  @IsArray()
   teamMembers: Array<mongoose.Schema.Types.ObjectId>;
 
   @IsOptional()
+  @IsArray()
   tasks: Array<mongoose.Schema.Types.ObjectId>;
 
   @IsOptional()
@@ -37,10 +39,10 @@ export class CreateProjectDto {
   revenue: number;
 
   @IsNotEmpty()
-  priority: Priority;
+  priority: number;
 
   @IsNotEmpty()
-  status: Status;
+  status: number;
 
   @IsNotEmpty()
   startDate: Date;

@@ -24,6 +24,10 @@ export class CreateDepartmentDto {
   @IsMongoId()
   manager: mongoose.Schema.Types.ObjectId;
 
+  @IsNotEmpty({ message: 'Employees ID must not be empty !' })
+  @IsMongoId({ each: true })
+  employees: Array<mongoose.Schema.Types.ObjectId>;
+
   @IsNotEmpty({ message: 'Status must not be empty !' })
   status: string;
 

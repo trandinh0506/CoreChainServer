@@ -16,6 +16,9 @@ export class User {
   email: string;
 
   @Prop()
+  avatar: string;
+
+  @Prop()
   password: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Role.name })
@@ -25,7 +28,7 @@ export class User {
   department: mongoose.Schema.Types.ObjectId;
 
   @Prop()
-  walletAddress: string;
+  txHash: string;
 
   @Prop()
   workingHours: number;

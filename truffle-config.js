@@ -20,7 +20,7 @@ module.exports = {
           // 'https://ethereum-sepolia-rpc.publicnode.com',
         ),
       network_id: 11155111, // Sepolia network ID
-      gas: 5500000,
+      gas: 8000000,
       confirmations: 2,
       timeoutBlocks: 200,
       skipDryRun: true,
