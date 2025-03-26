@@ -25,6 +25,7 @@ export const SkipCheckPermission = () =>
 export const RESPONSE_MESSAGE = 'response_message';
 export const ADMIN_ROLE = 'ADMIN';
 export const USER_ROLE = 'USER';
+export const WORKING_HOURS_PER_DAY = 8;
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {

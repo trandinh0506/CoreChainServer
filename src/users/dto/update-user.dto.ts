@@ -1,7 +1,8 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateUserDto } from './create-user.dto';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
+  IsArray,
   IsDate,
   IsEmail,
   IsMongoId,
@@ -9,8 +10,17 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
 import mongoose from 'mongoose';
+
+class AdjustmentDto {
+  @IsNumber()
+  amount: number;
+
+  @IsString()
+  reason: string;
+}
 export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsNotEmpty()
   avatar: string;
@@ -48,6 +58,12 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsNotEmpty()
   @IsNumber()
   allowances: number;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AdjustmentDto)
+  adjustments: AdjustmentDto[];
 
   // @IsOptional()
   // @IsNumber()

@@ -76,6 +76,7 @@ export class UsersService {
     'employeeContractCode',
     'salary',
     'allowances',
+    'adjustments',
     'healthCheckRecordCode',
     'medicalHistory',
     'healthInsuranceCode',
