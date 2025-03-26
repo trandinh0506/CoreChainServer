@@ -6,6 +6,7 @@ import {
   Param,
   Put,
   Delete,
+  Patch,
 } from '@nestjs/common';
 import { BlockchainService } from './blockchain.service';
 import { EmployeeBlockchainData } from './interfaces/employee.interface';
@@ -23,9 +24,12 @@ export class BlockchainController {
     return { success: true, transactionHash: txHash };
   }
 
-  @Put('employee')
+  @Patch('employee')
   async updateEmployee(@Body() employeeData: EmployeeBlockchainData) {
-    const txHash = await this.blockchainService.updateEmployee(employeeData);
+    const txHash = await this.blockchainService.updateEmployee(
+      employeeData,
+      employeeData.employeeId,
+    );
     return { success: true, transactionHash: txHash };
   }
 

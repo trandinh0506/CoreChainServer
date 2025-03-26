@@ -11,6 +11,10 @@ import { IS_PUBLIC_KEY, IS_PUBLIC_PERMISSION } from 'src/decorators/customize';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
+  private allowAccess = [
+    'GET /api/v1/users/private/:id',
+    'PATCH /api/v1/users/:id',
+  ];
   constructor(private reflector: Reflector) {
     super();
   }
@@ -23,6 +27,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       return true;
     }
     return super.canActivate(context);
+  }
+
+  canAccess(req: Request, user, targetApi: string) {
+    return (
+      this.allowAccess.includes(targetApi) &&
+      req.params.id === user._id.toString()
+    );
   }
 
   handleRequest(err, user, info, context: ExecutionContext) {
@@ -51,12 +62,19 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     );
     if (targetEndpoint.startsWith('/api/v1/auth')) isExist = true;
 
-    if (
-      targetEndpoint === '/api/v1/users/private/:id' &&
-      targetMethod === 'GET' &&
-      !isExist
-    ) {
-      if (request.params.id === user.employeeId.toString()) isExist = true;
+    // if (
+    //   targetEndpoint === '/api/v1/users/private/:id' &&
+    //   targetMethod === 'GET' &&
+    //   !isExist
+    // ) {
+    //   if (request.params.id === user.employeeId.toString()) isExist = true;
+    // }
+    if (!isExist) {
+      isExist = this.canAccess(
+        request,
+        user,
+        targetMethod + ' ' + targetEndpoint,
+      );
     }
 
     if (!isExist)

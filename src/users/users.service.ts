@@ -67,11 +67,19 @@ export class UsersService {
   }
   PRIVATE_FIELDS = [
     'personalIdentificationNumber',
-    'position',
-    'department',
-    'employeeContractId',
-    'startDate',
-    'terminationDate',
+    'dateOfBirth',
+    'personalPhoneNumber',
+    'male',
+    'nationality',
+    'permanentAddress',
+    'biometricData',
+    'employeeContractCode',
+    'salary',
+    'allowances',
+    'healthCheckRecordCode',
+    'medicalHistory',
+    'healthInsuranceCode',
+    'lifeInsuranceCode',
     'personalTaxIdentificationNumber',
     'socialInsuranceNumber',
     'backAccountNumber',
@@ -111,29 +119,29 @@ export class UsersService {
       }
 
       const hashPassword = this.getHashPassword(password);
-
-      const employeeData = {
-        personalIdentificationNumber:
-          createUserDto.personalIdentificationNumber,
-        dateOfBirth: createUserDto.dateOfBirth,
-        personalPhoneNumber: createUserDto.personalPhoneNumber,
-        male: createUserDto.male,
-        nationality: createUserDto.nationality,
-        permanentAddress: createUserDto.permanentAddress,
-        biometricData: createUserDto.biometricData,
-        employeeContractCode: createUserDto.employeeContractCode,
-        salary: createUserDto.salary,
-        allowances: createUserDto.allowances,
-        loansSupported: createUserDto.loansSupported,
-        healthCheckRecordCode: createUserDto.healthCheckRecordCode,
-        medicalHistory: createUserDto.medicalHistory,
-        healthInsuranceCode: createUserDto.healthInsuranceCode,
-        lifeInsuranceCode: createUserDto.lifeInsuranceCode,
-        personalTaxIdentificationNumber:
-          createUserDto.personalTaxIdentificationNumber,
-        socialInsuranceNumber: createUserDto.socialInsuranceNumber,
-        backAccountNumber: createUserDto.backAccountNumber,
-      };
+      const employeeData = {};
+      // const employeeData = {
+      //   personalIdentificationNumber:
+      //     createUserDto.personalIdentificationNumber,
+      //   dateOfBirth: createUserDto.dateOfBirth,
+      //   personalPhoneNumber: createUserDto.personalPhoneNumber,
+      //   male: createUserDto.male,
+      //   nationality: createUserDto.nationality,
+      //   permanentAddress: createUserDto.permanentAddress,
+      //   biometricData: createUserDto.biometricData,
+      //   employeeContractCode: createUserDto.employeeContractCode,
+      //   salary: createUserDto.salary,
+      //   allowances: createUserDto.allowances,
+      //   loansSupported: createUserDto.loansSupported,
+      //   healthCheckRecordCode: createUserDto.healthCheckRecordCode,
+      //   medicalHistory: createUserDto.medicalHistory,
+      //   healthInsuranceCode: createUserDto.healthInsuranceCode,
+      //   lifeInsuranceCode: createUserDto.lifeInsuranceCode,
+      //   personalTaxIdentificationNumber:
+      //     createUserDto.personalTaxIdentificationNumber,
+      //   socialInsuranceNumber: createUserDto.socialInsuranceNumber,
+      //   backAccountNumber: createUserDto.backAccountNumber,
+      // };
       const txHash = await this.blockchainService.addEmployee(
         employeeData,
         createUserDto.employeeId,
@@ -149,16 +157,13 @@ export class UsersService {
         department: departmentId,
         role: role,
         workingHours,
-        blockchainTxHash: txHash,
+        txHash,
         createdBy: {
           _id: user._id,
           email: user.email,
         },
       });
-      return {
-        ...createUserDto,
-        blockchainTxHash: txHash,
-      };
+      return newUser;
       // return newUser;
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -259,11 +264,14 @@ export class UsersService {
         );
       }
       const updateData = {
-        employeeId: employeeId,
-        encryptedData: this.securityService.encrypt(privateData),
+        ...privateData,
       };
+
       try {
-        txHash = await this.blockchainService.updateEmployee(updateData);
+        txHash = await this.blockchainService.updateEmployee(
+          updateData,
+          employeeId,
+        );
         console.log(txHash);
       } catch (error) {
         throw error;

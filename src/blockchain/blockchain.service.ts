@@ -136,12 +136,12 @@ export class BlockchainService implements OnModuleInit {
     }
   }
 
-  async updateEmployee(employeeData: EmployeeBlockchainData): Promise<string> {
+  async updateEmployee(employeeData: any, employeeId: string): Promise<string> {
     try {
       const encryptedData = this.securityService.encrypt(employeeData);
 
       const result = await this.employeeRegistry.methods
-        .updateEmployee(employeeData.employeeId, encryptedData)
+        .updateEmployee(employeeId, encryptedData)
         .send({ from: this.account, gas: 1000000 });
 
       return result.transactionHash;

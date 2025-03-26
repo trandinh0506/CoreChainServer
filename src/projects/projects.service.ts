@@ -50,7 +50,7 @@ export class ProjectsService {
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
-    const { filter, skip, sort, projection, population } = aqp(qs);
+    let { filter, skip, sort, projection, population = [] } = aqp(qs);
     delete filter.current;
     delete filter.pageSize;
     filter.isDeleted = false;
@@ -59,7 +59,7 @@ export class ProjectsService {
 
     const totalItems = (await this.projectModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-
+    population.push({ path: 'tasks', select: 'name' });
     const projects = await this.projectModel
       .find(filter)
       .skip(offset)
@@ -99,7 +99,10 @@ export class ProjectsService {
     }
     const project = await this.projectModel
       .findOne({ _id: id })
-      .populate([{ path: 'teamMembers', select: '_id name email' }])
+      .populate([
+        { path: 'teamMembers', select: '_id name email' },
+        { path: 'tasks', select: 'name' },
+      ])
       .lean();
     const taskCompleted = await this.taskService.countTask(3, id);
     const taskAmount = await this.taskService.countTask(0, id);

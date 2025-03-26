@@ -25,7 +25,7 @@ export class User {
   department: mongoose.Schema.Types.ObjectId;
 
   @Prop()
-  blockchainTxHash: string;
+  txHash: string;
 
   @Prop()
   workingHours: number;
