@@ -16,6 +16,9 @@ export class User {
   email: string;
 
   @Prop()
+  avatar: string;
+
+  @Prop()
   password: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Role.name })

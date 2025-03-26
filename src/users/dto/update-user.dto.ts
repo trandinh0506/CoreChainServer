@@ -12,6 +12,9 @@ import {
 } from 'class-validator';
 import mongoose from 'mongoose';
 export class UpdateUserDto extends PartialType(CreateUserDto) {
+  @IsNotEmpty()
+  avatar: string;
+
   @IsNotEmpty({ message: 'Personal Identificaion Number must not be empty !' })
   @IsString()
   personalIdentificationNumber: string;

@@ -30,12 +30,12 @@ export class Project {
   attachments: Array<string>;
 
   @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: User.name }],
+    type: [{ type: mongoose.Schema.Types.ObjectId }],
   })
   teamMembers: Array<mongoose.Schema.Types.ObjectId>;
 
   @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: Task.name }],
+    type: [{ type: mongoose.Schema.Types.ObjectId }],
   })
   tasks: Array<mongoose.Schema.Types.ObjectId>;
 

@@ -24,7 +24,7 @@ export class Task {
     email: string;
   };
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
+  @Prop({ type: mongoose.Schema.Types.ObjectId })
   assignedTo: mongoose.Schema.Types.ObjectId;
 
   @Prop()

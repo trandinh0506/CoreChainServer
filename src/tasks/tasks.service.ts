@@ -68,10 +68,8 @@ export class TasksService {
 
     const totalItems = (await this.taskModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-    population.push({ path: 'assignedTo', select: '_id name email' });
     const result = await this.taskModel
       .find(filter)
-      .select('-password')
       .skip(offset)
       .limit(defaultLimit)
       .sort(sort as any)
@@ -110,10 +108,7 @@ export class TasksService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid task ID`);
     }
-    const task = await this.taskModel
-      .findOne({ _id: id })
-      .populate([{ path: 'assignedTo', select: '_id name email' }])
-      .lean();
+    const task = await this.taskModel.findOne({ _id: id }).lean();
     // const project = await this.projectService.findOne(
     //   task.projectId.toString(),
     // );
