@@ -10,7 +10,11 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import {
+  UpdatePublicUserDto,
+  UpdateUserDto,
+  UpdateWorkingHoursDto,
+} from './dto/update-user.dto';
 import { User } from 'src/decorators/customize';
 import { IUser } from './users.interface';
 
@@ -50,6 +54,28 @@ export class UsersController {
   ) {
     return this.usersService.update(updateUserDto, user, id);
   }
+
+  @Patch('public/:id')
+  updatePublic(
+    @Body() updatePublicUserDto: UpdatePublicUserDto,
+    @Param('id') id: string,
+    @User() user: IUser,
+  ) {
+    return this.usersService.updatePublicUser(updatePublicUserDto, user, id);
+  }
+
+  // @Patch('working/id')
+  // updateWorkingHours(
+  //   @Body() updateWorkingHoursDto: UpdateWorkingHoursDto,
+  //   @Param('id') id: string,
+  //   @User() user: IUser,
+  // ) {
+  //   return this.usersService.updateWorkingHours(
+  //     updateWorkingHoursDto,
+  //     user,
+  //     id,
+  //   );
+  // }
 
   @Delete(':id')
   remove(@Param('id') id: string, @User() user: IUser) {

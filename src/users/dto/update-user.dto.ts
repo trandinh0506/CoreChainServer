@@ -1,7 +1,8 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateUserDto } from './create-user.dto';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
+  IsArray,
   IsDate,
   IsEmail,
   IsMongoId,
@@ -9,8 +10,20 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
 import mongoose from 'mongoose';
+
+export class AdjustmentDto {
+  @IsNumber()
+  amount: number;
+
+  @IsString()
+  reason: string;
+
+  @IsNotEmpty()
+  createdAt?: Date;
+}
 export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsNotEmpty()
   avatar: string;
@@ -49,9 +62,15 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsNumber()
   allowances: number;
 
-  // @IsOptional()
-  // @IsNumber()
-  // loansSupported: number;
+  @IsNotEmpty()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AdjustmentDto)
+  adjustments: AdjustmentDto[];
+
+  @IsNotEmpty()
+  @IsNumber()
+  loansSupported: number;
 
   @IsNotEmpty()
   healthCheckRecordCode: string[];
@@ -78,4 +97,16 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsNotEmpty({ message: 'Bank Account must not be empty !' })
   @IsString()
   backAccountNumber: string;
+}
+
+export class UpdateWorkingHoursDto {
+  @IsNotEmpty()
+  @IsNumber()
+  workingHours: number;
+}
+
+export class UpdatePublicUserDto extends PartialType(CreateUserDto) {
+  @IsOptional()
+  @IsNumber()
+  kpi: number;
 }

@@ -1,2 +1,3 @@
 truffle migrate --reset --network sepolia
 truffle compile
+CONTRACT_ADDRESS = 0x3fB97F3310Bc4BFd85C1C9046Dbf69254221d339

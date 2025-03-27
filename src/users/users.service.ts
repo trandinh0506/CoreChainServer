@@ -1,6 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import {
+  UpdatePublicUserDto,
+  UpdateUserDto,
+  UpdateWorkingHoursDto,
+} from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { User, UserDocument } from './schemas/user.schema';
@@ -76,6 +80,7 @@ export class UsersService {
     'employeeContractCode',
     'salary',
     'allowances',
+    'adjustments',
     'healthCheckRecordCode',
     'medicalHistory',
     'healthInsuranceCode',
@@ -108,8 +113,8 @@ export class UsersService {
         password,
         role,
         workingHours,
-        positionId,
-        departmentId,
+        position,
+        department,
       } = createUserDto;
       const isExist = await this.userModel.findOne({ email });
       if (isExist) {
@@ -153,9 +158,9 @@ export class UsersService {
         email,
         password: hashPassword,
         employeeId: createUserDto.employeeId,
-        position: positionId,
-        department: departmentId,
-        role: role,
+        position,
+        department,
+        role,
         workingHours,
         txHash,
         createdBy: {
@@ -257,6 +262,8 @@ export class UsersService {
     let txHash: string;
     const { employeeId, privateData, publicData } =
       this.splitData(updateUserDto);
+    console.log('Private Data: >>>>>>', privateData);
+    console.log('Public Data: >>>>>>', publicData);
     if (Object.keys(privateData).length !== 0) {
       if (!employeeId) {
         throw new BadRequestException(
@@ -293,6 +300,63 @@ export class UsersService {
     );
   }
 
+  async updateWorkingHours(
+    updateWorkingHoursDto: UpdateWorkingHoursDto,
+    user: IUser,
+    id: string,
+  ) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException(`Invalid user ID`);
+    }
+    const idExist = await this.userModel.findOne({
+      _id: id,
+    });
+    if (!idExist) throw new BadRequestException('User not found !');
+
+    const empl = await this.findOne(id);
+    return await this.userModel.updateOne(
+      {
+        _id: id,
+      },
+      {
+        workingHours: empl.workingHours + updateWorkingHoursDto.workingHours,
+        updatedBy: {
+          _id: user._id,
+          email: user.email,
+        },
+      },
+    );
+  }
+
+  async updatePublicUser(
+    updatePublicUserDto: UpdatePublicUserDto,
+    user: IUser,
+    id: string,
+  ) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException(`Invalid user ID`);
+    }
+    const idExist = await this.userModel.findOne({
+      _id: id,
+    });
+    if (!idExist) throw new BadRequestException('User not found !');
+
+    const emailExist = await this.userModel.findOne({
+      email: updatePublicUserDto.email,
+    });
+    if (emailExist) throw new BadRequestException('Email already exist !');
+
+    return this.userModel.updateOne(
+      { _id: id },
+      {
+        updatedBy: {
+          _id: user._id,
+          email: user.email,
+        },
+        ...updatePublicUserDto,
+      },
+    );
+  }
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid user ID`);

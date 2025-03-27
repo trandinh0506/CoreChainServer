@@ -34,14 +34,10 @@ export class User {
   workingHours: number;
 
   @Prop()
-  feedback: Array<{
-    email: string;
-    content: string;
-    createdAt: Date;
-  }>;
+  refreshToken: string;
 
   @Prop()
-  refreshToken: string;
+  kpi: number;
 
   @Prop()
   employeeId: string;

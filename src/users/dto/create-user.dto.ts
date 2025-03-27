@@ -35,9 +35,9 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   @IsMongoId()
-  positionId: mongoose.Schema.Types.ObjectId;
+  position: mongoose.Schema.Types.ObjectId;
 
   @IsNotEmpty({ message: 'DepartmentId must not be empty !' })
   @IsMongoId()
-  departmentId: mongoose.Schema.Types.ObjectId;
+  department: mongoose.Schema.Types.ObjectId;
 }
