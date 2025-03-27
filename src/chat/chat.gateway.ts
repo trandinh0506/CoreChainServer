@@ -2,19 +2,36 @@ import {
   WebSocketGateway,
   SubscribeMessage,
   MessageBody,
+  OnGatewayInit,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { WsService } from 'src/ws/ws.service';
 import { ChatService } from './chat.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
+import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({ namespace: '/chat' })
-export class ChatGateway {
+export class ChatGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   constructor(
     private readonly chatService: ChatService,
     private readonly wsService: WsService,
   ) {}
-
+  afterInit(server: Server) {
+    this.chatService.setServer(server);
+  }
+  handleConnection(client: Socket) {
+    const namespace = client.nsp.name;
+    console.log(`Client connected: ${client.id} to namespace: ${namespace}`);
+    this.chatService.registerClient(client);
+  }
+  handleDisconnect(client: Socket) {
+    console.log(`Client disconnected: ${client.id}`);
+    this.chatService.removeClient(client);
+  }
   // conversation
   @SubscribeMessage('createConversation')
   create(@MessageBody() createConversationDto: CreateConversationDto) {

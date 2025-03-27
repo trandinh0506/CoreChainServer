@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { Injectable, NotFoundException, Get } from '@nestjs/common';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import {
   Conversation,
@@ -13,6 +14,9 @@ import { WsService } from 'src/ws/ws.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { ConversationItem } from './declarations/conversationItem';
 import { Types } from 'mongoose';
+import { Server, Socket } from 'socket.io';
+import { IUser } from 'src/users/users.interface';
+import { ConfigService } from '@nestjs/config';
 
 const CHAT_NAME_SPACE = '/chat';
 
@@ -24,7 +28,66 @@ export class ChatService {
     @InjectModel(Message.name)
     private messageModel: SoftDeleteModel<MessageDocument>,
     private readonly wsService: WsService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
+  private server: Server;
+  private clients: Map<string, Socket> = new Map();
+
+  setServer(server: Server) {
+    this.server = server;
+  }
+
+  /** register client base on their namespace {namespace: {clientId: client}} */
+  registerClient(client: Socket) {
+    const token =
+      client.handshake.auth?.token ||
+      client.handshake.headers?.authorization?.split(' ')[1];
+
+    if (!token) {
+      console.log('Missing token. Disconnecting client:', client.id);
+      return client.disconnect();
+    }
+
+    try {
+      const secret = this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'); // Or use ConfigService
+      const payload: IUser = this.jwtService.verify(token, {
+        secret,
+        ignoreExpiration: false,
+      });
+      // Attach user info to the client
+      client['user'] = payload;
+
+      console.log('Client authenticated:', client.id);
+      this.clients.set(payload._id, client);
+    } catch (error) {
+      console.log('Invalid token. Disconnecting client:', client.id);
+      return client.disconnect();
+    }
+  }
+
+  removeClient(client: Socket) {}
+
+  /**  */
+  emitToClient(clientId: string, event: string, data: any) {
+    const client = this.clients.get(clientId);
+    if (!client) {
+      return;
+    }
+    client.emit(event, data);
+  }
+
+  /**  */
+  joinRoom(client: Socket, room: string) {
+    client.join(room);
+  }
+
+  leaveRoom(client: Socket, room: string) {
+    client.leave(room);
+  }
+
+  // broadcast to a room base on their namespace
+  broadcastToRoom(room: string, event: string, data: any) {}
   async create(createConversationDto: CreateConversationDto) {
     const { participants, groupName, admin } = createConversationDto;
 
@@ -96,6 +159,7 @@ export class ChatService {
 
     // if lastConversationId is provided then find last conversation to get last activity
     if (lastConversationId) {
+      console.log({ lastConversationId });
       const lastConversation = await this.conversationModel
         .findById(lastConversationId)
         .exec();
@@ -111,7 +175,6 @@ export class ChatService {
       .limit(10)
       .populate({ path: 'participants', select: 'name' })
       .exec()) as ConversationPopulatedDocument[];
-
     // Mapping data into type of ConversationItem
     const conversationItems: ConversationItem[] = await Promise.all(
       conversations.map(async (conv) => {
@@ -206,13 +269,10 @@ export class ChatService {
       }
 
       const receiverId = receiverIds[0].toString();
+      console.log(receiverId);
       // emit message to receiver
-      this.wsService.emitToClient(
-        CHAT_NAME_SPACE,
-        receiverId,
-        'newMessage',
-        newMessage,
-      );
+      console.log();
+      this.emitToClient(receiverId, 'newMessage', newMessage);
     }
 
     return newMessage;
