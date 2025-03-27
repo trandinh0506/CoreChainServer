@@ -3,8 +3,11 @@ import mongoose, { HydratedDocument } from 'mongoose';
 
 export type SalaryAdvanceDocument = HydratedDocument<SalaryAdvance>;
 
-@Schema({ timestamps: true })
+@Schema({ collection: 'salary-advances', timestamps: true })
 export class SalaryAdvance {
+  @Prop()
+  employee: mongoose.Schema.Types.ObjectId;
+
   @Prop()
   amount: number;
 
@@ -14,8 +17,11 @@ export class SalaryAdvance {
   @Prop()
   isApproved: boolean;
 
-  @Prop()
-  approvedBy: mongoose.Schema.Types.ObjectId;
+  @Prop({ type: Object })
+  approvedBy: {
+    _id: mongoose.Schema.Types.ObjectId;
+    email: string;
+  };
 
   @Prop()
   returnDate: Date;

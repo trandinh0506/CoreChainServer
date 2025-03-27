@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { PersonnelService } from './personnel.service';
 import { UpdatePersonnelDto } from './dto/update-personnel.dto';
 import { User } from 'src/decorators/customize';
@@ -9,7 +17,7 @@ import { SalaryAdvanceDto } from './dto/salary-advance.dto';
 @Controller('personnel')
 export class PersonnelController {
   constructor(private readonly personnelService: PersonnelService) {}
-  @Get('salary/:id')
+  @Get('salary/calculate/:id')
   calculateSalary(@Param('id') id: string, @User() user: IUser) {
     return this.personnelService.calSalary(id, user);
   }
@@ -22,6 +30,24 @@ export class PersonnelController {
     return this.personnelService.salaryAdvance(salaryAdvanceDto, user);
   }
 
+  @Post('salary/approve/:id')
+  approveSalaryAdvance(@User() user: IUser, @Param('id') id: string) {
+    return this.personnelService.approveSalaryAdvance(user, id);
+  }
+
+  @Get('salary/:id')
+  findOne(@Param() id: string) {
+    return this.personnelService.findOne(id);
+  }
+
+  @Get('salary')
+  findAll(
+    @Query('current') currentPage: string,
+    @Query('pageSize') limit: string,
+    @Query() qs: string,
+  ) {
+    return this.personnelService.findAll(+currentPage, +limit, qs);
+  }
   @Get('kpi/:id')
   calculateKpi(@Param('id') id: string, @User() user: IUser) {
     return this.personnelService.calKpi(id, user);
