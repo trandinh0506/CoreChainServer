@@ -37,6 +37,9 @@ export class User {
   refreshToken: string;
 
   @Prop()
+  kpi: number;
+
+  @Prop()
   employeeId: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Position.name })

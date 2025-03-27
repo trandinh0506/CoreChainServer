@@ -1,6 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto, UpdateWorkingHoursDto } from './dto/update-user.dto';
+import {
+  UpdatePublicUserDto,
+  UpdateUserDto,
+  UpdateWorkingHoursDto,
+} from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { User, UserDocument } from './schemas/user.schema';
@@ -320,6 +324,36 @@ export class UsersService {
           _id: user._id,
           email: user.email,
         },
+      },
+    );
+  }
+
+  async updatePublicUser(
+    updatePublicUserDto: UpdatePublicUserDto,
+    user: IUser,
+    id: string,
+  ) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException(`Invalid user ID`);
+    }
+    const idExist = await this.userModel.findOne({
+      _id: id,
+    });
+    if (!idExist) throw new BadRequestException('User not found !');
+
+    const emailExist = await this.userModel.findOne({
+      email: updatePublicUserDto.email,
+    });
+    if (emailExist) throw new BadRequestException('Email already exist !');
+
+    return this.userModel.updateOne(
+      { _id: id },
+      {
+        updatedBy: {
+          _id: user._id,
+          email: user.email,
+        },
+        ...updatePublicUserDto,
       },
     );
   }

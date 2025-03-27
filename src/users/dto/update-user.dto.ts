@@ -21,80 +21,80 @@ export class AdjustmentDto {
   @IsString()
   reason: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   createdAt?: Date;
 }
 export class UpdateUserDto extends PartialType(CreateUserDto) {
-  @IsOptional()
+  @IsNotEmpty()
   avatar: string;
 
-  @IsOptional({ message: 'Personal Identificaion Number must not be empty !' })
+  @IsNotEmpty({ message: 'Personal Identificaion Number must not be empty !' })
   @IsString()
   personalIdentificationNumber: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   dateOfBirth: Date;
 
-  @IsOptional()
+  @IsNotEmpty()
   personalPhoneNumber: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   male: boolean;
 
-  @IsOptional()
+  @IsNotEmpty()
   nationality: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   permanentAddress: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   biometricData: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsMongoId()
   employeeContractCode: mongoose.Schema.Types.ObjectId;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsNumber()
   salary: number;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsNumber()
   allowances: number;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => AdjustmentDto)
   adjustments: AdjustmentDto[];
 
-  // @IsOptional()
-  // @IsNumber()
-  // loansSupported: number;
+  @IsNotEmpty()
+  @IsNumber()
+  loansSupported: number;
 
-  @IsOptional()
+  @IsNotEmpty()
   healthCheckRecordCode: string[];
 
-  @IsOptional()
+  @IsNotEmpty()
   medicalHistory: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   healthInsuranceCode: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   lifeInsuranceCode: string;
 
-  @IsOptional({ message: 'Social Insurance Number must not be empty !' })
+  @IsNotEmpty({ message: 'Social Insurance Number must not be empty !' })
   @IsString()
   socialInsuranceNumber: string;
 
-  @IsOptional({
+  @IsNotEmpty({
     message: 'Personal Tax Idenification Number must not be empty !',
   })
   @IsString()
   personalTaxIdentificationNumber: string;
 
-  @IsOptional({ message: 'Bank Account must not be empty !' })
+  @IsNotEmpty({ message: 'Bank Account must not be empty !' })
   @IsString()
   backAccountNumber: string;
 }
@@ -103,4 +103,10 @@ export class UpdateWorkingHoursDto {
   @IsNotEmpty()
   @IsNumber()
   workingHours: number;
+}
+
+export class UpdatePublicUserDto extends PartialType(CreateUserDto) {
+  @IsOptional()
+  @IsNumber()
+  kpi: number;
 }

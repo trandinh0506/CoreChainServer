@@ -12,10 +12,19 @@ import {
   WORKING_HOURS_PER_DAY,
 } from 'src/decorators/customize';
 import { TasksService } from 'src/tasks/tasks.service';
+import { SalaryAdvanceDto } from './dto/salary-advance.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import {
+  SalaryAdvance,
+  SalaryAdvanceDocument,
+} from './schemas/salary-advance.schema';
+import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 
 @Injectable()
 export class PersonnelService {
   constructor(
+    @InjectModel(SalaryAdvance.name)
+    private salaryAdvanceModel: SoftDeleteModel<SalaryAdvanceDocument>,
     private userService: UsersService,
     private taskService: TasksService,
   ) {}
@@ -42,11 +51,39 @@ export class PersonnelService {
       throw new BadRequestException(error.message);
     }
   }
-  async calKpi(id: string) {
+
+  async salaryAdvance(salaryAdvanceDto: SalaryAdvanceDto, user: IUser) {
+    const { amount, reason, returnDate } = salaryAdvanceDto;
+    const countSalaryAdvance = await this.salaryAdvanceModel.countDocuments({
+      _id: user._id,
+      isApproved: false,
+    });
+    if (amount < 400 && countSalaryAdvance === 0) {
+      await this.salaryAdvanceModel.create({
+        amount,
+        reason,
+        isApproved: true,
+        approvedBy: 'System',
+        returnDate,
+      });
+    } else {
+      await this.salaryAdvanceModel.create({
+        amount,
+        reason,
+        returnDate,
+      });
+    }
+    return { message: 'Salary advance request successful !' };
+  }
+
+  async calKpi(id: string, user: IUser) {
     try {
       const notCompleteTask = await this.taskService.countTaskInMonth(0, id);
       const completeTask = await this.taskService.countTaskInMonth(3, id);
-      return (notCompleteTask / completeTask) * 100;
+      const employee = await this.userService.findOne(id);
+      employee.kpi = (notCompleteTask / completeTask) * 100;
+      await this.userService.updatePublicUser(employee, user, id);
+      return employee.kpi;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
