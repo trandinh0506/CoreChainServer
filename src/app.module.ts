@@ -21,6 +21,7 @@ import { PositionsModule } from './positions/positions.module';
 import { FilesModule } from './files/files.module';
 import { ContractsModule } from './contracts/contracts.module';
 import { PersonnelModule } from './personnel/personnel.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { PersonnelModule } from './personnel/personnel.module';
     FilesModule,
     ContractsModule,
     PersonnelModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

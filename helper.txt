@@ -1,3 +1,10 @@
 truffle migrate --reset --network sepolia
 truffle compile
 CONTRACT_ADDRESS = 0x3fB97F3310Bc4BFd85C1C9046Dbf69254221d339
+
+- báo cáo nhân sự: các nhân viên ở phòng ban(employees)
+- nhân viên nghỉ việc trong tháng, nhân viên mới trong tháng(theo phòng ban) (emplturnover)
+- báo cáo giờ làm việc từng nv (theo phòng ban) (working)
+- báo cáo số ngày nghỉ phép từng nhân viên(theo phòng ban) (dayoff)
+- bảng lương nhân viên, theo phòng ban (bao gồm lương, thưởng, tổng) chi phí tổng trả từng phòng ban (salary)
+- KPI nhân viên theo phòng ban, sort theo cao xún thấp (kpi)

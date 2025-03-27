@@ -16,20 +16,23 @@ export class DepartmentsService {
   ) {}
 
   async create(createDepartmentDto: CreateDepartmentDto, user: IUser) {
-    const { name, code, description, manager, status, budget, projectIds } =
-      createDepartmentDto;
-    const isExist = await this.departmentModel.findOne({ code: code });
+    // const { name, code, description, manager, status, budget, projectIds } =
+    //   createDepartmentDto;
+    const isExist = await this.departmentModel.findOne({
+      code: createDepartmentDto.code,
+    });
     if (isExist) {
       throw new BadRequestException('Department already exist !');
     }
     const newDepartment = await this.departmentModel.create({
-      name,
-      code,
-      description,
-      manager,
-      status,
-      budget,
-      projectIds,
+      // name,
+      // code,
+      // description,
+      // manager,
+      // status,
+      // budget,
+      // projectIds,
+      ...createDepartmentDto,
       createdBy: {
         _id: user._id,
         email: user.email,
@@ -50,8 +53,6 @@ export class DepartmentsService {
 
     const totalItems = (await this.departmentModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-    // population.push({ path: 'manager', select: '_id name email' });
-    // population.push({ path: 'employees', select: '_id name email' });
     const result = await this.departmentModel
       .find(filter)
       .skip(offset)
@@ -75,15 +76,7 @@ export class DepartmentsService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid department ID`);
     }
-    return (
-      this.departmentModel
-        .findById(id)
-        // .populate([
-        //   { path: 'manager', select: '_id name email' },
-        //   { path: 'employees', select: '_id name email' },
-        // ])
-        .exec()
-    );
+    return this.departmentModel.findById(id).exec();
   }
 
   async update(
@@ -94,6 +87,7 @@ export class DepartmentsService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid department ID`);
     }
+    console.log(updateDepartmentDto);
     return this.departmentModel.updateOne(
       { _id: id },
       {

@@ -40,6 +40,9 @@ export class User {
   kpi: number;
 
   @Prop()
+  dayOff: number;
+
+  @Prop()
   employeeId: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Position.name })
