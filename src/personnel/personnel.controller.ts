@@ -8,8 +8,8 @@ import { IUser } from 'src/users/users.interface';
 export class PersonnelController {
   constructor(private readonly personnelService: PersonnelService) {}
   @Get('salary/:id')
-  calculateSalary(@Param('id') id: string) {
-    return this.personnelService.calSalary(id);
+  calculateSalary(@Param('id') id: string, @User() user: IUser) {
+    return this.personnelService.calSalary(id, user);
   }
 
   @Get('kpi/:id')

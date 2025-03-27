@@ -14,15 +14,18 @@ import {
 } from 'class-validator';
 import mongoose from 'mongoose';
 
-class AdjustmentDto {
+export class AdjustmentDto {
   @IsNumber()
   amount: number;
 
   @IsString()
   reason: string;
+
+  @IsOptional()
+  createdAt?: Date;
 }
 export class UpdateUserDto extends PartialType(CreateUserDto) {
-  @IsNotEmpty()
+  @IsOptional()
   avatar: string;
 
   @IsNotEmpty({ message: 'Personal Identificaion Number must not be empty !' })

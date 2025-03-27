@@ -8,13 +8,8 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-class AdjustmentDto {
-  @IsNumber()
-  amount: number;
+import { AdjustmentDto } from 'src/users/dto/update-user.dto';
 
-  @IsString()
-  reason: string;
-}
 export class UpdatePersonnelDto extends PartialType(CreatePersonnelDto) {
   @IsNotEmpty()
   @ValidateNested()

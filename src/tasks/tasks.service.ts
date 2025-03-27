@@ -7,6 +7,7 @@ import { Task, TaskDocument } from './schemas/task.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
 import mongoose, { ObjectId } from 'mongoose';
+import { END_OF_MONTH, START_OF_MONTH } from 'src/decorators/customize';
 // import { ProjectsService } from 'src/projects/projects.service';
 
 @Injectable()
@@ -56,6 +57,20 @@ export class TasksService {
     return this.taskModel.countDocuments({
       status,
       projectId: new mongoose.Types.ObjectId(id),
+    });
+  }
+
+  async countTaskInMonth(status: number, id: string) {
+    if (status === 0) {
+      return await this.taskModel.countDocuments({
+        _id: id,
+        createdAt: { $gte: START_OF_MONTH, $lte: END_OF_MONTH },
+      });
+    }
+    return await this.taskModel.countDocuments({
+      _id: id,
+      status,
+      createdAt: { $gte: START_OF_MONTH, $lte: END_OF_MONTH },
     });
   }
   async findAll(currentPage: number, limit: number, qs: string) {
