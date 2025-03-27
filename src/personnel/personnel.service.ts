@@ -2,7 +2,10 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { UpdatePersonnelDto } from './dto/update-personnel.dto';
 import { IUser } from 'src/users/users.interface';
-import { UpdateUserDto } from 'src/users/dto/update-user.dto';
+import {
+  UpdateUserDto,
+  UpdateWorkingHoursDto,
+} from 'src/users/dto/update-user.dto';
 import {
   END_OF_MONTH,
   START_OF_MONTH,
@@ -60,5 +63,13 @@ export class PersonnelService {
     updatePersonnelDto.adjustment.createdAt = new Date();
     employee.adjustments.push(updatePersonnelDto.adjustment);
     return this.userService.update(employee, user, id);
+  }
+
+  async updateWorkingHours(
+    updateWorkingHoursDto: UpdateWorkingHoursDto,
+    user: IUser,
+    id: string,
+  ) {
+    return this.userService.updateWorkingHours(updateWorkingHoursDto, user, id);
   }
 }

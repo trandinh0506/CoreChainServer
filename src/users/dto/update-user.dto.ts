@@ -28,37 +28,37 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsOptional()
   avatar: string;
 
-  @IsNotEmpty({ message: 'Personal Identificaion Number must not be empty !' })
+  @IsOptional({ message: 'Personal Identificaion Number must not be empty !' })
   @IsString()
   personalIdentificationNumber: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   dateOfBirth: Date;
 
-  @IsNotEmpty()
+  @IsOptional()
   personalPhoneNumber: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   male: boolean;
 
-  @IsNotEmpty()
+  @IsOptional()
   nationality: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   permanentAddress: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   biometricData: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsMongoId()
   employeeContractCode: mongoose.Schema.Types.ObjectId;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   salary: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   allowances: number;
 
@@ -72,29 +72,35 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   // @IsNumber()
   // loansSupported: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   healthCheckRecordCode: string[];
 
-  @IsNotEmpty()
+  @IsOptional()
   medicalHistory: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   healthInsuranceCode: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   lifeInsuranceCode: string;
 
-  @IsNotEmpty({ message: 'Social Insurance Number must not be empty !' })
+  @IsOptional({ message: 'Social Insurance Number must not be empty !' })
   @IsString()
   socialInsuranceNumber: string;
 
-  @IsNotEmpty({
+  @IsOptional({
     message: 'Personal Tax Idenification Number must not be empty !',
   })
   @IsString()
   personalTaxIdentificationNumber: string;
 
-  @IsNotEmpty({ message: 'Bank Account must not be empty !' })
+  @IsOptional({ message: 'Bank Account must not be empty !' })
   @IsString()
   backAccountNumber: string;
+}
+
+export class UpdateWorkingHoursDto {
+  @IsNotEmpty()
+  @IsNumber()
+  workingHours: number;
 }
