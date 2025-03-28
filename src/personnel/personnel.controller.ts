@@ -62,7 +62,7 @@ export class PersonnelController {
     return this.personnelService.addAdjustments(id, updatePersonnelDto, user);
   }
 
-  @Patch('working/:id')
+  @Patch('working-hours/:id')
   updateWorkingHours(
     @Body() updateWorkingHoursDto: UpdateWorkingHoursDto,
     @Param('id') id: string,

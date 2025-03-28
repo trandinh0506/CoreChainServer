@@ -24,7 +24,7 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Role must not be empty !' })
   role: mongoose.Schema.Types.ObjectId;
 
-  @IsNotEmpty({ message: 'Working hours must not be empty !' })
+  @IsOptional({ message: 'Working hours must not be empty !' })
   @Transform(({ value }) => (value === undefined ? 0 : value))
   @IsNumber({}, { message: 'Working hours must be number !' })
   workingHours: number;
@@ -37,7 +37,7 @@ export class CreateUserDto {
   @IsMongoId()
   position: mongoose.Schema.Types.ObjectId;
 
-  @IsNotEmpty({ message: 'DepartmentId must not be empty !' })
+  @IsNotEmpty({ message: 'Department must not be empty !' })
   @IsMongoId()
   department: mongoose.Schema.Types.ObjectId;
 }

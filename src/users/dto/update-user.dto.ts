@@ -21,11 +21,15 @@ export class AdjustmentDto {
   @IsString()
   reason: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   createdAt?: Date;
 }
 export class UpdateUserDto extends PartialType(CreateUserDto) {
-  @IsNotEmpty()
+  @IsOptional()
+  @IsNumber()
+  netSalary: number;
+
+  @IsOptional()
   avatar: string;
 
   @IsNotEmpty({ message: 'Personal Identificaion Number must not be empty !' })
@@ -108,5 +112,9 @@ export class UpdateWorkingHoursDto {
 export class UpdatePublicUserDto extends PartialType(CreateUserDto) {
   @IsOptional()
   @IsNumber()
-  kpi: number;
+  kpi?: number;
+
+  @IsOptional()
+  @IsNumber()
+  dayOff?: number;
 }

@@ -6,6 +6,7 @@ import { User, UserSchema } from './schemas/user.schema';
 import { BlockchainService } from 'src/blockchain/blockchain.service';
 import { BlockchainModule } from 'src/blockchain/blockchain.module';
 import { SecurityModule } from 'src/security/security.module';
+import { DepartmentsModule } from 'src/departments/departments.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { SecurityModule } from 'src/security/security.module';
     ]),
     BlockchainModule,
     SecurityModule,
+    DepartmentsModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],

@@ -7,6 +7,7 @@ import {
   HttpException,
   SetMetadata,
 } from '@nestjs/common';
+import { IUser } from 'src/users/users.interface';
 
 export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
@@ -40,7 +41,15 @@ export const END_OF_MONTH = new Date(
   59,
   999,
 );
-
+export const System: IUser = {
+  _id: 'System',
+  name: 'System',
+  email: 'System',
+  role: {
+    _id: 'System',
+    name: 'SUPER_ADMIN',
+  },
+};
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {

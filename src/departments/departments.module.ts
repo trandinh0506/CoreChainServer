@@ -16,5 +16,6 @@ import { UsersModule } from 'src/users/users.module';
   ],
   controllers: [DepartmentsController],
   providers: [DepartmentsService],
+  exports: [DepartmentsService],
 })
 export class DepartmentsModule {}

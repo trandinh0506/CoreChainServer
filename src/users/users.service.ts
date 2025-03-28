@@ -15,6 +15,8 @@ import aqp from 'api-query-params';
 import mongoose from 'mongoose';
 import { BlockchainService } from 'src/blockchain/blockchain.service';
 import { SecurityService } from 'src/security/security.service';
+import { DepartmentsService } from 'src/departments/departments.service';
+import { System } from 'src/decorators/customize';
 
 @Injectable()
 export class UsersService {
@@ -23,6 +25,7 @@ export class UsersService {
     private configService: ConfigService,
     private blockchainService: BlockchainService,
     private securityService: SecurityService,
+    private departmentService: DepartmentsService,
   ) {}
 
   getHashPassword = (password: string) => {
@@ -70,6 +73,7 @@ export class UsersService {
       .populate({ path: 'role', select: { name: 1 } });
   }
   PRIVATE_FIELDS = [
+    'netSalary',
     'personalIdentificationNumber',
     'dateOfBirth',
     'personalPhoneNumber',
@@ -125,28 +129,6 @@ export class UsersService {
 
       const hashPassword = this.getHashPassword(password);
       const employeeData = {};
-      // const employeeData = {
-      //   personalIdentificationNumber:
-      //     createUserDto.personalIdentificationNumber,
-      //   dateOfBirth: createUserDto.dateOfBirth,
-      //   personalPhoneNumber: createUserDto.personalPhoneNumber,
-      //   male: createUserDto.male,
-      //   nationality: createUserDto.nationality,
-      //   permanentAddress: createUserDto.permanentAddress,
-      //   biometricData: createUserDto.biometricData,
-      //   employeeContractCode: createUserDto.employeeContractCode,
-      //   salary: createUserDto.salary,
-      //   allowances: createUserDto.allowances,
-      //   loansSupported: createUserDto.loansSupported,
-      //   healthCheckRecordCode: createUserDto.healthCheckRecordCode,
-      //   medicalHistory: createUserDto.medicalHistory,
-      //   healthInsuranceCode: createUserDto.healthInsuranceCode,
-      //   lifeInsuranceCode: createUserDto.lifeInsuranceCode,
-      //   personalTaxIdentificationNumber:
-      //     createUserDto.personalTaxIdentificationNumber,
-      //   socialInsuranceNumber: createUserDto.socialInsuranceNumber,
-      //   backAccountNumber: createUserDto.backAccountNumber,
-      // };
       const txHash = await this.blockchainService.addEmployee(
         employeeData,
         createUserDto.employeeId,
@@ -161,15 +143,30 @@ export class UsersService {
         position,
         department,
         role,
-        workingHours,
+        dayOff: 0,
+        workingHours: workingHours || 0,
         txHash,
         createdBy: {
           _id: user._id,
           email: user.email,
         },
       });
+
+      //update department
+      if (createUserDto.department) {
+        const department = await this.departmentService.findOne(
+          createUserDto.department.toString(),
+        );
+        department.employees.push(newUser._id as any);
+        await this.departmentService.update(
+          department._id.toString(),
+          {
+            employees: department.employees,
+          },
+          System,
+        );
+      }
       return newUser;
-      // return newUser;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -179,7 +176,6 @@ export class UsersService {
     const { filter, skip, sort, projection, population } = aqp(qs);
     delete filter.current;
     delete filter.pageSize;
-    filter.isDeleted = false;
     let offset = (+currentPage - 1) * +limit;
     let defaultLimit = +limit ? +limit : 10;
 
@@ -188,14 +184,14 @@ export class UsersService {
 
     const result = await this.userModel
       .find(filter)
-      .select('-password')
+      .select('-password -refreshToken')
       .skip(offset)
       .limit(defaultLimit)
       .sort(sort as any)
       .populate(population)
       .exec();
-    const employees = await this.blockchainService.getAllEmployeeIds();
-    console.log(employees);
+    // const employees = await this.blockchainService.getAllEmployeeIds();
+    // console.log(employees);
     return {
       meta: {
         current: currentPage,
@@ -215,6 +211,31 @@ export class UsersService {
     return await this.userModel
       .findOne({
         _id: id,
+        isDeleted: false,
+      })
+      .select('-password -refreshToken')
+      .populate([
+        { path: 'role', select: { name: 1, _id: 1 } },
+        { path: 'position', select: '_id title' },
+        { path: 'department', select: '_id name' },
+      ]);
+  }
+
+  async findByIds(ids: string[]) {
+    if (!ids || ids.length === 0) {
+      return [];
+    }
+
+    const invalidIds = ids.filter((id) => !mongoose.Types.ObjectId.isValid(id));
+    if (invalidIds.length > 0) {
+      throw new BadRequestException(
+        `Invalid user IDs: ${invalidIds.join(', ')}`,
+      );
+    }
+
+    return await this.userModel
+      .find({
+        _id: { $in: ids },
         isDeleted: false,
       })
       .select('-password -refreshToken')
@@ -264,6 +285,7 @@ export class UsersService {
       this.splitData(updateUserDto);
     console.log('Private Data: >>>>>>', privateData);
     console.log('Public Data: >>>>>>', publicData);
+
     if (Object.keys(privateData).length !== 0) {
       if (!employeeId) {
         throw new BadRequestException(
@@ -333,6 +355,7 @@ export class UsersService {
     user: IUser,
     id: string,
   ) {
+    //validate
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid user ID`);
     }
@@ -340,12 +363,41 @@ export class UsersService {
       _id: id,
     });
     if (!idExist) throw new BadRequestException('User not found !');
-
     const emailExist = await this.userModel.findOne({
       email: updatePublicUserDto.email,
     });
-    if (emailExist) throw new BadRequestException('Email already exist !');
+    if (emailExist && emailExist.id !== id)
+      throw new BadRequestException('Email already exist !');
+    //update
+    if (updatePublicUserDto.department) {
+      const employee = await this.userModel.findOne({ _id: id }).lean();
+      console.log(employee);
+      const department = await this.departmentService.findOne(
+        employee.department.toString(),
+      );
+      department.employees = department.employees.filter(
+        (empId) => empId.toString() !== employee._id.toString(),
+      );
+      await this.departmentService.update(
+        department._id.toString(),
+        {
+          employees: department.employees,
+        },
+        System,
+      );
 
+      const newDepartment = await this.departmentService.findOne(
+        updatePublicUserDto.department.toString(),
+      );
+      newDepartment.employees.push(employee._id as any);
+      await this.departmentService.update(
+        newDepartment._id.toString(),
+        {
+          employees: newDepartment.employees,
+        },
+        user,
+      );
+    }
     return this.userModel.updateOne(
       { _id: id },
       {

@@ -12,5 +12,6 @@ import { Position, PositionSchema } from './schemas/position.schema';
   ],
   controllers: [PositionsController],
   providers: [PositionsService],
+  exports: [PositionsService],
 })
 export class PositionsModule {}

@@ -3,6 +3,7 @@ import { UsersService } from 'src/users/users.service';
 import { UpdatePersonnelDto } from './dto/update-personnel.dto';
 import { IUser } from 'src/users/users.interface';
 import {
+  UpdatePublicUserDto,
   UpdateUserDto,
   UpdateWorkingHoursDto,
 } from 'src/users/dto/update-user.dto';
@@ -45,7 +46,8 @@ export class PersonnelService {
         )
         .reduce((total, adj) => total + adj.amount, 0);
       const netSalary = baseSalary + totalAdjustments + employee.allowances;
-
+      console.log(netSalary);
+      employee.netSalary = netSalary;
       employee.workingHours = 0;
       await this.userService.update(employee, user, id);
       return netSalary;
@@ -137,10 +139,10 @@ export class PersonnelService {
     try {
       const notCompleteTask = await this.taskService.countTaskInMonth(0, id);
       const completeTask = await this.taskService.countTaskInMonth(3, id);
-      const employee = await this.userService.findOne(id);
-      employee.kpi = (notCompleteTask / completeTask) * 100;
-      await this.userService.updatePublicUser(employee, user, id);
-      return employee.kpi;
+      const kpi = (notCompleteTask / completeTask) * 100 || 0;
+      const updateDto: UpdatePublicUserDto = { kpi: kpi };
+      await this.userService.updatePublicUser(updateDto, user, id);
+      return kpi;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
