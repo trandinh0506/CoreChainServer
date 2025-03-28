@@ -4,6 +4,8 @@ import { UpdateReportDto } from './dto/update-report.dto';
 import { UsersService } from 'src/users/users.service';
 import { DepartmentsService } from 'src/departments/departments.service';
 import { PositionsService } from 'src/positions/positions.service';
+import { END_OF_MONTH, START_OF_MONTH, System } from 'src/decorators/customize';
+import { PersonnelService } from 'src/personnel/personnel.service';
 interface Result {}
 @Injectable()
 export class ReportsService {
@@ -11,6 +13,7 @@ export class ReportsService {
     private readonly userService: UsersService,
     private readonly departmentService: DepartmentsService,
     private readonly positionService: PositionsService,
+    private readonly personnelService: PersonnelService,
   ) {}
   async employeesReport() {
     const { result: departments } = await this.departmentService.findAll(
@@ -24,7 +27,6 @@ export class ReportsService {
         const employees = await this.userService.findByIds(
           department.employees.map((id) => id.toString()),
         );
-
         return {
           department: department.name,
           employees: employees,
@@ -33,6 +35,125 @@ export class ReportsService {
     );
 
     return departmentReports;
+  }
+
+  async employeesTurnover() {
+    const startOfMonth = START_OF_MONTH.toISOString();
+    const endOfMonth = END_OF_MONTH.toISOString();
+    const resignedQs = `deletedAt>${startOfMonth}&deletedAt<${endOfMonth}&isDeleted=true`;
+    const newQs = `createdAt>${startOfMonth}&createdAt<${endOfMonth}&isDeleted=false`;
+
+    const resignedEmployees = (
+      await this.userService.findAll(1, 1000, resignedQs)
+    ).result;
+    const newEmployees = (await this.userService.findAll(1, 1000, newQs))
+      .result;
+    return {
+      resignedEmployees,
+      newEmployees,
+    };
+  }
+
+  async workingHours() {
+    const { result: departments } = await this.departmentService.findAll(
+      1,
+      1000,
+      '',
+    );
+
+    const workingHoursReports = await Promise.all(
+      departments.map(async (department) => {
+        const employees = await this.userService.findByIds(
+          department.employees.map((id) => id.toString()),
+        );
+        const result = [];
+        for (let empl of employees) {
+          result.push({
+            _id: empl._id,
+            name: empl.name,
+            email: empl.email,
+            avatar: empl.avatar,
+            workingHours: empl.workingHours || 0,
+          });
+        }
+
+        return {
+          department: department.name,
+          employees: result,
+        };
+      }),
+    );
+
+    return workingHoursReports;
+  }
+
+  async dayOff() {
+    const { result: departments } = await this.departmentService.findAll(
+      1,
+      1000,
+      '',
+    );
+
+    const dayOffReports = await Promise.all(
+      departments.map(async (department) => {
+        const employees = await this.userService.findByIds(
+          department.employees.map((id) => id.toString()),
+        );
+        const result = [];
+        for (let empl of employees) {
+          result.push({
+            _id: empl._id,
+            name: empl.name,
+            email: empl.email,
+            avatar: empl.avatar,
+            workingHours: empl.dayOff || 0,
+          });
+        }
+
+        return {
+          department: department.name,
+          employees: result,
+        };
+      }),
+    );
+
+    return dayOffReports;
+  }
+
+  async kpi() {
+    const { result: departments } = await this.departmentService.findAll(
+      1,
+      1000,
+      '',
+    );
+
+    const KPIReports = await Promise.all(
+      departments.map(async (department) => {
+        const employees = await this.userService.findByIds(
+          department.employees.map((id) => id.toString()),
+        );
+        const result = [];
+        for (let empl of employees) {
+          if (!empl.kpi) {
+            this.personnelService.calKpi(empl._id.toString(), System);
+          }
+          result.push({
+            _id: empl._id,
+            name: empl.name,
+            email: empl.email,
+            avatar: empl.avatar,
+            kpi: empl.kpi || 0,
+          });
+        }
+
+        return {
+          department: department.name,
+          employees: result,
+        };
+      }),
+    );
+
+    return KPIReports;
   }
 
   create(createReportDto: CreateReportDto) {

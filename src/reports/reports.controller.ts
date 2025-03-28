@@ -20,6 +20,25 @@ export class ReportsController {
     return this.reportsService.employeesReport();
   }
 
+  @Get('employees-turnover')
+  employeesTurnover() {
+    return this.reportsService.employeesTurnover();
+  }
+
+  @Get('working-hours')
+  workingHours() {
+    return this.reportsService.workingHours();
+  }
+
+  @Get('day-off')
+  dayOff() {
+    return this.reportsService.dayOff();
+  }
+
+  @Get('kpi')
+  kpi() {
+    return this.reportsService.kpi();
+  }
   @Post()
   create(@Body() createReportDto: CreateReportDto) {
     return this.reportsService.create(createReportDto);

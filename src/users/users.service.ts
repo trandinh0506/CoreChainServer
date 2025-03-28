@@ -160,7 +160,6 @@ export class UsersService {
     const { filter, skip, sort, projection, population } = aqp(qs);
     delete filter.current;
     delete filter.pageSize;
-    filter.isDeleted = false;
     let offset = (+currentPage - 1) * +limit;
     let defaultLimit = +limit ? +limit : 10;
 
@@ -169,7 +168,7 @@ export class UsersService {
 
     const result = await this.userModel
       .find(filter)
-      .select('-password')
+      .select('-password -refreshToken')
       .skip(offset)
       .limit(defaultLimit)
       .sort(sort as any)
@@ -351,10 +350,12 @@ export class UsersService {
     const emailExist = await this.userModel.findOne({
       email: updatePublicUserDto.email,
     });
-    if (emailExist) throw new BadRequestException('Email already exist !');
+    if (emailExist && emailExist.id !== id)
+      throw new BadRequestException('Email already exist !');
     //update
     if (updatePublicUserDto.department) {
       const employee = await this.userModel.findOne({ _id: id }).lean();
+      console.log(employee);
       const department = await this.departmentService.findOne(
         employee.department.toString(),
       );

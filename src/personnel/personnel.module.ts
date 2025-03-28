@@ -19,5 +19,6 @@ import {
   ],
   controllers: [PersonnelController],
   providers: [PersonnelService],
+  exports: [PersonnelService],
 })
 export class PersonnelModule {}

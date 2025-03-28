@@ -108,5 +108,9 @@ export class UpdateWorkingHoursDto {
 export class UpdatePublicUserDto extends PartialType(CreateUserDto) {
   @IsOptional()
   @IsNumber()
-  kpi: number;
+  kpi?: number;
+
+  @IsOptional()
+  @IsNumber()
+  dayOff?: number;
 }
