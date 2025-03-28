@@ -50,7 +50,7 @@ export class ChatService {
     }
 
     try {
-      const secret = this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'); // Or use ConfigService
+      const secret = this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET');
       const payload: IUser = this.jwtService.verify(token, {
         secret,
         ignoreExpiration: false,
@@ -135,7 +135,7 @@ export class ChatService {
     return newConversation;
   }
 
-  async getConversationById(conversationId: string) {
+  async getConversationById({ conversationId }: { conversationId: string }) {
     const conversation = await this.conversationModel
       .findById(conversationId)
       .exec();
@@ -159,7 +159,6 @@ export class ChatService {
 
     // if lastConversationId is provided then find last conversation to get last activity
     if (lastConversationId) {
-      console.log({ lastConversationId });
       const lastConversation = await this.conversationModel
         .findById(lastConversationId)
         .exec();
@@ -178,13 +177,11 @@ export class ChatService {
     // Mapping data into type of ConversationItem
     const conversationItems: ConversationItem[] = await Promise.all(
       conversations.map(async (conv) => {
-        console.log(conv._id);
         // find latest message
         const latestMsgDoc = await this.messageModel
           .findOne({ conversationId: conv._id })
           .sort({ createdAt: -1 })
           .exec();
-        console.log({ latestMsgDoc });
         let name = '';
         let avatar = '';
         // if group => display groupName
@@ -276,6 +273,36 @@ export class ChatService {
     }
 
     return newMessage;
+  }
+
+  async getMessages({
+    conversationId,
+    lastMessageId,
+  }: {
+    conversationId: string;
+    lastMessageId?: string;
+  }): Promise<Message[]> {
+    // Xây dựng bộ lọc: conversationId phải khớp
+    const filter: any = { conversationId: new Types.ObjectId(conversationId) };
+
+    // Nếu có lastMessageId, tìm tin nhắn đó để lấy thời gian tạo và lọc các tin nhắn cũ hơn
+    if (lastMessageId) {
+      const lastMessage = await this.messageModel
+        .findById(lastMessageId)
+        .exec();
+      if (lastMessage) {
+        filter.createdAt = { $lt: lastMessage.createdAt };
+      }
+    }
+
+    // Tìm 10 tin nhắn, sắp xếp theo createdAt giảm dần (tin mới nhất trước)
+    const messages = await this.messageModel
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .exec();
+
+    return messages;
   }
 
   findAll() {

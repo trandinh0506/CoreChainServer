@@ -16,10 +16,7 @@ import { Server, Socket } from 'socket.io';
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(
-    private readonly chatService: ChatService,
-    private readonly wsService: WsService,
-  ) {}
+  constructor(private readonly chatService: ChatService) {}
   afterInit(server: Server) {
     this.chatService.setServer(server);
   }
@@ -39,8 +36,8 @@ export class ChatGateway
   }
 
   @SubscribeMessage('getConversationById')
-  getById(@MessageBody() conversationId: string) {
-    return this.chatService.getConversationById(conversationId);
+  getById(@MessageBody() data: { conversationId: string }) {
+    return this.chatService.getConversationById(data);
   }
 
   @SubscribeMessage('getConversationByUserIdAndOtherId')
@@ -62,6 +59,12 @@ export class ChatGateway
     return this.chatService.createMessage(createMessageDto);
   }
 
+  @SubscribeMessage('getMessages')
+  getMessage(
+    @MessageBody() data: { conversationId: string; lastMessage?: string },
+  ) {
+    return this.chatService.getMessages(data);
+  }
   @SubscribeMessage('findAllChat')
   findAll() {
     return this.chatService.findAll();
