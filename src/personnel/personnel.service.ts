@@ -46,7 +46,8 @@ export class PersonnelService {
         )
         .reduce((total, adj) => total + adj.amount, 0);
       const netSalary = baseSalary + totalAdjustments + employee.allowances;
-
+      console.log(netSalary);
+      employee.netSalary = netSalary;
       employee.workingHours = 0;
       await this.userService.update(employee, user, id);
       return netSalary;

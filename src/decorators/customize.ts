@@ -42,11 +42,11 @@ export const END_OF_MONTH = new Date(
   999,
 );
 export const System: IUser = {
-  _id: 'None',
+  _id: 'System',
   name: 'System',
   email: 'System',
   role: {
-    _id: 'None',
+    _id: 'System',
     name: 'SUPER_ADMIN',
   },
 };

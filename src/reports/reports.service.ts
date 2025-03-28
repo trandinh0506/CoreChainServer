@@ -135,7 +135,7 @@ export class ReportsService {
         const result = [];
         for (let empl of employees) {
           if (!empl.kpi) {
-            this.personnelService.calKpi(empl._id.toString(), System);
+            await this.personnelService.calKpi(empl._id.toString(), System);
           }
           result.push({
             _id: empl._id,
@@ -154,6 +154,53 @@ export class ReportsService {
     );
 
     return KPIReports;
+  }
+
+  async salary() {
+    const { result: departments } = await this.departmentService.findAll(
+      1,
+      1000,
+      '',
+    );
+    let amount = 0;
+    const salaryReports = await Promise.all(
+      departments.map(async (department) => {
+        const employees = await this.userService.findByIds(
+          department.employees.map((id) => id.toString()),
+        );
+        const result = [];
+        for (let empl of employees) {
+          const privateEmpl = await this.userService.findPrivateOne(
+            empl._id.toString(),
+          );
+          if (!privateEmpl.netSalary) {
+            privateEmpl.netSalary = await this.personnelService.calSalary(
+              empl._id.toString(),
+              System,
+            );
+          }
+          amount += privateEmpl.netSalary;
+          result.push({
+            _id: empl._id,
+            name: empl.name,
+            email: empl.email,
+            avatar: empl.avatar,
+            salary: privateEmpl.salary,
+            allowances: privateEmpl.allowances,
+            adjustments: privateEmpl.addAdjustments,
+            netSalary: privateEmpl.netSalary,
+          });
+        }
+
+        return {
+          department: department.name,
+          employees: result,
+          amount: amount,
+        };
+      }),
+    );
+
+    return salaryReports;
   }
 
   create(createReportDto: CreateReportDto) {

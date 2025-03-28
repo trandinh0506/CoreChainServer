@@ -16,6 +16,7 @@ import mongoose from 'mongoose';
 import { BlockchainService } from 'src/blockchain/blockchain.service';
 import { SecurityService } from 'src/security/security.service';
 import { DepartmentsService } from 'src/departments/departments.service';
+import { System } from 'src/decorators/customize';
 
 @Injectable()
 export class UsersService {
@@ -72,6 +73,7 @@ export class UsersService {
       .populate({ path: 'role', select: { name: 1 } });
   }
   PRIVATE_FIELDS = [
+    'netSalary',
     'personalIdentificationNumber',
     'dateOfBirth',
     'personalPhoneNumber',
@@ -149,8 +151,22 @@ export class UsersService {
           email: user.email,
         },
       });
+
+      //update department
+      if (createUserDto.department) {
+        const department = await this.departmentService.findOne(
+          createUserDto.department.toString(),
+        );
+        department.employees.push(newUser._id as any);
+        await this.departmentService.update(
+          department._id.toString(),
+          {
+            employees: department.employees,
+          },
+          System,
+        );
+      }
       return newUser;
-      // return newUser;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -367,7 +383,7 @@ export class UsersService {
         {
           employees: department.employees,
         },
-        user,
+        System,
       );
 
       const newDepartment = await this.departmentService.findOne(

@@ -39,6 +39,12 @@ export class ReportsController {
   kpi() {
     return this.reportsService.kpi();
   }
+
+  @Get('salary')
+  salary() {
+    return this.reportsService.salary();
+  }
+
   @Post()
   create(@Body() createReportDto: CreateReportDto) {
     return this.reportsService.create(createReportDto);

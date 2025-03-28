@@ -37,7 +37,7 @@ export class CreateUserDto {
   @IsMongoId()
   position: mongoose.Schema.Types.ObjectId;
 
-  @IsNotEmpty({ message: 'DepartmentId must not be empty !' })
+  @IsNotEmpty({ message: 'Department must not be empty !' })
   @IsMongoId()
   department: mongoose.Schema.Types.ObjectId;
 }
