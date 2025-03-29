@@ -2,19 +2,33 @@ import {
   WebSocketGateway,
   SubscribeMessage,
   MessageBody,
+  OnGatewayInit,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { WsService } from 'src/ws/ws.service';
 import { ChatService } from './chat.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
+import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({ namespace: '/chat' })
-export class ChatGateway {
-  constructor(
-    private readonly chatService: ChatService,
-    private readonly wsService: WsService,
-  ) {}
-
+export class ChatGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
+  constructor(private readonly chatService: ChatService) {}
+  afterInit(server: Server) {
+    this.chatService.setServer(server);
+  }
+  handleConnection(client: Socket) {
+    const namespace = client.nsp.name;
+    console.log(`Client connected: ${client.id} to namespace: ${namespace}`);
+    this.chatService.registerClient(client);
+  }
+  handleDisconnect(client: Socket) {
+    console.log(`Client disconnected: ${client.id}`);
+    this.chatService.removeClient(client);
+  }
   // conversation
   @SubscribeMessage('createConversation')
   create(@MessageBody() createConversationDto: CreateConversationDto) {
@@ -22,8 +36,8 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('getConversationById')
-  getById(@MessageBody() conversationId: string) {
-    return this.chatService.getConversationById(conversationId);
+  getById(@MessageBody() data: { conversationId: string }) {
+    return this.chatService.getConversationById(data);
   }
 
   @SubscribeMessage('getConversationByUserIdAndOtherId')
@@ -45,6 +59,12 @@ export class ChatGateway {
     return this.chatService.createMessage(createMessageDto);
   }
 
+  @SubscribeMessage('getMessages')
+  getMessage(
+    @MessageBody() data: { conversationId: string; lastMessage?: string },
+  ) {
+    return this.chatService.getMessages(data);
+  }
   @SubscribeMessage('findAllChat')
   findAll() {
     return this.chatService.findAll();

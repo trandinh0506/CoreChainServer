@@ -12,6 +12,7 @@ export class WsService {
 
   /** register client base on their namespace {namespace: {clientId: client}} */
   registerClient(client: Socket, namespace: string) {
+    console.log('registerClient', client, namespace);
     if (!this.clients.has(namespace)) {
       this.clients.set(namespace, new Map());
     }

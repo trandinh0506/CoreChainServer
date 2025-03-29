@@ -10,7 +10,6 @@ import { Server, Socket } from 'socket.io';
 import { WsService } from './ws.service';
 
 @WebSocketGateway({
-  namespace: '/',
   cors: {
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
