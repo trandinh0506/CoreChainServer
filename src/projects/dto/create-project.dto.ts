@@ -21,7 +21,7 @@ export class CreateProjectDto {
   @IsOptional()
   attachments: Array<string>;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsArray()
   teamMembers: Array<mongoose.Schema.Types.ObjectId>;
 

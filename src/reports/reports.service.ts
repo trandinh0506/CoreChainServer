@@ -145,7 +145,7 @@ export class ReportsService {
             kpi: empl.kpi || 0,
           });
         }
-
+        result.sort((a, b) => b.kpi - a.kpi);
         return {
           department: department.name,
           employees: result,
