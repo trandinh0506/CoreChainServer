@@ -28,6 +28,6 @@ import { RolesModule } from 'src/roles/roles.module';
     }),
   ],
   controllers: [AuthController],
-  exports: [AuthService],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}
