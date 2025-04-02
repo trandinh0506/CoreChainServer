@@ -102,6 +102,7 @@ export class FeedbackService {
       {
         wasDecrypted: true,
         decryptionReason: decryptRequest.reason,
+        approvedBy: decryptRequest.approvedBy,
         decryptedBy: {
           _id: user._id,
           email: user.email,
