@@ -8,6 +8,7 @@ import { IUser } from 'src/users/users.interface';
 import mongoose from 'mongoose';
 import aqp from 'api-query-params';
 import { ADMIN_ROLE } from 'src/decorators/customize';
+import { IRole } from './role.interface';
 
 @Injectable()
 export class RolesService {
@@ -40,7 +41,7 @@ export class RolesService {
     const totalItems = (await this.roleModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    const result = await this.roleModel
+    const result: IRole[] = await this.roleModel
       .find(filter)
       .skip(offset)
       .limit(defaultLimit)
@@ -63,11 +64,12 @@ export class RolesService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Not found role with id=${id}`);
     }
-    return await this.roleModel
+    const role: IRole = await this.roleModel
       .findOne({ _id: id })
       .populate([
         { path: 'permissions', select: '_id apiPath name method module' },
       ]);
+    return role;
   }
 
   async update(id: string, updateRoleDto: UpdateRoleDto, user: IUser) {

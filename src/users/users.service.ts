@@ -178,7 +178,7 @@ export class UsersService {
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
-    const { filter, skip, sort, projection, population } = aqp(qs);
+    let { filter, skip, sort, projection, population } = aqp(qs);
     delete filter.current;
     delete filter.pageSize;
     let offset = (+currentPage - 1) * +limit;
@@ -186,15 +186,18 @@ export class UsersService {
 
     const totalItems = (await this.userModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-
-    const result = (await this.userModel
+    if (!population) population = [];
+    population.push({ path: 'role', select: '_id name' });
+    population.push({ path: 'position', select: '_id title' });
+    population.push({ path: 'department', select: '_id name' });
+    const result: PublicUser[] = await this.userModel
       .find(filter)
       .select('-password -refreshToken')
       .skip(offset)
       .limit(defaultLimit)
       .sort(sort as any)
       .populate(population)
-      .exec()) as unknown as PublicUser;
+      .exec();
     // const employees = await this.blockchainService.getAllEmployeeIds();
     // console.log(employees);
     return {

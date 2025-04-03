@@ -7,6 +7,13 @@ import { PositionsService } from 'src/positions/positions.service';
 import { END_OF_MONTH, START_OF_MONTH, System } from 'src/decorators/customize';
 import { PersonnelService } from 'src/personnel/personnel.service';
 import { CompleteUser } from 'src/users/users.interface';
+import {
+  IDayOff,
+  IEmployeesDepartment,
+  IEmployeesTurnover,
+  IKPI,
+  IWorkingHours,
+} from './report.interface';
 interface Result {}
 @Injectable()
 export class ReportsService {
@@ -23,7 +30,7 @@ export class ReportsService {
       '',
     );
 
-    const departmentReports = await Promise.all(
+    const departmentReports: IEmployeesDepartment[] = await Promise.all(
       departments.map(async (department) => {
         const employees = await this.userService.findByIds(
           department.employees.map((id) => id.toString()),
@@ -31,7 +38,7 @@ export class ReportsService {
         return {
           department: department.name,
           employees: employees,
-        };
+        } as IEmployeesDepartment;
       }),
     );
 
@@ -52,7 +59,7 @@ export class ReportsService {
     return {
       resignedEmployees,
       newEmployees,
-    };
+    } as IEmployeesTurnover;
   }
 
   async workingHours() {
@@ -62,7 +69,7 @@ export class ReportsService {
       '',
     );
 
-    const workingHoursReports = await Promise.all(
+    const workingHoursReports: IWorkingHours[] = await Promise.all(
       departments.map(async (department) => {
         const employees = await this.userService.findByIds(
           department.employees.map((id) => id.toString()),
@@ -95,7 +102,7 @@ export class ReportsService {
       '',
     );
 
-    const dayOffReports = await Promise.all(
+    const dayOffReports: IDayOff[] = await Promise.all(
       departments.map(async (department) => {
         const employees = await this.userService.findByIds(
           department.employees.map((id) => id.toString()),
@@ -107,7 +114,7 @@ export class ReportsService {
             name: empl.name,
             email: empl.email,
             avatar: empl.avatar,
-            workingHours: empl.dayOff || 0,
+            dayOff: empl.dayOff || 0,
           });
         }
 
@@ -128,7 +135,7 @@ export class ReportsService {
       '',
     );
 
-    const KPIReports = await Promise.all(
+    const KPIReports: IKPI[] = await Promise.all(
       departments.map(async (department) => {
         const employees = await this.userService.findByIds(
           department.employees.map((id) => id.toString()),

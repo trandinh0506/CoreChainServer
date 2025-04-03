@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { AdjustmentDto } from './dto/update-user.dto';
 
 export interface IUser {
@@ -21,11 +21,42 @@ export interface PublicUser {
   name: string;
   email: string;
   avatar: string;
-  role: mongoose.Schema.Types.ObjectId;
+  role:
+    | mongoose.Schema.Types.ObjectId
+    | {
+        _id: mongoose.Schema.Types.ObjectId;
+        name: string;
+      };
   workingHours: number;
   employeeId: string;
-  position: mongoose.Schema.Types.ObjectId;
-  department: mongoose.Schema.Types.ObjectId;
+  position:
+    | mongoose.Schema.Types.ObjectId
+    | {
+        _id: mongoose.Schema.Types.ObjectId;
+        name: string;
+      };
+  department:
+    | mongoose.Schema.Types.ObjectId
+    | {
+        _id: mongoose.Schema.Types.ObjectId;
+        name: string;
+      };
+  isDeleted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
+  createdBy: {
+    _id: mongoose.Schema.Types.ObjectId;
+    email: string;
+  };
+  updatedBy: {
+    _id: mongoose.Schema.Types.ObjectId;
+    email: string;
+  };
+  deletedBy: {
+    _id: mongoose.Schema.Types.ObjectId;
+    email: string;
+  };
 }
 export interface PrivateUser {
   netSalary?: number;

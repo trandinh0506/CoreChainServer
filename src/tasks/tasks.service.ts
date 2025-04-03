@@ -8,6 +8,7 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
 import mongoose, { ObjectId } from 'mongoose';
 import { END_OF_MONTH, START_OF_MONTH } from 'src/decorators/customize';
+import { ITask } from './task.interface';
 // import { ProjectsService } from 'src/projects/projects.service';
 
 @Injectable()
@@ -83,7 +84,7 @@ export class TasksService {
 
     const totalItems = (await this.taskModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-    const result = await this.taskModel
+    const result: ITask[] = await this.taskModel
       .find(filter)
       .skip(offset)
       .limit(defaultLimit)
@@ -123,14 +124,9 @@ export class TasksService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid task ID`);
     }
-    const task = await this.taskModel.findOne({ _id: id }).lean();
-    // const project = await this.projectService.findOne(
-    //   task.projectId.toString(),
-    // );
-    return {
-      ...task,
-      // projectName: project.name,
-    };
+    const task: ITask = await this.taskModel.findOne({ _id: id }).lean();
+
+    return task;
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto, user: IUser) {
