@@ -30,7 +30,7 @@ export class PositionsService {
         email: user.email,
       },
     });
-    return newPosition;
+    return newPosition._id;
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {

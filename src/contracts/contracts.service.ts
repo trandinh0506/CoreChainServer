@@ -28,7 +28,7 @@ export class ContractsService {
         email: user.email,
       },
     });
-    return newContract;
+    return newContract._id;
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {

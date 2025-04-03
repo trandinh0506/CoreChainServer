@@ -32,10 +32,7 @@ export class PermissionsService {
         email: user.email,
       },
     });
-    return {
-      _id: newPermission._id,
-      createdAt: newPermission.createdAt,
-    };
+    return newPermission._id;
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {

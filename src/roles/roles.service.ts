@@ -26,10 +26,7 @@ export class RolesService {
       isActive,
       permissions,
     });
-    return {
-      _id: newRole._id,
-      createdAt: newRole.createdAt,
-    };
+    return newRole._id;
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {

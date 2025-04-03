@@ -10,7 +10,12 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { ConfigService } from '@nestjs/config';
 import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
-import { IUser } from './users.interface';
+import {
+  CompleteUser,
+  IUser,
+  PrivateUser,
+  PublicUser,
+} from './users.interface';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
 import { BlockchainService } from 'src/blockchain/blockchain.service';
@@ -166,7 +171,7 @@ export class UsersService {
           System,
         );
       }
-      return newUser;
+      return newUser._id;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -182,14 +187,14 @@ export class UsersService {
     const totalItems = (await this.userModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    const result = await this.userModel
+    const result = (await this.userModel
       .find(filter)
       .select('-password -refreshToken')
       .skip(offset)
       .limit(defaultLimit)
       .sort(sort as any)
       .populate(population)
-      .exec();
+      .exec()) as unknown as PublicUser;
     // const employees = await this.blockchainService.getAllEmployeeIds();
     // console.log(employees);
     return {
@@ -208,7 +213,7 @@ export class UsersService {
       throw new BadRequestException(`Invalid user ID`);
     }
 
-    return await this.userModel
+    return (await this.userModel
       .findOne({
         _id: id,
         isDeleted: false,
@@ -218,7 +223,8 @@ export class UsersService {
         { path: 'role', select: { name: 1, _id: 1 } },
         { path: 'position', select: '_id title' },
         { path: 'department', select: '_id name' },
-      ]);
+      ])
+      .lean()) as PublicUser;
   }
 
   async findByIds(ids: string[]) {
@@ -250,7 +256,7 @@ export class UsersService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid user ID`);
     }
-    const publicEmployee = await this.userModel
+    const publicEmployee: PublicUser = await this.userModel
       .findById(id)
       .select('-password -refreshToken')
       .populate([
@@ -260,13 +266,13 @@ export class UsersService {
       ])
       .lean();
     //handle private data
-    const privateEmployee = await this.blockchainService.getEmployee(
-      publicEmployee.employeeId,
-    );
-    return {
+    const privateEmployee: PrivateUser =
+      await this.blockchainService.getEmployee(publicEmployee.employeeId);
+    const employee: CompleteUser = {
       ...publicEmployee,
       ...privateEmployee,
     };
+    return employee;
   }
   // }
   async update(updateUserDto: UpdateUserDto, user: IUser, id: string) {

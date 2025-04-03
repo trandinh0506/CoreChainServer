@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { UpdatePersonnelDto } from './dto/update-personnel.dto';
-import { IUser } from 'src/users/users.interface';
+import { CompleteUser, IUser } from 'src/users/users.interface';
 import {
   UpdatePublicUserDto,
   UpdateUserDto,
@@ -33,7 +33,7 @@ export class PersonnelService {
   ) {}
   async calSalary(id: string, user: IUser) {
     try {
-      const employee: UpdateUserDto = await this.userService.findPrivateOne(id);
+      const employee: CompleteUser = await this.userService.findPrivateOne(id);
       const baseSalary = Math.ceil(
         (employee.salary / (30 * WORKING_HOURS_PER_DAY)) *
           employee.workingHours,
@@ -49,7 +49,7 @@ export class PersonnelService {
       console.log(netSalary);
       employee.netSalary = netSalary;
       employee.workingHours = 0;
-      await this.userService.update(employee, user, id);
+      await this.userService.update(employee as UpdateUserDto, user, id);
       return netSalary;
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -152,13 +152,13 @@ export class PersonnelService {
     updatePersonnelDto: UpdatePersonnelDto,
     user: IUser,
   ) {
-    const employee: UpdateUserDto = await this.userService.findPrivateOne(id);
+    const employee: CompleteUser = await this.userService.findPrivateOne(id);
     if (!employee.adjustments) {
       employee.adjustments = [];
     }
     updatePersonnelDto.adjustment.createdAt = new Date();
     employee.adjustments.push(updatePersonnelDto.adjustment);
-    return this.userService.update(employee, user, id);
+    return this.userService.update(employee as UpdateUserDto, user, id);
   }
 
   async updateWorkingHours(

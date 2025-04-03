@@ -38,7 +38,7 @@ export class DepartmentsService {
         email: user.email,
       },
     });
-    return newDepartment;
+    return newDepartment._id;
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {

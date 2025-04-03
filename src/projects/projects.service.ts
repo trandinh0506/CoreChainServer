@@ -46,7 +46,7 @@ export class ProjectsService {
       endDate,
       actualEndDate,
     });
-    return newProject;
+    return newProject._id;
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {

@@ -6,6 +6,7 @@ import { DepartmentsService } from 'src/departments/departments.service';
 import { PositionsService } from 'src/positions/positions.service';
 import { END_OF_MONTH, START_OF_MONTH, System } from 'src/decorators/customize';
 import { PersonnelService } from 'src/personnel/personnel.service';
+import { CompleteUser } from 'src/users/users.interface';
 interface Result {}
 @Injectable()
 export class ReportsService {
@@ -170,9 +171,8 @@ export class ReportsService {
         );
         const result = [];
         for (let empl of employees) {
-          const privateEmpl = await this.userService.findPrivateOne(
-            empl._id.toString(),
-          );
+          const privateEmpl: CompleteUser =
+            await this.userService.findPrivateOne(empl._id.toString());
           if (!privateEmpl.netSalary) {
             privateEmpl.netSalary = await this.personnelService.calSalary(
               empl._id.toString(),
@@ -187,7 +187,7 @@ export class ReportsService {
             avatar: empl.avatar,
             salary: privateEmpl.salary,
             allowances: privateEmpl.allowances,
-            adjustments: privateEmpl.addAdjustments,
+            adjustments: privateEmpl.adjustments,
             netSalary: privateEmpl.netSalary,
           });
         }

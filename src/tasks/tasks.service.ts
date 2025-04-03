@@ -45,7 +45,7 @@ export class TasksService {
       startDate,
       dueDate,
     });
-    return newTask;
+    return newTask._id;
   }
 
   async countTask(status: number, id: string) {
