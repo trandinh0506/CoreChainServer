@@ -1,11 +1,11 @@
 import mongoose, { Types } from 'mongoose';
 
-export interface IRole {
+export interface IPermission {
   _id: Types.ObjectId;
   name: string;
-  description: string;
-  isActive: boolean;
-  permissions: Array<mongoose.Schema.Types.ObjectId>;
+  apiPath: string;
+  method: string;
+  module: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;

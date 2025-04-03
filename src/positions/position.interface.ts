@@ -1,25 +1,19 @@
 import mongoose, { Types } from 'mongoose';
 
-export interface ITask {
+export interface IPosition {
   _id: Types.ObjectId;
-  name: string;
   title: string;
   description: string;
-  attachments: Array<string>;
-  createdBy: {
-    _id: mongoose.Schema.Types.ObjectId;
-    email: string;
-  };
-  assignedTo: mongoose.Schema.Types.ObjectId;
-  projectId: mongoose.Schema.Types.ObjectId;
-  priority: number;
-  status: number;
-  startDate: Date;
-  DueDate: Date;
+  parentId: mongoose.Schema.Types.ObjectId;
+  level: number;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
+  createdBy: {
+    _id: mongoose.Schema.Types.ObjectId;
+    email: string;
+  };
   updatedBy: {
     _id: mongoose.Schema.Types.ObjectId;
     email: string;

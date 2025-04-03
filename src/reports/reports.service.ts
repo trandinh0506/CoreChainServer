@@ -12,6 +12,7 @@ import {
   IEmployeesDepartment,
   IEmployeesTurnover,
   IKPI,
+  ISalary,
   IWorkingHours,
 } from './report.interface';
 interface Result {}
@@ -171,7 +172,7 @@ export class ReportsService {
       '',
     );
     let amount = 0;
-    const salaryReports = await Promise.all(
+    const salaryReports: ISalary[] = await Promise.all(
       departments.map(async (department) => {
         const employees = await this.userService.findByIds(
           department.employees.map((id) => id.toString()),

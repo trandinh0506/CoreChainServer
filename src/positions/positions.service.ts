@@ -7,6 +7,7 @@ import { Position, PositionDocument } from './schemas/position.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
+import { IPosition } from './position.interface';
 
 @Injectable()
 export class PositionsService {
@@ -44,7 +45,7 @@ export class PositionsService {
     const totalItems = (await this.positionModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    const result = await this.positionModel
+    const result: IPosition[] = await this.positionModel
       .find(filter)
       .skip(offset)
       .limit(defaultLimit)
@@ -66,7 +67,7 @@ export class PositionsService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid position ID`);
     }
-    return this.positionModel.findById(id);
+    const position: IPosition = await this.positionModel.findById(id);
   }
 
   async update(id: string, updatePositionDto: UpdatePositionDto, user: IUser) {

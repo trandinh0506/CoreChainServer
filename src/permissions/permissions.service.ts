@@ -7,6 +7,7 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import aqp from 'api-query-params';
+import { IPermission } from './permission.interface';
 
 @Injectable()
 export class PermissionsService {
@@ -46,7 +47,7 @@ export class PermissionsService {
     const totalItems = (await this.permissionModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    const result = await this.permissionModel
+    const result: IPermission[] = await this.permissionModel
       .find(filter)
       .skip(offset)
       .limit(defaultLimit)
@@ -69,7 +70,7 @@ export class PermissionsService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Not found permission with id=${id}`);
     }
-    return await this.permissionModel.findOne({ _id: id });
+    return (await this.permissionModel.findOne({ _id: id })) as IPermission;
   }
   async update(
     id: string,

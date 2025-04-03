@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Department, DepartmentDocument } from './schemas/department.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import mongoose from 'mongoose';
+import { IDepartment } from './department.interface';
 
 @Injectable()
 export class DepartmentsService {
@@ -53,7 +54,7 @@ export class DepartmentsService {
 
     const totalItems = (await this.departmentModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-    const result = await this.departmentModel
+    const result: IDepartment[] = await this.departmentModel
       .find(filter)
       .skip(offset)
       .limit(defaultLimit)
@@ -76,7 +77,7 @@ export class DepartmentsService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid department ID`);
     }
-    return this.departmentModel.findById(id).exec();
+    return (await this.departmentModel.findById(id).exec()) as IDepartment;
   }
 
   async update(

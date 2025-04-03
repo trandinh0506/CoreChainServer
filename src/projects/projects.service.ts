@@ -8,6 +8,7 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
 import { TasksService } from 'src/tasks/tasks.service';
+import { IProject } from './project.interface';
 
 @Injectable()
 export class ProjectsService {
@@ -16,6 +17,12 @@ export class ProjectsService {
     private projectModel: SoftDeleteModel<ProjectDocument>,
     private taskService: TasksService,
   ) {}
+  async progressCalculation(id: string) {
+    const taskCompleted = await this.taskService.countTask(3, id);
+    const taskAmount = await this.taskService.countTask(0, id);
+    console.log(taskCompleted, taskAmount);
+    return (taskCompleted / taskAmount) * 100;
+  }
   async create(createProjectDto: CreateProjectDto, user: IUser) {
     const {
       name,
@@ -62,7 +69,7 @@ export class ProjectsService {
     population.push({ path: 'tasks', select: 'name' });
     population.push({ path: 'manager', select: 'name email' });
     population.push({ path: 'teamMembers', select: 'name email' });
-    const projects = await this.projectModel
+    const projects: IProject[] = await this.projectModel
       .find(filter)
       .skip(offset)
       .limit(defaultLimit)
@@ -99,17 +106,14 @@ export class ProjectsService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid project ID`);
     }
-    const project = await this.projectModel
+    const project: IProject = await this.projectModel
       .findOne({ _id: id })
       .populate([
         { path: 'teamMembers', select: 'name email' },
         { path: 'manager', select: 'name email' },
       ])
       .lean();
-    const taskCompleted = await this.taskService.countTask(3, id);
-    const taskAmount = await this.taskService.countTask(0, id);
-    console.log(taskCompleted, taskAmount);
-    project.progress = (taskCompleted / taskAmount) * 100;
+    project.progress = await this.progressCalculation(id);
     return project;
   }
 
@@ -117,9 +121,12 @@ export class ProjectsService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid project ID`);
     }
+
+    const progress = await this.progressCalculation(id);
     return this.projectModel.updateOne(
       { _id: id },
       {
+        progress: progress,
         ...updateProjectDto,
         updatedBy: {
           _id: user._id,

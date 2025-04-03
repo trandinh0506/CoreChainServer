@@ -14,6 +14,7 @@ import { DecryptRequestDto } from './dto/decrypt-request.dto';
 import { IUser } from 'src/users/users.interface';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
+import { IFeedback } from './feedback.interface';
 
 @Injectable()
 export class FeedbackService {
@@ -127,7 +128,7 @@ export class FeedbackService {
     const totalItems = (await this.feedbackModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    const result = await this.feedbackModel
+    const result: IFeedback[] = await this.feedbackModel
       .find(filter)
       .skip(offset)
       .limit(defaultLimit)
@@ -150,7 +151,7 @@ export class FeedbackService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid feedback ID`);
     }
-    return this.feedbackModel.findById(id);
+    return (await this.feedbackModel.findById(id)) as IFeedback;
   }
 
   async remove(id: string, user: IUser) {

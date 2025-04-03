@@ -18,6 +18,7 @@ export interface IUser {
 }
 
 export interface PublicUser {
+  _id: Types.ObjectId;
   name: string;
   email: string;
   avatar: string;

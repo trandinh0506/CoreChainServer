@@ -22,6 +22,7 @@ import {
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
+import { ISalaryAdvance } from './personnel.interface';
 
 @Injectable()
 export class PersonnelService {
@@ -103,7 +104,7 @@ export class PersonnelService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid salary advance ID`);
     }
-    return this.salaryAdvanceModel.findById(id);
+    return (await this.salaryAdvanceModel.findById(id)) as ISalaryAdvance;
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
@@ -117,7 +118,7 @@ export class PersonnelService {
     const totalItems = (await this.salaryAdvanceModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    const result = await this.salaryAdvanceModel
+    const result: ISalaryAdvance[] = await this.salaryAdvanceModel
       .find(filter)
       .skip(offset)
       .limit(defaultLimit)
