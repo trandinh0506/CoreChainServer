@@ -26,7 +26,7 @@ export class CreateDepartmentDto {
 
   @IsOptional({ message: 'Employees ID must not be empty !' })
   @IsMongoId({ each: true })
-  employees: Array<mongoose.Schema.Types.ObjectId>;
+  employees: Array<mongoose.Schema.Types.ObjectId | string>;
 
   @IsNotEmpty({ message: 'Status must not be empty !' })
   status: string;
