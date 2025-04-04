@@ -2,19 +2,27 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import CryptoJS from 'crypto-js';
 import crypto from 'crypto';
+import { RsaService } from './rsa.service';
+
 @Injectable()
 export class SecurityService {
-  private readonly secretKey: string;
+  private secretKey: string;
   private readonly algorithm = 'aes-256-cbc';
   private readonly key: Buffer;
   private readonly iv: Buffer;
 
-  constructor(private configService: ConfigService) {
-    this.secretKey = this.configService.get<string>('SECRET_KEY');
-    if (!this.secretKey) {
-      throw new Error('SECRET_KEY is not defined');
+  constructor(
+    private configService: ConfigService,
+    private rsaService: RsaService,
+  ) {
+    const encryptedSecretKey = this.configService.get<string>(
+      'ENCRYPTED_SECRET_KEY',
+    );
+    if (!encryptedSecretKey) {
+      throw new Error('ENCRYPTED_SECRET_KEY is not defined');
     }
 
+    this.secretKey = this.rsaService.decryptSecretKey(encryptedSecretKey);
     this.key = crypto.createHash('sha256').update(this.secretKey).digest();
 
     const ivString =
