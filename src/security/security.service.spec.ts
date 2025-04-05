@@ -7,33 +7,30 @@ describe('SecurityService', () => {
   let service: SecurityService;
 
   beforeEach(async () => {
+    process.env.ENCRYPTED_SECRET_KEY = 'mock-encrypted-key';
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SecurityService,
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn().mockImplementation((key: string) => {
-              switch (key) {
-                case 'ENCRYPTION_KEY':
-                  return 'test-encryption-key';
-                default:
-                  return null;
-              }
-            }),
+            get: jest.fn().mockReturnValue('mock-encrypted-key'),
           },
         },
         {
           provide: RsaService,
           useValue: {
-            encrypt: jest.fn().mockReturnValue('encrypted-data'),
-            decrypt: jest.fn().mockReturnValue('decrypted-data'),
+            decryptSecretKey: jest.fn().mockReturnValue('mock-secret-key'),
           },
         },
       ],
     }).compile();
 
     service = module.get<SecurityService>(SecurityService);
+  });
+
+  afterEach(() => {
+    delete process.env.ENCRYPTED_SECRET_KEY;
   });
 
   it('should be defined', () => {

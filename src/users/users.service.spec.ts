@@ -48,6 +48,7 @@ describe('UsersService', () => {
     create: jest.fn(),
     updateOne: jest.fn(),
     softDelete: jest.fn(),
+    countDocuments: jest.fn().mockResolvedValue(1),
   };
 
   beforeEach(async () => {
@@ -111,19 +112,18 @@ describe('UsersService', () => {
       };
 
       // First find call for counting total items
-      mockUserModel.find.mockImplementationOnce(() => ({
-        exec: jest.fn().mockResolvedValue([mockUser]),
-      }));
+      mockUserModel.countDocuments.mockResolvedValueOnce(1);
 
       // Second find call for actual results
-      mockUserModel.find.mockImplementationOnce(() => ({
+      const mockQuery = {
         select: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
         sort: jest.fn().mockReturnThis(),
         populate: jest.fn().mockReturnThis(),
         exec: jest.fn().mockResolvedValue([mockUser]),
-      }));
+      };
+      mockUserModel.find.mockReturnValueOnce(mockQuery);
 
       const result = await service.findAll(1, 10, '');
       expect(result).toEqual(mockResult);

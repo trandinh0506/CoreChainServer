@@ -184,7 +184,7 @@ export class UsersService {
     let offset = (+currentPage - 1) * +limit;
     let defaultLimit = +limit ? +limit : 10;
 
-    const totalItems = (await this.userModel.find(filter)).length;
+    const totalItems = await this.userModel.countDocuments(filter);
     const totalPages = Math.ceil(totalItems / defaultLimit);
     if (!population) population = [];
     population.push({ path: 'role', select: '_id name' });

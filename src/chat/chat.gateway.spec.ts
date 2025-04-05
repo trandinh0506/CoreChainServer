@@ -17,6 +17,7 @@ describe('ChatGateway', () => {
     create: jest.fn(),
     find: jest.fn().mockReturnValue({
       sort: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
       populate: jest.fn().mockReturnThis(),
       exec: jest.fn().mockResolvedValue([]),
     }),
@@ -118,6 +119,9 @@ describe('ChatGateway', () => {
 
       mockConversationModel
         .find()
+        .sort({ lastActivity: -1 })
+        .limit(10)
+        .populate({ path: 'participants', select: 'name' })
         .exec.mockResolvedValueOnce(mockConversations);
       mockMessageModel.findOne().exec.mockResolvedValueOnce({
         content: 'test message',
