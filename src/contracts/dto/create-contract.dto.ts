@@ -31,7 +31,7 @@ export class CreateContractDto {
 
   @IsNotEmpty()
   @IsMongoId()
-  employee: mongoose.Schema.Types.ObjectId;
+  employee: string;
 
   @IsNotEmpty()
   @IsNumber()
