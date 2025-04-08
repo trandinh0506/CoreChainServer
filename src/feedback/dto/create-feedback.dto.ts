@@ -13,7 +13,7 @@ import mongoose from 'mongoose';
 export class CreateFeedbackDto {
   @IsNotEmpty()
   @IsMongoId()
-  sender: mongoose.Schema.Types.ObjectId;
+  sender: string;
 
   @IsNotEmpty()
   category: string;

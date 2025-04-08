@@ -29,6 +29,9 @@ export class Project {
   @Prop()
   attachments: Array<string>;
 
+  @Prop()
+  department: mongoose.Schema.Types.ObjectId;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
   manager: mongoose.Schema.Types.ObjectId;
 

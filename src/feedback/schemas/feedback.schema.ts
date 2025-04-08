@@ -27,6 +27,9 @@ export class Feedback {
   };
 
   @Prop()
+  approvedBy: string;
+
+  @Prop()
   title: string;
 
   @Prop()

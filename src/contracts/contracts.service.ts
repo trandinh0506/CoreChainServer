@@ -7,6 +7,7 @@ import { Contract, ContractDocument } from './schemas/contract.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
+import { IContract } from './contract.interface';
 
 @Injectable()
 export class ContractsService {
@@ -28,7 +29,7 @@ export class ContractsService {
         email: user.email,
       },
     });
-    return newContract;
+    return newContract._id;
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
@@ -42,7 +43,7 @@ export class ContractsService {
     const totalItems = (await this.contractModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
     population.push({ path: 'employee', select: 'name email' });
-    const result = await this.contractModel
+    const result: IContract[] = await this.contractModel
       .find(filter)
       .skip(offset)
       .limit(defaultLimit)
@@ -65,10 +66,12 @@ export class ContractsService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid contract ID`);
     }
-    return (await this.contractModel.findById(id)).populate({
+    return (await (
+      await this.contractModel.findById(id)
+    ).populate({
       path: 'employee',
       select: 'name email',
-    });
+    })) as IContract;
   }
 
   async update(id: string, updateContractDto: UpdateContractDto, user: IUser) {

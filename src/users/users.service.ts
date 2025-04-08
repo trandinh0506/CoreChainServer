@@ -10,7 +10,12 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { ConfigService } from '@nestjs/config';
 import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
-import { IUser } from './users.interface';
+import {
+  CompleteUser,
+  IUser,
+  PrivateUser,
+  PublicUser,
+} from './users.interface';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
 import { BlockchainService } from 'src/blockchain/blockchain.service';
@@ -166,23 +171,26 @@ export class UsersService {
           System,
         );
       }
-      return newUser;
+      return newUser._id;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
-    const { filter, skip, sort, projection, population } = aqp(qs);
+    let { filter, skip, sort, projection, population } = aqp(qs);
     delete filter.current;
     delete filter.pageSize;
     let offset = (+currentPage - 1) * +limit;
     let defaultLimit = +limit ? +limit : 10;
 
-    const totalItems = (await this.userModel.find(filter)).length;
+    const totalItems = await this.userModel.countDocuments(filter);
     const totalPages = Math.ceil(totalItems / defaultLimit);
-
-    const result = await this.userModel
+    if (!population) population = [];
+    population.push({ path: 'role', select: '_id name' });
+    population.push({ path: 'position', select: '_id title' });
+    population.push({ path: 'department', select: '_id name' });
+    const result: PublicUser[] = await this.userModel
       .find(filter)
       .select('-password -refreshToken')
       .skip(offset)
@@ -208,7 +216,7 @@ export class UsersService {
       throw new BadRequestException(`Invalid user ID`);
     }
 
-    return await this.userModel
+    return (await this.userModel
       .findOne({
         _id: id,
         isDeleted: false,
@@ -218,7 +226,8 @@ export class UsersService {
         { path: 'role', select: { name: 1, _id: 1 } },
         { path: 'position', select: '_id title' },
         { path: 'department', select: '_id name' },
-      ]);
+      ])
+      .lean()) as PublicUser;
   }
 
   async findByIds(ids: string[]) {
@@ -250,7 +259,7 @@ export class UsersService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid user ID`);
     }
-    const publicEmployee = await this.userModel
+    const publicEmployee: PublicUser = await this.userModel
       .findById(id)
       .select('-password -refreshToken')
       .populate([
@@ -260,13 +269,13 @@ export class UsersService {
       ])
       .lean();
     //handle private data
-    const privateEmployee = await this.blockchainService.getEmployee(
-      publicEmployee.employeeId,
-    );
-    return {
+    const privateEmployee: PrivateUser =
+      await this.blockchainService.getEmployee(publicEmployee.employeeId);
+    const employee: CompleteUser = {
       ...publicEmployee,
       ...privateEmployee,
     };
+    return employee;
   }
   // }
   async update(updateUserDto: UpdateUserDto, user: IUser, id: string) {

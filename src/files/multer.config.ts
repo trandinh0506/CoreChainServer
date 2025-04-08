@@ -103,7 +103,7 @@ export class MulterConfigService implements MulterOptionsFactory {
         cloudinary: cloudinary,
         params: {
           // We'll use the folder parameter for the base folder
-          folder: 'images',
+          folder: 'files',
           // This function determines the public_id (filename without extension)
           public_id: (req, file): string => {
             // Get the folder type from headers
@@ -147,7 +147,7 @@ export class MulterConfigService implements MulterOptionsFactory {
         }
       },
       limits: {
-        fileSize: 1024 * 1024 * 10, // 1MB
+        fileSize: 1024 * 1024 * 10, // 10MB
       },
     };
   }

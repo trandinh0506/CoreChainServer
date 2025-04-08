@@ -22,6 +22,9 @@ export class CreateProjectDto {
   attachments: Array<string>;
 
   @IsNotEmpty()
+  department: mongoose.Schema.Types.ObjectId;
+
+  @IsOptional()
   @IsArray()
   teamMembers: Array<mongoose.Schema.Types.ObjectId>;
 

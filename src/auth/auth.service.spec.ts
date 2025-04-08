@@ -2,13 +2,46 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcryptjs';
-
-jest.mock('bcryptjs');
+import { ConfigService } from '@nestjs/config';
+import { RolesService } from 'src/roles/roles.service';
+import { Response } from 'express';
 
 describe('AuthService', () => {
-  let authService: AuthService;
+  let service: AuthService;
   let usersService: UsersService;
+
+  const mockUsersService = {
+    findOneByUsername: jest.fn(),
+    isValidPassword: jest.fn(),
+    updateUserToken: jest.fn(),
+    getUserByToken: jest.fn(),
+  };
+
+  const mockJwtService = {
+    sign: jest.fn().mockReturnValue('test-token'),
+    verify: jest.fn().mockReturnValue(true),
+  };
+
+  const mockConfigService = {
+    get: jest.fn((key: string) => {
+      switch (key) {
+        case 'JWT_REFRESH_EXPIRE':
+          return '7d';
+        case 'JWT_REFRESH_TOKEN_SECRET':
+          return 'refresh-secret';
+        default:
+          return '';
+      }
+    }),
+  };
+
+  const mockRolesService = {
+    findOne: jest.fn().mockResolvedValue({
+      _id: 'role-id',
+      name: 'admin',
+      permissions: ['read', 'write'],
+    }),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -16,73 +49,83 @@ describe('AuthService', () => {
         AuthService,
         {
           provide: UsersService,
-          useValue: {
-            findOne: jest.fn(), // Mock findOne function
-          },
+          useValue: mockUsersService,
         },
         {
           provide: JwtService,
-          useValue: {
-            sign: jest.fn(() => 'fake-jwt-token'), // Mock JWT sign function
-          },
+          useValue: mockJwtService,
+        },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
+        },
+        {
+          provide: RolesService,
+          useValue: mockRolesService,
         },
       ],
     }).compile();
 
-    authService = module.get<AuthService>(AuthService);
+    service = module.get<AuthService>(AuthService);
     usersService = module.get<UsersService>(UsersService);
   });
 
   it('should be defined', () => {
-    expect(authService).toBeDefined();
+    expect(service).toBeDefined();
   });
 
   describe('validateUser', () => {
     it('should return user data if password is correct', async () => {
       const mockUser = {
-        id: 1,
-        username: 'caongoc@gmail.com',
-        password:
-          '$2b$10$E97ffGc9XtWunBKok6loNOz80Q01HNnDgLvR0.XD0t59l2hV94PIK',
+        _id: 'user-id',
+        username: 'test@example.com',
+        password: 'hashed_password',
+        role: { _id: 'role-id', name: 'admin' },
+        toObject: () => ({
+          _id: 'user-id',
+          username: 'test@example.com',
+          role: { _id: 'role-id', name: 'admin' },
+        }),
       };
-      usersService.findOne = jest.fn().mockResolvedValue(mockUser);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      const result = await authService.validateUser('caongoc@gmail.com', '123');
+      mockUsersService.findOneByUsername.mockResolvedValueOnce(mockUser);
+      mockUsersService.isValidPassword.mockReturnValueOnce(true);
 
-      expect(result).toEqual(mockUser);
-      expect(usersService.findOne).toHaveBeenCalledWith('caongoc@gmail.com');
-      expect(bcrypt.compare).toHaveBeenCalledWith('123', mockUser.password);
+      const result = await service.validateUser(
+        'test@example.com',
+        'password123',
+      );
+
+      expect(result).toBeDefined();
+      expect(result.permissions).toEqual(['read', 'write']);
     });
 
     it('should return null if user is not found', async () => {
-      usersService.findOne = jest.fn().mockResolvedValue(null);
+      mockUsersService.findOneByUsername.mockResolvedValueOnce(null);
 
-      const result = await authService.validateUser('caongoc@gmail.com', '123');
+      const result = await service.validateUser(
+        'nonexistent@example.com',
+        'password',
+      );
 
       expect(result).toBeNull();
     });
 
     it('should return null if password is incorrect', async () => {
       const mockUser = {
-        id: 1,
-        username: 'caongoc@gmail.com',
-        password:
-          '$2b$10$E97ffGc9XtWunBKok6loNOz80Q01HNnDgLvR0.XD0t59l2hV94PIK',
+        username: 'test@example.com',
+        password: 'hashed_password',
       };
-      usersService.findOne = jest.fn().mockResolvedValue(mockUser);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      const result = await authService.validateUser(
-        'caongoc@gmail.com',
-        'wrongPassword',
+      mockUsersService.findOneByUsername.mockResolvedValueOnce(mockUser);
+      mockUsersService.isValidPassword.mockReturnValueOnce(false);
+
+      const result = await service.validateUser(
+        'test@example.com',
+        'wrong_password',
       );
 
       expect(result).toBeNull();
-      expect(bcrypt.compare).toHaveBeenCalledWith(
-        'wrongPassword',
-        mockUser.password,
-      );
     });
   });
 });

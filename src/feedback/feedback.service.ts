@@ -14,6 +14,7 @@ import { DecryptRequestDto } from './dto/decrypt-request.dto';
 import { IUser } from 'src/users/users.interface';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
+import { IFeedback } from './feedback.interface';
 
 @Injectable()
 export class FeedbackService {
@@ -25,21 +26,20 @@ export class FeedbackService {
     private encryptionService: SecurityService,
   ) {}
 
-  async createFeedback(
-    createFeedbackDto: CreateFeedbackDto,
-  ): Promise<Feedback> {
+  async createFeedback(createFeedbackDto: CreateFeedbackDto) {
     const { category, title, content } = createFeedbackDto;
     const encryptedEmployeeId = this.encryptionService.encryptEmployeeId(
       createFeedbackDto.sender.toString(),
     );
 
-    return this.feedbackModel.create({
+    const newFeedback = await this.feedbackModel.create({
       encryptedEmployeeId,
       category,
       title,
       content,
       isFlagged: this.shouldFlagFeedback(createFeedbackDto.content),
     });
+    return newFeedback._id;
   }
   private shouldFlagFeedback(content: string): boolean {
     // Violence, Suicide, Abuse and exploitation, Sensitive and sexual, banned substances, Extremist and hateful language
@@ -102,6 +102,7 @@ export class FeedbackService {
       {
         wasDecrypted: true,
         decryptionReason: decryptRequest.reason,
+        approvedBy: decryptRequest.approvedBy,
         decryptedBy: {
           _id: user._id,
           email: user.email,
@@ -127,7 +128,7 @@ export class FeedbackService {
     const totalItems = (await this.feedbackModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    const result = await this.feedbackModel
+    const result: IFeedback[] = await this.feedbackModel
       .find(filter)
       .skip(offset)
       .limit(defaultLimit)
@@ -150,7 +151,7 @@ export class FeedbackService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid feedback ID`);
     }
-    return this.feedbackModel.findById(id);
+    return (await this.feedbackModel.findById(id)) as IFeedback;
   }
 
   async remove(id: string, user: IUser) {

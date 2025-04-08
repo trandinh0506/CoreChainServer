@@ -20,13 +20,13 @@ export class CreateDepartmentDto {
   @IsNotEmpty({ message: 'Description must not be empty !' })
   description: string;
 
-  @IsNotEmpty({ message: 'Manager ID must not be empty !' })
+  @IsOptional({ message: 'Manager ID must not be empty !' })
   @IsMongoId()
   manager: mongoose.Schema.Types.ObjectId;
 
-  @IsNotEmpty({ message: 'Employees ID must not be empty !' })
+  @IsOptional({ message: 'Employees ID must not be empty !' })
   @IsMongoId({ each: true })
-  employees: Array<mongoose.Schema.Types.ObjectId>;
+  employees: Array<mongoose.Schema.Types.ObjectId | string>;
 
   @IsNotEmpty({ message: 'Status must not be empty !' })
   status: string;
@@ -35,7 +35,7 @@ export class CreateDepartmentDto {
   @IsNumber({}, { message: 'Budget is number' })
   budget: number;
 
-  @IsNotEmpty({ message: 'ProjectIds must not be empty !' })
+  @IsOptional({ message: 'ProjectIds must not be empty !' })
   @IsMongoId({ each: true, message: 'ProjectIds has format mongo Id' })
   projectIds: Array<mongoose.Schema.Types.ObjectId>;
 }

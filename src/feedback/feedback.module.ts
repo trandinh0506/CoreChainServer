@@ -2,17 +2,17 @@ import { Module } from '@nestjs/common';
 import { FeedbackService } from './feedback.service';
 import { FeedbackController } from './feedback.controller';
 import { Feedback, FeedbackSchema } from './schemas/feedback.schema';
-import { SecurityService } from 'src/security/security.service';
-import { Mongoose } from 'mongoose';
 import { MongooseModule } from '@nestjs/mongoose';
+import { SecurityModule } from '../security/security.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Feedback.name, schema: FeedbackSchema },
     ]),
+    SecurityModule,
   ],
   controllers: [FeedbackController],
-  providers: [FeedbackService, SecurityService],
+  providers: [FeedbackService],
 })
 export class FeedbackModule {}
