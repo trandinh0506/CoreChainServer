@@ -10,7 +10,6 @@ export class RsaService {
   private readonly publicKeyPath: string;
   private privateKey: string;
   private publicKey: string;
-
   constructor(private configService: ConfigService) {
     this.privateKeyPath = path.join(process.cwd(), 'keys', 'private.pem');
     this.publicKeyPath = path.join(process.cwd(), 'keys', 'public.pem');
@@ -19,25 +18,46 @@ export class RsaService {
 
   private initializeKeys() {
     // Create keys directory if it doesn't exist
-    const keysDir = path.join(process.cwd(), 'keys');
-    if (!fs.existsSync(keysDir)) {
-      fs.mkdirSync(keysDir, { recursive: true });
-    }
-
-    // Generate new keys if they don't exist
-    if (
-      !fs.existsSync(this.privateKeyPath) ||
-      !fs.existsSync(this.publicKeyPath)
-    ) {
-      this.generateKeyPair();
-    }
-
+    this.initKeyFiles();
     // Load existing keys
     this.privateKey = fs.readFileSync(this.privateKeyPath, 'utf8');
     this.publicKey = fs.readFileSync(this.publicKeyPath, 'utf8');
+    // this.privateKey = this.configService.get<string>('RSA_PRIVATE_KEY');
+    // this.publicKey = this.configService.get<string>('RSA_PUBLIC_KEY');
+    console.log(this.privateKey);
+    console.log(this.publicKey);
   }
 
-  private generateKeyPair() {
+  private initKeyFiles() {
+    const keysDir = path.join(process.cwd(), 'keys');
+    if (!fs.existsSync(keysDir)) {
+      fs.mkdirSync(keysDir);
+    }
+
+    const privateKey = this.configService.get<string>('RSA_PRIVATE_KEY');
+    const publicKey = this.configService.get<string>('RSA_PUBLIC_KEY');
+
+    if (privateKey) {
+      fs.writeFileSync(
+        path.join(keysDir, 'private.pem'),
+        Buffer.from(privateKey, 'base64').toString('utf-8'),
+        { flag: 'w' },
+      );
+    }
+
+    if (publicKey) {
+      fs.writeFileSync(
+        path.join(keysDir, 'public.pem'),
+        Buffer.from(publicKey, 'base64').toString('utf-8'),
+        { flag: 'w' },
+      );
+    }
+    if (!privateKey && !publicKey) {
+      this.generateKeyPairRSA();
+    }
+  }
+
+  private generateKeyPairRSA() {
     const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
       modulusLength: 2048,
       publicKeyEncoding: {
@@ -52,6 +72,13 @@ export class RsaService {
 
     fs.writeFileSync(this.privateKeyPath, privateKey);
     fs.writeFileSync(this.publicKeyPath, publicKey);
+
+    // Encrypt secret key and save to .env file
+    // will be implemented after considering security capabilities
+
+    // const secretKey = this.configService.get<string>('SECRET_KEY');
+    // const encryptedSecretKey = this.encryptSecretKey(secretKey);
+    // this.configService.set('ENCRYPTED_SECRET_KEY', encryptedSecretKey);
   }
 
   encryptSecretKey(secretKey: string): string {

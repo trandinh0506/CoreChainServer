@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: core-chain-server
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: BLOCKCHAIN_API_KEY
+        sync: false
