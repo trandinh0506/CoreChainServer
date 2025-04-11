@@ -12,7 +12,6 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
 
   const configService = app.get(ConfigService);
-
   const reflector = app.get(Reflector);
   app.useGlobalGuards(new JwtAuthGuard(reflector));
   app.useGlobalInterceptors(new TransformInterceptor(reflector));
