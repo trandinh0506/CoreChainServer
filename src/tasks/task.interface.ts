@@ -2,7 +2,6 @@ import mongoose, { Types } from 'mongoose';
 
 export interface ITask {
   _id: Types.ObjectId;
-  name: string;
   title: string;
   description: string;
   attachments: Array<string>;

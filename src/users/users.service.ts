@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import {
   UpdatePublicUserDto,
@@ -22,6 +27,8 @@ import { BlockchainService } from 'src/blockchain/blockchain.service';
 import { SecurityService } from 'src/security/security.service';
 import { DepartmentsService } from 'src/departments/departments.service';
 import { System } from 'src/decorators/customize';
+import { Cache } from 'cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class UsersService {
@@ -31,6 +38,7 @@ export class UsersService {
     private blockchainService: BlockchainService,
     private securityService: SecurityService,
     private departmentService: DepartmentsService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   getHashPassword = (password: string) => {
@@ -114,6 +122,19 @@ export class UsersService {
     }
     return { employeeId, privateData, publicData };
   }
+
+  async setCached(id: string, data: unknown) {
+    await this.cacheManager.set(`employee:${id}`, data);
+  }
+
+  async getCached(id: string) {
+    return (await this.cacheManager.get(`employee:${id}`)) as CompleteUser;
+  }
+
+  async delCached(id: string) {
+    await this.cacheManager.del(`employee:${id}`);
+  }
+
   async create(createUserDto: CreateUserDto, user: IUser) {
     try {
       const {
@@ -215,8 +236,7 @@ export class UsersService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid user ID`);
     }
-
-    return (await this.userModel
+    const employee = (await this.userModel
       .findOne({
         _id: id,
         isDeleted: false,
@@ -228,6 +248,7 @@ export class UsersService {
         { path: 'department', select: '_id name' },
       ])
       .lean()) as PublicUser;
+    return employee;
   }
 
   async findByIds(ids: string[]) {
@@ -259,23 +280,31 @@ export class UsersService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid user ID`);
     }
-    const publicEmployee: PublicUser = await this.userModel
-      .findById(id)
-      .select('-password -refreshToken')
-      .populate([
-        { path: 'role', select: { name: 1, _id: 1 } },
-        { path: 'position', select: '_id title' },
-        { path: 'department', select: '_id name' },
-      ])
-      .lean();
-    //handle private data
-    const privateEmployee: PrivateUser =
-      await this.blockchainService.getEmployee(publicEmployee.employeeId);
-    const employee: CompleteUser = {
-      ...publicEmployee,
-      ...privateEmployee,
-    };
-    return employee;
+    const cachedEmployee: CompleteUser = await this.getCached(id);
+    if (cachedEmployee) {
+      Logger.log('Got employee from cache !');
+      return cachedEmployee;
+    } else {
+      const publicEmployee: PublicUser = await this.userModel
+        .findById(id)
+        .select('-password -refreshToken')
+        .populate([
+          { path: 'role', select: { name: 1, _id: 1 } },
+          { path: 'position', select: '_id title' },
+          { path: 'department', select: '_id name' },
+        ])
+        .lean();
+      //handle private data
+      const privateEmployee: PrivateUser =
+        await this.blockchainService.getEmployee(publicEmployee.employeeId);
+      const employee: CompleteUser = {
+        ...publicEmployee,
+        ...privateEmployee,
+      };
+      await this.setCached(id, employee);
+      Logger.log('Cached This Employee');
+      return employee;
+    }
   }
   // }
   async update(updateUserDto: UpdateUserDto, user: IUser, id: string) {
@@ -315,7 +344,11 @@ export class UsersService {
         throw error;
       }
     }
-
+    //delete cached
+    const cachedEmployee = await this.getCached(id);
+    if (cachedEmployee) {
+      await this.delCached(id);
+    }
     return await this.userModel.updateOne(
       {
         _id: id,

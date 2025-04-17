@@ -7,6 +7,7 @@ import { BlockchainService } from 'src/blockchain/blockchain.service';
 import { BlockchainModule } from 'src/blockchain/blockchain.module';
 import { SecurityModule } from 'src/security/security.module';
 import { DepartmentsModule } from 'src/departments/departments.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
