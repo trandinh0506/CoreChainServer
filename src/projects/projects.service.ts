@@ -68,7 +68,7 @@ export class ProjectsService {
     const totalPages = Math.ceil(totalItems / defaultLimit);
     population.push({ path: 'tasks', select: 'name' });
     population.push({ path: 'manager', select: 'name email' });
-    population.push({ path: 'teamMembers', select: 'name email' });
+    // population.push({ path: 'teamMembers', select: 'name email' });
     const projects: IProject[] = await this.projectModel
       .find(filter)
       .skip(offset)
@@ -109,7 +109,7 @@ export class ProjectsService {
     const project: IProject = await this.projectModel
       .findOne({ _id: id })
       .populate([
-        { path: 'teamMembers', select: 'name email' },
+        // { path: 'teamMembers', select: 'name email' },
         { path: 'manager', select: 'name email' },
       ])
       .lean();
