@@ -7,7 +7,10 @@ export interface IProject {
   attachments: Array<string>;
   department: mongoose.Schema.Types.ObjectId;
   manager: mongoose.Schema.Types.ObjectId;
-  teamMembers: Array<mongoose.Schema.Types.ObjectId>;
+  teamMembers: Array<{
+    _id: mongoose.Schema.Types.ObjectId;
+    name: string;
+  }>;
   tasks: mongoose.Schema.Types.ObjectId[];
   expenses: Array<{
     cost: number;

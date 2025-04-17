@@ -24,8 +24,8 @@ export class RsaService {
     this.publicKey = fs.readFileSync(this.publicKeyPath, 'utf8');
     // this.privateKey = this.configService.get<string>('RSA_PRIVATE_KEY');
     // this.publicKey = this.configService.get<string>('RSA_PUBLIC_KEY');
-    console.log(this.privateKey);
-    console.log(this.publicKey);
+    // console.log(this.privateKey);
+    // console.log(this.publicKey);
   }
 
   private initKeyFiles() {

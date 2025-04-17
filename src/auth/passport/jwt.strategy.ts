@@ -29,7 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const roleData = await this.rolesService.findOne(role._id);
     const permissions = roleData ? (roleData.permissions ?? []) : [];
     const employee = await this.userService.findOne(_id);
-    console.log(employee);
+    console.log('>>> check employee', employee);
     return {
       _id,
       name,
