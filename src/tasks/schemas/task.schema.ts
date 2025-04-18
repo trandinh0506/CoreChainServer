@@ -37,7 +37,7 @@ export class Task {
   startDate: Date;
 
   @Prop()
-  DueDate: Date;
+  dueDate: Date;
 
   @Prop({ type: Boolean, default: false })
   isDeleted: boolean;
