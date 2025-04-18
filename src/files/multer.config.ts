@@ -4,9 +4,6 @@ import {
   MulterModuleOptions,
   MulterOptionsFactory,
 } from '@nestjs/platform-express';
-import { fileLoader } from 'ejs';
-import fs from 'fs';
-import { diskStorage } from 'multer';
 import createCloudinaryStorage, {
   CloudinaryStorage,
 } from 'multer-storage-cloudinary';
