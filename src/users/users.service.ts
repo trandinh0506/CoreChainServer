@@ -155,11 +155,11 @@ export class UsersService {
 
       const hashPassword = this.getHashPassword(password);
       const employeeData = {};
-      const txHash = await this.blockchainService.addEmployee(
-        employeeData,
-        createUserDto.employeeId,
-      );
-      console.log(txHash);
+      // const txHash = await this.blockchainService.addEmployee(
+      //   employeeData,
+      //   createUserDto.employeeId,
+      // );
+      // console.log(txHash);
 
       let newUser = await this.userModel.create({
         name,
@@ -171,7 +171,7 @@ export class UsersService {
         role,
         dayOff: 0,
         workingHours: workingHours || 0,
-        txHash,
+        // txHash,
         createdBy: {
           _id: user._id,
           email: user.email,
@@ -295,15 +295,15 @@ export class UsersService {
         ])
         .lean();
       //handle private data
-      const privateEmployee: PrivateUser =
-        await this.blockchainService.getEmployee(publicEmployee.employeeId);
-      const employee: CompleteUser = {
-        ...publicEmployee,
-        ...privateEmployee,
-      };
-      await this.setCached(id, employee);
-      Logger.log('Cached This Employee');
-      return employee;
+      // const privateEmployee: PrivateUser =
+      //   await this.blockchainService.getEmployee(publicEmployee.employeeId);
+      // const employee: CompleteUser = {
+      //   ...publicEmployee,
+      //   ...privateEmployee,
+      // };
+      // await this.setCached(id, employee);
+      // Logger.log('Cached This Employee');
+      return publicEmployee;
     }
   }
   // }
@@ -335,11 +335,11 @@ export class UsersService {
       };
 
       try {
-        txHash = await this.blockchainService.updateEmployee(
-          updateData,
-          employeeId,
-        );
-        console.log(txHash);
+        // txHash = await this.blockchainService.updateEmployee(
+        //   updateData,
+        //   employeeId,
+        // );
+        // console.log(txHash);
       } catch (error) {
         throw error;
       }
@@ -475,7 +475,7 @@ export class UsersService {
       .findOne({ _id: id })
       .select('employeeId');
     console.log(employee);
-    await this.blockchainService.deactivateEmployee(employee.employeeId);
+    // await this.blockchainService.deactivateEmployee(employee.employeeId);
 
     return this.userModel.softDelete({
       _id: id,
