@@ -14,7 +14,7 @@ export interface ITask {
   priority: number;
   status: number;
   startDate: Date;
-  DueDate: Date;
+  dueDate: Date;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
