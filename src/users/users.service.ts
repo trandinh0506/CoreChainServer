@@ -303,7 +303,7 @@ export class UsersService {
       // };
       // await this.setCached(id, employee);
       // Logger.log('Cached This Employee');
-      return publicEmployee;
+      return publicEmployee as unknown as CompleteUser;
     }
   }
   // }
