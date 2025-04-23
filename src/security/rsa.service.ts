@@ -18,12 +18,17 @@ export class RsaService {
 
   private initializeKeys() {
     // Create keys directory if it doesn't exist
-    this.initKeyFiles();
     // Load existing keys
     this.privateKey = fs.readFileSync(this.privateKeyPath, 'utf8');
     this.publicKey = fs.readFileSync(this.publicKeyPath, 'utf8');
+
+    if (!this.privateKey || !this.publicKey) {
+      this.initKeyFiles();
+    }
     // this.privateKey = this.configService.get<string>('RSA_PRIVATE_KEY');
     // this.publicKey = this.configService.get<string>('RSA_PUBLIC_KEY');
+    // console.log(this.privateKeyPath);
+    // console.log(this.publicKeyPath);
     // console.log(this.privateKey);
     // console.log(this.publicKey);
   }
@@ -36,6 +41,11 @@ export class RsaService {
 
     const privateKey = this.configService.get<string>('RSA_PRIVATE_KEY');
     const publicKey = this.configService.get<string>('RSA_PUBLIC_KEY');
+
+    if (!privateKey && !publicKey) {
+      this.generateKeyPairRSA();
+      return;
+    }
 
     if (privateKey) {
       fs.writeFileSync(
@@ -51,9 +61,6 @@ export class RsaService {
         Buffer.from(publicKey, 'base64').toString('utf-8'),
         { flag: 'w' },
       );
-    }
-    if (!privateKey && !publicKey) {
-      this.generateKeyPairRSA();
     }
   }
 
@@ -86,7 +93,6 @@ export class RsaService {
     const encrypted = crypto.publicEncrypt(this.publicKey, buffer);
     return encrypted.toString('base64');
   }
-
   decryptSecretKey(encryptedSecretKey: string): string {
     const buffer = Buffer.from(encryptedSecretKey, 'base64');
     const decrypted = crypto.privateDecrypt(this.privateKey, buffer);
