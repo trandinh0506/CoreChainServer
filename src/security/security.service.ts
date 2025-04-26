@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import CryptoJS from 'crypto-js';
 import crypto from 'crypto';
@@ -15,6 +15,7 @@ export class SecurityService {
     private configService: ConfigService,
     private rsaService: RsaService,
   ) {
+    try {
     const encryptedSecretKey = this.configService.get<string>(
       'ENCRYPTED_SECRET_KEY',
     );
@@ -28,6 +29,9 @@ export class SecurityService {
     const ivString =
       this.configService.get<string>('ENCRYPTION_IV') || 'default-iv-vector';
     this.iv = crypto.createHash('md5').update(ivString).digest();
+    } catch(error) {
+      Logger.error(error);
+    }
   }
 
   encryptEmployeeId(employeeId: string): string {
