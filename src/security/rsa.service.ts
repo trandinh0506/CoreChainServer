@@ -19,6 +19,7 @@ export class RsaService {
   private initializeKeys() {
     // Create keys directory if it doesn't exist
     // Load existing keys
+    try {
     this.privateKey = fs.readFileSync(this.privateKeyPath, 'utf8');
     this.publicKey = fs.readFileSync(this.publicKeyPath, 'utf8');
 
@@ -31,6 +32,9 @@ export class RsaService {
     // console.log(this.publicKeyPath);
     // console.log(this.privateKey);
     // console.log(this.publicKey);
+    } catch(error) {
+      throw error;
+    }
   }
 
   private initKeyFiles() {
