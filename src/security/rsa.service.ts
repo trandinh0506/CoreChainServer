@@ -40,34 +40,34 @@ export class RsaService {
   }
 
   private initKeyFiles() {
-    const keysDir = path.join(process.cwd(), 'keys');
-    if (!fs.existsSync(keysDir)) {
-      fs.mkdirSync(keysDir);
-    }
+    // const keysDir = path.join(process.cwd(), 'keys');
+    // if (!fs.existsSync(keysDir)) {
+    //   fs.mkdirSync(keysDir);
+    // }
 
     const privateKey = this.configService.get<string>('RSA_PRIVATE_KEY');
     const publicKey = this.configService.get<string>('RSA_PUBLIC_KEY');
 
     if (!privateKey && !publicKey) {
-      this.generateKeyPairRSA();
-      return;
+      // this.generateKeyPairRSA();
+      throw new Error('Cannot find RSA Keys !');
     }
 
-    if (privateKey) {
-      fs.writeFileSync(
-        path.join(keysDir, 'private.pem'),
-        Buffer.from(privateKey, 'base64').toString('utf-8'),
-        { flag: 'w' },
-      );
-    }
+    // if (privateKey) {
+    //   fs.writeFileSync(
+    //     path.join(keysDir, 'private.pem'),
+    //     Buffer.from(privateKey, 'base64').toString('utf-8'),
+    //     { flag: 'w' },
+    //   );
+    // }
 
-    if (publicKey) {
-      fs.writeFileSync(
-        path.join(keysDir, 'public.pem'),
-        Buffer.from(publicKey, 'base64').toString('utf-8'),
-        { flag: 'w' },
-      );
-    }
+    // if (publicKey) {
+    //   fs.writeFileSync(
+    //     path.join(keysDir, 'public.pem'),
+    //     Buffer.from(publicKey, 'base64').toString('utf-8'),
+    //     { flag: 'w' },
+    //   );
+    // }
   }
 
   private generateKeyPairRSA() {
