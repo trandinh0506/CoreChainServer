@@ -24,6 +24,14 @@ export class TransformInterceptor<T>
     context: ExecutionContext,
     next: CallHandler,
   ): Observable<Response<T>> {
+    const response = context.switchToHttp().getResponse();
+    const request = context.switchToHttp().getRequest();
+
+    const contentType = response.getHeader('Content-Type');
+    //is html ? -> next
+    if (contentType && contentType.toString().includes('text/html')) {
+      return next.handle();
+    }
     return next.handle().pipe(
       map((data) => ({
         statusCode: context.switchToHttp().getResponse().statusCode,
