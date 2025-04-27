@@ -1,450 +1,427 @@
 import { Controller, Get, Res, Version, VERSION_NEUTRAL } from '@nestjs/common';
-import { AppService } from './app.service';
 import { Response } from 'express';
 import { Public } from './decorators/customize';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+
 @Controller('')
 export class AppController {
-  constructor(private readonly appService: AppService) {}
   @Public()
   @Version(VERSION_NEUTRAL)
   @Get('/')
   getHome(@Res() res: Response) {
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; img-src 'self' data:;");
     res.setHeader('Content-Type', 'text/html');
     res.send(`
-          <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>HRM API - Human Resource Management</title>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/particlesjs/2.2.3/particles.min.js"></script>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-          <style>
-            * {
-              margin: 0;
-              padding: 0;
-              box-sizing: border-box;
-              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            }
-
-            body {
-              background: #0f172a;
-              color: #fff;
-              overflow-x: hidden;
-              height: 100vh;
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              align-items: center;
-            }
-
-            #particles-container {
-              position: absolute;
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 100%;
-              z-index: -1;
-            }
-
-            .container {
-              width: 90%;
-              max-width: 1200px;
-              padding: 40px;
-              text-align: center;
-              background: rgba(15, 23, 42, 0.8);
-              border-radius: 16px;
-              backdrop-filter: blur(8px);
-              box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-              transform: translateY(30px);
-              opacity: 0;
-              animation: fadeIn 1s ease-out forwards;
-            }
-
-            @keyframes fadeIn {
-              to {
-                opacity: 1;
-                transform: translateY(0);
-              }
-            }
-
-            .logo {
-              font-size: 3rem;
-              margin-bottom: 1rem;
-              color: #38bdf8;
-              background: linear-gradient(to right, #38bdf8, #818cf8);
-              -webkit-background-clip: text;
-              background-clip: text;
-              -webkit-text-fill-color: transparent;
-              display: inline-block;
-              animation: pulse 2s infinite;
-            }
-
-            @keyframes pulse {
-              0% {
-                transform: scale(1);
-              }
-              50% {
-                transform: scale(1.05);
-              }
-              100% {
-                transform: scale(1);
-              }
-            }
-
-            h1 {
-              font-size: 2.5rem;
-              margin-bottom: 1rem;
-              background: linear-gradient(to right, #0ea5e9, #8b5cf6);
-              -webkit-background-clip: text;
-              background-clip: text;
-              -webkit-text-fill-color: transparent;
-            }
-
-            p {
-              font-size: 1.2rem;
-              margin-bottom: 2rem;
-              color: #cbd5e1;
-              max-width: 600px;
-              margin-left: auto;
-              margin-right: auto;
-            }
-
-            .status {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              gap: 10px;
-              margin-bottom: 2rem;
-              font-size: 1.2rem;
-            }
-
-            .status-dot {
-              width: 12px;
-              height: 12px;
-              background-color: #22c55e;
-              border-radius: 50%;
-              display: inline-block;
-              animation: blink 1.5s ease-in-out infinite;
-            }
-
-            @keyframes blink {
-              0% {
-                opacity: 0.4;
-              }
-              50% {
-                opacity: 1;
-              }
-              100% {
-                opacity: 0.4;
-              }
-            }
-
-            .metrics {
-              display: flex;
-              flex-wrap: wrap;
-              justify-content: center;
-              gap: 20px;
-              margin-bottom: 2rem;
-            }
-
-            .metric-card {
-              background: rgba(30, 41, 59, 0.7);
-              padding: 20px;
-              border-radius: 12px;
-              width: 180px;
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-              transition: transform 0.3s, box-shadow 0.3s;
-              cursor: pointer;
-            }
-
-            .metric-card:hover {
-              transform: translateY(-5px);
-              box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
-            }
-
-            .metric-icon {
-              font-size: 2rem;
-              margin-bottom: 10px;
-              color: #38bdf8;
-            }
-
-            .metric-value {
-              font-size: 1.8rem;
-              font-weight: bold;
-              margin-bottom: 5px;
-              color: #f8fafc;
-            }
-
-            .metric-label {
-              font-size: 0.9rem;
-              color: #94a3b8;
-            }
-
-            .cta-button {
-              background: linear-gradient(to right, #0ea5e9, #8b5cf6);
-              color: white;
-              border: none;
-              padding: 12px 28px;
-              font-size: 1rem;
-              border-radius: 30px;
-              cursor: pointer;
-              transition: all 0.3s;
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-              margin: 0 10px;
-              font-weight: 600;
-            }
-
-            .cta-button:hover {
-              transform: translateY(-3px);
-              box-shadow: 0 7px 14px rgba(0, 0, 0, 0.2);
-            }
-
-            .api-endpoints {
-              margin-top: 3rem;
-              padding: 20px;
-              background: rgba(30, 41, 59, 0.5);
-              border-radius: 12px;
-              text-align: left;
-              max-height: 0;
-              overflow: hidden;
-              transition: max-height 0.5s ease-out;
-              opacity: 0;
-            }
-
-            .api-endpoints.show {
-              max-height: 500px;
-              opacity: 1;
-            }
-
-            .api-endpoints h3 {
-              margin-bottom: 1rem;
-              color: #e2e8f0;
-            }
-
-            .endpoint {
-              padding: 10px;
-              margin-bottom: 10px;
-              background: rgba(51, 65, 85, 0.5);
-              border-radius: 8px;
-              display: flex;
-              gap: 10px;
-              align-items: center;
-            }
-
-            .method {
-              padding: 4px 8px;
-              border-radius: 4px;
-              font-size: 0.8rem;
-              font-weight: bold;
-            }
-
-            .get {
-              background-color: #0284c7;
-            }
-
-            .post {
-              background-color: #16a34a;
-            }
-
-            .put {
-              background-color: #ca8a04;
-            }
-
-            .delete {
-              background-color: #dc2626;
-            }
-
-            .path {
-              font-family: monospace;
-              color: #e2e8f0;
-            }
-
-            .footer {
-              margin-top: 3rem;
-              font-size: 0.9rem;
-              color: #64748b;
-            }
-
-            @media (max-width: 768px) {
-              .container {
-                padding: 30px 20px;
-              }
-              
-              h1 {
-                font-size: 2rem;
-              }
-              
-              .metrics {
-                flex-direction: column;
-                align-items: center;
-              }
-              
-              .metric-card {
-                width: 100%;
-                max-width: 280px;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          <div id="particles-container"></div>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>HRM API | Human Resource Management System</title>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <style>
+          :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --success: #4cc9f0;
+            --dark: #121212;
+            --dark-secondary: #1a1a1a;
+            --text: #ffffff;
+            --text-secondary: #cccccc;
+          }
           
-          <div class="container">
-            <div class="logo">
-              <i class="fas fa-network-wired"></i>
-            </div>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          body {
+          font-family: 'Poppins', sans-serif;
+          min-height: 100vh;
+          overflow-x: hidden;
+          color: var(--text);
+          position: relative; 
+          
+          /* Background setup */
+          background-image: 
+            url("https://res.cloudinary.com/daq721xar/image/upload/v1745718586/2_fqvr4d.jpg");
+          background-size: cover;
+          background-position: center;
+          background-attachment: fixed; 
+          background-repeat: no-repeat;
+        }
+
+        body::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(49, 50, 52, 0.9); 
+          opacity: 0.7;
+          z-index: -1;
+        }
+          
+          .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+          }
+          
+          header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            animation: fadeInDown 1s ease;
+          }
+          
+          .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+          }
+          
+          .logo i {
+            font-size: 2rem;
+            color: var(--accent);
+          }
+          
+          .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 4rem 0;
+            min-height: 70vh;
+          }
+          
+          .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: var(--text);
+            animation: fadeIn 1s ease;
+            color: transparent;  
+            background: linear-gradient(to right, rgb(226 231 255), rgb(39 0 255));
+            -webkit-background-clip: text; 
+            background-clip: text;
+          }
+          
+          .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin-bottom: 2rem;
+            color: var(--text);
+            line-height: 1.6;
+            animation: fadeIn 1.5s ease;
+          }
+          
+          .cta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            animation: fadeInUp 2s ease;
+          }
+          
+          .btn {
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+          }
+          
+          .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+          }
+          
+          .btn-primary:hover {
+            background-color: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+          }
+          
+          .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+          }
+          
+          .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+          }
+          
+          .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+          }
+          
+          .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            text-align: center;
+          }
+          
+          .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+          }
+          
+          .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+          }
+          
+          .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+          }
+          
+          .feature-card p {
+            color: var(--text);
+            line-height: 1.6;
+          }
+          
+          .api-status {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 3rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            animation: pulse 2s infinite;
+          }
+          
+          .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #4ade80;
+          }
+          
+          footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 4rem;
+            color: #666;
+            border-top: 1px solid #eee;
+          }
+          
+          /* Animations */
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          
+          @keyframes fadeInDown {
+            from {
+              opacity: 0;
+              transform: translateY(-20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+          }
+          
+          /* Responsive */
+          @media (max-width: 768px) {
+            .hero h1 {
+              font-size: 2.5rem;
+            }
             
-            <h1>HRM Backend API</h1>
+            .hero p {
+              font-size: 1rem;
+            }
             
-            <div class="status">
-              <span class="status-dot"></span>
-              <span>API is working</span>
-            </div>
+            .cta {
+              flex-direction: column;
+              width: 100%;
+            }
             
-            <p>Welcome to the HRM System - Core Chain Server. This is where powerful APIs are provided for the HRM software developed by the Not Found team.</p>
-            
-            <div class="metrics">
-              <div class="metric-card">
-                <div class="metric-icon">
-                  <i class="fas fa-users"></i>
-                </div>
-                <div class="metric-value" id="userCount">1,248</div>
-                <div class="metric-label">Users</div>
+            .btn {
+              width: 100%;
+            }
+          }
+
+          .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+          }
+
+          .feature-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+          }
+
+          .feature-card h3 {
+            color: var(--text-secondary);
+          }
+
+          .btn-outline {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+          }
+
+          .btn-outline:hover {
+            background: var(--primary);
+            color: var(--text);
+          }
+
+          .api-status {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+          }
+
+          .status-dot {
+            background-color: #4ade80;
+            box-shadow: 0 0 10px #4ade8055;
+          }
+
+          footer {
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+          }
+
+          .feature-icon {
+            filter: drop-shadow(0 0 8px var(--accent));
+          }
+
+          .btn-primary {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+          }
+
+          .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+              45deg,
+              transparent,
+              rgba(255, 255, 255, 0.1),
+              transparent
+            );
+            transform: rotate(45deg);
+            animation: btnGlow 3s infinite;
+          }
+
+          @keyframes btnGlow {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <header>
+            <a href="#" class="logo">
+              <i class="fas fa-users-cog"></i>
+              <span>HRM API</span>
+            </a>
+          </header>
+          
+          <main>
+            <section class="hero">
+              <h1>Welcome to Core Chain Server</h1>
+              <p>A powerful, scalable backend system for modern HR management solutions. Streamline your employee data, payroll, attendance, and more with our comprehensive RESTful API.</p>
+              
+              <div class="api-status">
+                <div class="status-dot"></div>
+                <span>API is working</span>
+                <i class="fas fa-rocket" style="color: var(--accent); margin-left: 0.5rem;"></i>
               </div>
               
-              <div class="metric-card">
-                <div class="metric-icon">
-                  <i class="fas fa-database"></i>
+              <div class="cta">
+                <a class="btn btn-primary" target="_blank"style="text-decoration: none" href="https://drive.google.com/file/d/1P_PSqrnzIMTFH2Rnl-cE_a6YsNlyGqOe/view?usp=sharing">
+                  <i class="fas fa-book"></i> API Documentation
+                </a>
+                <a href="https://github.com/trandinh0506/CoreChainServer" target="_blank" class="btn btn-outline">
+                  <i class="fab fa-github"></i> View on GitHub
+                </a>
+              </div>
+            </section>
+            
+            <section class="features">
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <i class="fa-solid fa-shield-halved"></i>
                 </div>
-                <div class="metric-value" id="requestCount">232</div>
-                <div class="metric-label">Request API</div>
+                <h3>Security</h3>
+                <p>Places a strong emphasis on security. By integrating the Ethereum blockchain along with various security features and algorithms, it maximizes information safety and API protection.</p>
+              </div>
+
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <i class="fas fa-code"></i>
+                </div>
+                <h3>Professional</h3>
+                <p>Designed following Domain-Driven Design principles, with a thorough system analysis and design process. It inherits and enhances multiple features compared to the previous HRM system.</p>
               </div>
               
-              <div class="metric-card">
-                <div class="metric-icon">
+              <div class="feature-card">
+                <div class="feature-icon">
                   <i class="fas fa-bolt"></i>
                 </div>
-                <div class="metric-value" id="responseTime">67</div>
-                <div class="metric-label">ms (Response)</div>
+                <h3>High Performance</h3>
+                <p>Built with NestJS for exceptional performance and scalability to handle your growing business needs.</p>
               </div>
-              
-              <div class="metric-card"  id="show-endpoints">
-                <div class="metric-icon">
-                  <i class="fas fa-code-branch"></i>
-                </div>
-                <div class="metric-value" id="endpoints">48</div>
-                <div class="metric-label">Endpoints</div>
-              </div>
-            </div>
-            
-            <div>
-              <a class="cta-button" id="docs-button" target="_blank"style="text-decoration: none" href="https://drive.google.com/file/d/1P_PSqrnzIMTFH2Rnl-cE_a6YsNlyGqOe/view?usp=sharing">View APIs Documentation</a>
-              <a class="cta-button" target="_blank" href="https://github.com/trandinh0506/CoreChainServer" style="text-decoration: none">View Source</a>
-            </div>
-            
-            <div class="api-endpoints" id="api-endpoints">
-              <h3>Key Endpoints</h3>
-              
-              <div class="endpoint">
-                <span class="method get">GET</span>
-                <span class="path">/api/v1/users</span>
-              </div>
-              
-              <div class="endpoint">
-                <span class="method post">POST</span>
-                <span class="path">/api/v1/users</span>
-              </div>
-              
-              <div class="endpoint">
-                <span class="method get">GET</span>
-                <span class="path">/api/v1/departments</span>
-              </div>
-              
-              <div class="endpoint">
-                <span class="method put">PUT</span>
-                <span class="path">/api/v1/employees/:id</span>
-              </div>
-              
-              <div class="endpoint">
-                <span class="method delete">DELETE</span>
-                <span class="path">/api/v1/employees/:id</span>
-              </div>
-            </div>
-            
-            <div class="footer">
-              © 2025 HRM APIs - Developed by Cao Tri Ngoc
-            </div>
-          </div>
-          <script>
-            document.addEventListener('DOMContentLoaded', function() {
-              const particles = Particles.init({
-                selector: '#particles-container',
-                color: ['#38bdf8', '#818cf8', '#8b5cf6'],
-                connectParticles: true,
-                responsive: [
-                  {
-                    breakpoint: 768,
-                    options: {
-                      maxParticles: 60
-                    }
-                  }
-                ]
-              });
-
-              function animateNumber(id, final) {
-                let current = 0;
-                let elem = document.getElementById(id);
-                const increment = Math.ceil(final / 100);
-                const timer = setInterval(() => {
-                  current += increment;
-                  if (current >= final) {
-                    current = final;
-                    clearInterval(timer);
-                  }
-                  elem.textContent = current;
-                }, 20);
-              }
-
-              setTimeout(() => {
-                animateNumber('userCount', 1248);
-                animateNumber('requestCount', 78562);
-                animateNumber('responseTime', 105);
-                animateNumber('endpoints', 42);
-              }, 500);
-
-              const showEndpointsBtn = document.getElementById('show-endpoints');
-              const apiEndpoints = document.getElementById('api-endpoints');
-              
-              showEndpointsBtn.addEventListener('click', () => {
-                apiEndpoints.classList.toggle('show');
-                showEndpointsBtn.textContent = apiEndpoints.classList.contains('show') ? 'Hide Endpoints' : 'Key Endpoints';
-              });
-
-              const docsButton = document.getElementById('docs-button');
-              console.log(docsButton);
-              docsButton.addEventListener('click', () => {
-                alert("me....");
-                window.location.href = '../Models/SoftwareDesignDocument.pdf';
-              });
-
-              const metricCards = document.querySelectorAll('.metric-card');
-              metricCards.forEach(card => {
-                card.addEventListener('mouseenter', () => {
-                  const icon = card.querySelector('.metric-icon i');
-                  icon.classList.add('fa-beat');
-                  setTimeout(() => {
-                    icon.classList.remove('fa-beat');
-                  }, 1000);
-                });
-              });
-            });
-          </script>
-        </body>
-        </html>  
+            </section>
+          </main>
+          
+          <footer>
+            <p>© ${new Date().getFullYear()} HRM API. All rights reserved. By Cao Tri Ngoc</p>
+          </footer>
+        </div>
+      </body>
+      </html>
     `);
   }
 }
