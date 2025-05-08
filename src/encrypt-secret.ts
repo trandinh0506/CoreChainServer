@@ -11,7 +11,8 @@ async function encryptSecret() {
     console.error('SECRET_KEY is not defined in .env file');
     process.exit(1);
   }
-
+  // generate rsa keys before encrypt secret key
+  // rsaService.generateKeyFiles();
   const encryptedSecretKey = rsaService.encryptSecretKey(secretKey);
   console.log('Encrypted SECRET_KEY:');
   console.log(encryptedSecretKey);

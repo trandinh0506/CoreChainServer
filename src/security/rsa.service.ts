@@ -20,47 +20,62 @@ export class RsaService {
     // Create keys directory if it doesn't exist
     // Load existing keys
     try {
-      // this.privateKey = fs.readFileSync(this.privateKeyPath, 'utf8');
-      // this.publicKey = fs.readFileSync(this.publicKeyPath, 'utf8');
-      // if (!this.privateKey || !this.publicKey) {
-      //   this.initKeyFiles();
-      // }
-      this.privateKey = this.configService.get<string>('RSA_PRIVATE_KEY');
-      this.publicKey = this.configService.get<string>('RSA_PUBLIC_KEY');
-      this.privateKey = this.privateKey.replace(/\\n/g, '\n');
-      this.publicKey = this.publicKey.replace(/\\n/g, '\n');
-      // console.log(this.privateKeyPath);
-      // console.log(this.publicKeyPath);
+      //Init private key
+      const { RSA_PRIVATE_KEY } = JSON.parse(
+        this.configService.get<string>('RSA_PRIVATE_KEY'),
+      );
+      this.privateKey = RSA_PRIVATE_KEY;
+      //Init public key
+      const { RSA_PUBLIC_KEY } = JSON.parse(
+        this.configService.get<string>('RSA_PUBLIC_KEY'),
+      );
+      this.publicKey = RSA_PUBLIC_KEY;
+
+      if (!this.privateKey) {
+        this.readPrivateKeyFile();
+      }
+      if (!this.publicKey) {
+        this.readPublicKeyFile();
+      }
       if (!this.privateKey || !this.publicKey) {
-        console.log('Éo đọc được !');
-      } else {
-        console.log(this.privateKey);
-        console.log(this.publicKey);
+        Logger.log('Cannot read RSA keys. Start generate key pair !');
+        this.generateKeyFiles();
+        // throw new Error('Cannot read RSA keys !');
       }
     } catch (error) {
       console.log('Error read keys: ', error);
-      this.initKeyFiles();
-      // throw error;
     }
   }
 
-  private initKeyFiles() {
+  private readPrivateKeyFile() {
+    try {
+      this.privateKey = fs.readFileSync(this.privateKeyPath, 'utf8');
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  private readPublicKeyFile() {
+    try {
+      this.publicKey = fs.readFileSync(this.publicKeyPath, 'utf8');
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  generateKeyFiles() {
+    Logger.log('RSA keys generating.....');
+
     const keysDir = path.join(process.cwd(), 'keys');
     if (!fs.existsSync(keysDir)) {
       fs.mkdirSync(keysDir);
     }
 
-    const privateKey = this.configService.get<string>('RSA_PRIVATE_KEY');
-    const publicKey = this.configService.get<string>('RSA_PUBLIC_KEY');
-
-    if (!privateKey && !publicKey) {
-      this.generateKeyPairRSA();
-      throw new Error('Cannot find RSA Keys !');
-    }
+    const { privateKey, publicKey } = this.generateKeyPairRSA();
 
     if (privateKey) {
       fs.writeFileSync(
-        path.join(keysDir, 'private.pem'),
+        this.privateKeyPath,
         Buffer.from(privateKey, 'base64').toString('utf-8'),
         { flag: 'w' },
       );
@@ -68,11 +83,13 @@ export class RsaService {
 
     if (publicKey) {
       fs.writeFileSync(
-        path.join(keysDir, 'public.pem'),
+        this.publicKeyPath,
         Buffer.from(publicKey, 'base64').toString('utf-8'),
         { flag: 'w' },
       );
     }
+
+    Logger.log('RSA keys generated !');
   }
 
   private generateKeyPairRSA() {
@@ -87,9 +104,7 @@ export class RsaService {
         format: 'pem',
       },
     });
-
-    fs.writeFileSync(this.privateKeyPath, privateKey);
-    fs.writeFileSync(this.publicKeyPath, publicKey);
+    return { privateKey, publicKey };
 
     // Encrypt secret key and save to .env file
     // will be implemented after considering security capabilities
@@ -99,20 +114,6 @@ export class RsaService {
     // this.configService.set('ENCRYPTED_SECRET_KEY', encryptedSecretKey);
   }
 
-  // private initializeKeys() {
-  //   // Create keys directory if it doesn't exist
-  //   // Load existing keys
-  //   try {
-  //     this.privateKey = this.configService.get<string>('RSA_PRIVATE_KEY');
-  //     this.publicKey = this.configService.get<string>('RSA_PUBLIC_KEY');
-  //     if (!this.privateKey || !this.publicKey) {
-  //       throw new Error('Cannot get RSA Key !');
-  //     }
-  //   } catch(error) {
-  //     Logger.log('Error read keys: ', error);
-  //   }
-  // }
-
   encryptSecretKey(secretKey: string): string {
     const buffer = Buffer.from(secretKey, 'utf8');
     const encrypted = crypto.publicEncrypt(this.publicKey, buffer);
@@ -121,7 +122,6 @@ export class RsaService {
   decryptSecretKey(encryptedSecretKey: string): string {
     const buffer = Buffer.from(encryptedSecretKey, 'base64');
     const decrypted = crypto.privateDecrypt(this.privateKey, buffer);
-    console.log(decrypted.toString('utf8'));
     return decrypted.toString('utf8');
   }
 }
