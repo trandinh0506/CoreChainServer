@@ -20,17 +20,23 @@ export class RsaService {
     // Create keys directory if it doesn't exist
     // Load existing keys
     try {
-      this.privateKey = fs.readFileSync(this.privateKeyPath, 'utf8');
-      this.publicKey = fs.readFileSync(this.publicKeyPath, 'utf8');
-      if (!this.privateKey || !this.publicKey) {
-        this.initKeyFiles();
-      }
-      // this.privateKey = this.configService.get<string>('RSA_PRIVATE_KEY');
-      // this.publicKey = this.configService.get<string>('RSA_PUBLIC_KEY');
+      // this.privateKey = fs.readFileSync(this.privateKeyPath, 'utf8');
+      // this.publicKey = fs.readFileSync(this.publicKeyPath, 'utf8');
+      // if (!this.privateKey || !this.publicKey) {
+      //   this.initKeyFiles();
+      // }
+      this.privateKey = this.configService.get<string>('RSA_PRIVATE_KEY');
+      this.publicKey = this.configService.get<string>('RSA_PUBLIC_KEY');
+      this.privateKey = this.privateKey.replace(/\\n/g, '\n');
+      this.publicKey = this.publicKey.replace(/\\n/g, '\n');
       // console.log(this.privateKeyPath);
       // console.log(this.publicKeyPath);
-      // console.log(this.privateKey);
-      // console.log(this.publicKey);
+      if (!this.privateKey || !this.publicKey) {
+        console.log('Éo đọc được !');
+      } else {
+        console.log(this.privateKey);
+        console.log(this.publicKey);
+      }
     } catch (error) {
       console.log('Error read keys: ', error);
       this.initKeyFiles();
