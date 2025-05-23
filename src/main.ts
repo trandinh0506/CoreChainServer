@@ -17,7 +17,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor(reflector));
 
   app.enableCors({
-    origin: configService.get<string>('ORIGIN'),
+    // origin: configService.get<string>('ORIGIN'),
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     credentials: true,
   });
@@ -33,7 +34,7 @@ async function bootstrap() {
 
   //config versioning
   app.setGlobalPrefix('api', {
-    exclude: [{ path: '', method: RequestMethod.GET }]
+    exclude: [{ path: '', method: RequestMethod.GET }],
   }); //api/v
   app.enableVersioning({
     type: VersioningType.URI,

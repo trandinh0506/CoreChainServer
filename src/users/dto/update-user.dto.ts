@@ -7,6 +7,7 @@ import {
   IsEmail,
   IsEmpty,
   IsMongoId,
+  isNotEmpty,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -118,4 +119,18 @@ export class UpdatePublicUserDto extends PartialType(CreateUserDto) {
   @IsOptional()
   @IsNumber()
   dayOff?: number;
+}
+
+export class UpdatePassword {
+  @IsMongoId()
+  @IsNotEmpty()
+  id: mongoose.Schema.Types.ObjectId;
+
+  @IsString()
+  @IsNotEmpty()
+  oldPassword: string;
+
+  @IsString()
+  @IsNotEmpty()
+  newPassword: string;
 }

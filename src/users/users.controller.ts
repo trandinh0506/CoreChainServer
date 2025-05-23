@@ -11,11 +11,12 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import {
+  UpdatePassword,
   UpdatePublicUserDto,
   UpdateUserDto,
   UpdateWorkingHoursDto,
 } from './dto/update-user.dto';
-import { User } from 'src/decorators/customize';
+import { Public, User } from 'src/decorators/customize';
 import { IUser } from './users.interface';
 
 @Controller('users')
@@ -64,18 +65,23 @@ export class UsersController {
     return this.usersService.updatePublicUser(updatePublicUserDto, user, id);
   }
 
-  // @Patch('working/id')
-  // updateWorkingHours(
-  //   @Body() updateWorkingHoursDto: UpdateWorkingHoursDto,
-  //   @Param('id') id: string,
-  //   @User() user: IUser,
-  // ) {
-  //   return this.usersService.updateWorkingHours(
-  //     updateWorkingHoursDto,
-  //     user,
-  //     id,
-  //   );
-  // }
+  @Patch('working/id')
+  updateWorkingHours(
+    @Body() updateWorkingHoursDto: UpdateWorkingHoursDto,
+    @Param('id') id: string,
+    @User() user: IUser,
+  ) {
+    return this.usersService.updateWorkingHours(
+      updateWorkingHoursDto,
+      user,
+      id,
+    );
+  }
+
+  @Post('password/change')
+  changePass(@Body() updatePassword: UpdatePassword, @User() user: IUser) {
+    return this.usersService.changePassword(updatePassword, user);
+  }
 
   @Delete(':id')
   remove(@Param('id') id: string, @User() user: IUser) {
