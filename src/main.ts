@@ -1,7 +1,7 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { RequestMethod, ValidationPipe, VersioningType } from '@nestjs/common';
 import { AllExceptionsFilter } from 'src/decorators/customize';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { TransformInterceptor } from './core/transform.interceptor';
@@ -17,7 +17,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor(reflector));
 
   app.enableCors({
-    origin: configService.get<string>('ORIGIN'),
+    // origin: configService.get<string>('ORIGIN'),
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     credentials: true,
   });
@@ -32,7 +33,9 @@ async function bootstrap() {
   app.use(cookieParser());
 
   //config versioning
-  app.setGlobalPrefix('api'); //api/v
+  app.setGlobalPrefix('api', {
+    exclude: [{ path: '', method: RequestMethod.GET }],
+  }); //api/v
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: ['1', '2'],

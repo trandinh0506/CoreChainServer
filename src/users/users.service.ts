@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import {
+  UpdatePassword,
   UpdatePublicUserDto,
   UpdateUserDto,
   UpdateWorkingHoursDto,
@@ -451,6 +452,27 @@ export class UsersService {
       },
     );
   }
+
+  async changePassword(updatePassword: UpdatePassword, thisUser: IUser) {
+    const { id, oldPassword, newPassword } = updatePassword;
+    const user = await this.userModel.findOne({ _id: id });
+    if (thisUser._id !== user._id.toString()) {
+      throw new BadRequestException('You only change your password !');
+    }
+    if (!user) {
+      throw new BadRequestException('User Not Found !');
+    }
+    if (!this.isValidPassword(oldPassword, user.password)) {
+      throw new BadRequestException('Password is Incorrect !');
+    } else {
+      await this.userModel.updateOne(
+        { _id: id },
+        { password: this.getHashPassword(newPassword) },
+      );
+      return 'Update Password Successfully !';
+    }
+  }
+
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid user ID`);

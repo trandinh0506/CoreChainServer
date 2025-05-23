@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
@@ -10,7 +10,7 @@ export class RsaService {
   private readonly publicKeyPath: string;
   private privateKey: string;
   private publicKey: string;
-  constructor(private configService: ConfigService) {
+  constructor(private readonly configService: ConfigService) {
     this.privateKeyPath = path.join(process.cwd(), 'keys', 'private.pem');
     this.publicKeyPath = path.join(process.cwd(), 'keys', 'public.pem');
     this.initializeKeys();
@@ -18,28 +18,64 @@ export class RsaService {
 
   private initializeKeys() {
     // Create keys directory if it doesn't exist
-    this.initKeyFiles();
     // Load existing keys
-    this.privateKey = fs.readFileSync(this.privateKeyPath, 'utf8');
-    this.publicKey = fs.readFileSync(this.publicKeyPath, 'utf8');
-    // this.privateKey = this.configService.get<string>('RSA_PRIVATE_KEY');
-    // this.publicKey = this.configService.get<string>('RSA_PUBLIC_KEY');
-    // console.log(this.privateKey);
-    // console.log(this.publicKey);
+    try {
+      //Init private key
+      const { RSA_PRIVATE_KEY } = JSON.parse(
+        this.configService.get<string>('RSA_PRIVATE_KEY'),
+      );
+      this.privateKey = RSA_PRIVATE_KEY;
+      //Init public key
+      const { RSA_PUBLIC_KEY } = JSON.parse(
+        this.configService.get<string>('RSA_PUBLIC_KEY'),
+      );
+      this.publicKey = RSA_PUBLIC_KEY;
+
+      if (!this.privateKey) {
+        this.readPrivateKeyFile();
+      }
+      if (!this.publicKey) {
+        this.readPublicKeyFile();
+      }
+      if (!this.privateKey || !this.publicKey) {
+        Logger.log('Cannot read RSA keys. Start generate key pair !');
+        this.generateKeyFiles();
+        // throw new Error('Cannot read RSA keys !');
+      }
+    } catch (error) {
+      console.log('Error read keys: ', error);
+    }
   }
 
-  private initKeyFiles() {
+  private readPrivateKeyFile() {
+    try {
+      this.privateKey = fs.readFileSync(this.privateKeyPath, 'utf8');
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  private readPublicKeyFile() {
+    try {
+      this.publicKey = fs.readFileSync(this.publicKeyPath, 'utf8');
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  generateKeyFiles() {
+    Logger.log('RSA keys generating.....');
+
     const keysDir = path.join(process.cwd(), 'keys');
     if (!fs.existsSync(keysDir)) {
       fs.mkdirSync(keysDir);
     }
 
-    const privateKey = this.configService.get<string>('RSA_PRIVATE_KEY');
-    const publicKey = this.configService.get<string>('RSA_PUBLIC_KEY');
+    const { privateKey, publicKey } = this.generateKeyPairRSA();
 
     if (privateKey) {
       fs.writeFileSync(
-        path.join(keysDir, 'private.pem'),
+        this.privateKeyPath,
         Buffer.from(privateKey, 'base64').toString('utf-8'),
         { flag: 'w' },
       );
@@ -47,14 +83,13 @@ export class RsaService {
 
     if (publicKey) {
       fs.writeFileSync(
-        path.join(keysDir, 'public.pem'),
+        this.publicKeyPath,
         Buffer.from(publicKey, 'base64').toString('utf-8'),
         { flag: 'w' },
       );
     }
-    if (!privateKey && !publicKey) {
-      this.generateKeyPairRSA();
-    }
+
+    Logger.log('RSA keys generated !');
   }
 
   private generateKeyPairRSA() {
@@ -69,9 +104,7 @@ export class RsaService {
         format: 'pem',
       },
     });
-
-    fs.writeFileSync(this.privateKeyPath, privateKey);
-    fs.writeFileSync(this.publicKeyPath, publicKey);
+    return { privateKey, publicKey };
 
     // Encrypt secret key and save to .env file
     // will be implemented after considering security capabilities
@@ -86,7 +119,6 @@ export class RsaService {
     const encrypted = crypto.publicEncrypt(this.publicKey, buffer);
     return encrypted.toString('base64');
   }
-
   decryptSecretKey(encryptedSecretKey: string): string {
     const buffer = Buffer.from(encryptedSecretKey, 'base64');
     const decrypted = crypto.privateDecrypt(this.privateKey, buffer);

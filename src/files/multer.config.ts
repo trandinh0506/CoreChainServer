@@ -116,6 +116,7 @@ export class MulterConfigService implements MulterOptionsFactory {
           },
           // Use auto to detect and maintain the original file type
           resource_type: 'auto',
+          access_mode: 'public',
         } as any, // Use type assertion to bypass strict typing issues
       }),
       fileFilter: (req, file, cb) => {
