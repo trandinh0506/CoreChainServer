@@ -27,6 +27,7 @@ export class ProjectsService {
     const {
       name,
       description,
+      department,
       attachments = [],
       teamMembers,
       tasks = [],
@@ -42,6 +43,7 @@ export class ProjectsService {
     const newProject = await this.projectModel.create({
       name,
       description,
+      department,
       attachments,
       teamMembers,
       tasks,
