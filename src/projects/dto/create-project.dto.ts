@@ -24,12 +24,16 @@ export class CreateProjectDto {
   @IsNotEmpty()
   department: mongoose.Schema.Types.ObjectId;
 
+  @IsNotEmpty()
+  manager: mongoose.Schema.Types.ObjectId;
+
   @IsOptional()
   @IsArray()
   teamMembers: Array<mongoose.Schema.Types.ObjectId>;
 
   @IsOptional()
   @IsArray()
+  @IsMongoId({ each: true })
   tasks: Array<mongoose.Schema.Types.ObjectId>;
 
   @IsOptional()

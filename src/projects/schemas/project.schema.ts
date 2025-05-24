@@ -22,22 +22,8 @@ export class Project {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
   manager: mongoose.Schema.Types.ObjectId;
 
-  @Prop([
-    {
-      _id: false,
-      type: {
-        _id: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: User.name,
-        },
-        name: { type: String, required: true },
-      },
-    },
-  ])
-  teamMembers: Array<{
-    _id: mongoose.Schema.Types.ObjectId;
-    name: string;
-  }>;
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: User.name })
+  teamMembers: Array<mongoose.Schema.Types.ObjectId>;
 
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: Task.name }],

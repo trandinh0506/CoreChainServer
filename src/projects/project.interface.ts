@@ -6,11 +6,20 @@ export interface IProject {
   description: string;
   attachments: Array<string>;
   department: mongoose.Schema.Types.ObjectId;
-  manager: mongoose.Schema.Types.ObjectId;
-  teamMembers: Array<{
-    _id: mongoose.Schema.Types.ObjectId;
-    name: string;
-  }>;
+  manager:
+    | mongoose.Schema.Types.ObjectId
+    | {
+        _id: mongoose.Schema.Types.ObjectId;
+        name: string;
+        email: string;
+      };
+  teamMembers:
+    | Array<mongoose.Schema.Types.ObjectId>
+    | {
+        _id: mongoose.Schema.Types.ObjectId;
+        name: string;
+        email: string;
+      };
   tasks: mongoose.Schema.Types.ObjectId[];
   expenses: Array<{
     cost: number;

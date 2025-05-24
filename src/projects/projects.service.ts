@@ -28,8 +28,9 @@ export class ProjectsService {
       name,
       description,
       department,
+      manager,
       attachments = [],
-      teamMembers,
+      teamMembers = [],
       tasks = [],
       expenses = [],
       revenue,
@@ -44,6 +45,7 @@ export class ProjectsService {
       name,
       description,
       department,
+      manager,
       attachments,
       teamMembers,
       tasks,
@@ -68,8 +70,9 @@ export class ProjectsService {
 
     const totalItems = (await this.projectModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-    population.push({ path: 'tasks', select: 'name' });
-    population.push({ path: 'manager', select: 'name email' });
+    population.push({ path: 'tasks', select: '_id name' });
+    population.push({ path: 'manager', select: '_id name email' });
+    population.push({ path: 'teamMembers', select: '_id name email' });
     // population.push({ path: 'teamMembers', select: 'name email' });
     const projects: IProject[] = await this.projectModel
       .find(filter)
@@ -111,7 +114,7 @@ export class ProjectsService {
     const project: IProject = await this.projectModel
       .findOne({ _id: id })
       .populate([
-        // { path: 'teamMembers', select: 'name email' },
+        { path: 'teamMembers', select: 'name email' },
         { path: 'manager', select: 'name email' },
       ])
       .lean();
