@@ -17,8 +17,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor(reflector));
 
   app.enableCors({
-    // origin: configService.get<string>('ORIGIN'),
-    origin: '*',
+    origin: configService.get<string>('ORIGIN'),
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     credentials: true,
   });
