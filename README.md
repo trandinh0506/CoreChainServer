@@ -67,7 +67,7 @@ npm run start:prod
 
 ## Authors
 
-* Developed by Cao Nguyen Tri Ngoc and the Not Found Team.
+* Developed by the Not Found Team.
 
 ## License
 

@@ -8,3 +8,50 @@ CONTRACT_ADDRESS = 0x3fB97F3310Bc4BFd85C1C9046Dbf69254221d339
 - báo cáo số ngày nghỉ phép từng nhân viên(theo phòng ban) (dayoff)
 - bảng lương nhân viên, theo phòng ban (bao gồm lương, thưởng, tổng) chi phí tổng trả từng phòng ban (salary)
 - KPI nhân viên theo phòng ban, sort theo cao xún thấp (kpi)
+
+Compiling your contracts...
+===========================
+> Compiling .\src\blockchain\contracts\EmployeeRegistry.sol
+> Artifacts written to D:\Backend\HRM-Backend\CoreChainServer\src\blockchain\build\contracts
+> Compiled successfully using:
+   - solc: 0.8.19+commit.7dd6d404.Emscripten.clang
+
+
+Starting migrations...
+======================
+> Network name:    'sepolia'
+> Network id:      11155111
+> Block gas limit: 60000000 (0x3938700)
+
+
+1_initial_migration.js
+======================
+
+   Replacing 'EmployeeRegistry'
+   ----------------------------
+   > transaction hash:    0x5aff14df106b2c7dadf8eb1dc4372b79fab0c0380645aa4a2a3c6df1940f8e88
+   > Blocks: 0            Seconds: 15
+   > contract address:    0x49Cb81BF76f14746Ad803765dECaF4b5C3aDABD5
+   > block number:        9911833
+   > block timestamp:     1766666988
+   > account:             0xF93574aE19C7d82735dC8d8bbacF7424Eb8EDb38
+   > balance:             1.324361030777585731
+   > gas used:            1168500 (0x11d474)
+   > gas price:           2.50000001 gwei
+   > value sent:          0 ETH
+   > total cost:          0.002921250011685 ETH
+
+   Pausing for 2 confirmations...
+
+   -------------------------------
+   > confirmation number: 1 (block: 9911834)
+   > confirmation number: 2 (block: 9911835)
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:     0.002921250011685 ETH
+
+Summary
+=======
+> Total deployments:   1
+> Final cost:          0.002921250011685 ETH
+

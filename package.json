@@ -20,7 +20,11 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "compodoc:serve": "npx compodoc -p tsconfig.json -s",
-    "encrypt-secret": "ts-node src/encrypt-secret.ts"
+    "encrypt-secret": "ts-node src/encrypt-secret.ts",
+    "contract:check": "node deploy-helper.js",
+    "contract:compile": "truffle compile",
+    "contract:deploy": "truffle migrate --network sepolia",
+    "contract:deploy:reset": "truffle migrate --network sepolia --reset"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^3.0.1",
@@ -77,6 +81,7 @@
     "eslint": "^9.22.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.3",
+    "ethers": "^6.16.0",
     "jest": "^29.7.0",
     "prettier": "^3.5.3",
     "source-map-support": "^0.5.21",

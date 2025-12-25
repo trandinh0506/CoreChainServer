@@ -23,7 +23,10 @@ module.exports = {
       gas: 8000000,
       confirmations: 2,
       timeoutBlocks: 200,
-      skipDryRun: true,
+      confirmations: 2,
+      timeoutBlocks: 200,
+      deploymentPollingInterval: 15000,
+      skipDryRun: true
     },
   },
   compilers: {
