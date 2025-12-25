@@ -24,7 +24,12 @@
     "contract:check": "node deploy-helper.js",
     "contract:compile": "truffle compile",
     "contract:deploy": "truffle migrate --network sepolia",
-    "contract:deploy:reset": "truffle migrate --network sepolia --reset"
+    "contract:deploy:reset": "truffle migrate --network sepolia --reset",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f app",
+    "docker:restart": "docker-compose restart app"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^3.0.1",
