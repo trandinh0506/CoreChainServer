@@ -23,6 +23,7 @@ import { ContractsModule } from './contracts/contracts.module';
 import { PersonnelModule } from './personnel/personnel.module';
 import { ReportsModule } from './reports/reports.module';
 import { RedisCacheModule } from './cache/cache.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { RedisCacheModule } from './cache/cache.module';
     PersonnelModule,
     ReportsModule,
     RedisCacheModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

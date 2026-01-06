@@ -453,6 +453,27 @@ export class UsersService {
     );
   }
 
+  async updateFcmToken(userId: string, fcmToken: string) {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException(`Invalid user ID`);
+    }
+
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    await this.userModel.updateOne(
+      { _id: userId },
+      { fcmToken: fcmToken },
+    );
+
+    return {
+      message: 'FCM token updated successfully',
+      userId: userId,
+    };
+  }
+
   async changePassword(updatePassword: UpdatePassword, thisUser: IUser) {
     const { id, oldPassword, newPassword } = updatePassword;
     const user = await this.userModel.findOne({ _id: id });

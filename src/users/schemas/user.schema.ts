@@ -48,6 +48,9 @@ export class User {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Position.name })
   position: mongoose.Schema.Types.ObjectId;
 
+  @Prop()
+  fcmToken: string;
+
   @Prop({ type: Boolean, default: false })
   isDeleted: boolean;
   //timestamp

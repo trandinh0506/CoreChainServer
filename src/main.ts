@@ -7,11 +7,14 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { TransformInterceptor } from './core/transform.interceptor';
 import cookieParser from 'cookie-parser';
 import { IoAdapter } from '@nestjs/platform-socket.io';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  
+  const configService = app.get(ConfigService);
+
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  const configService = app.get(ConfigService);
   const reflector = app.get(Reflector);
   app.useGlobalGuards(new JwtAuthGuard(reflector));
   app.useGlobalInterceptors(new TransformInterceptor(reflector));
@@ -40,6 +43,7 @@ async function bootstrap() {
     defaultVersion: ['1', '2'],
   });
 
+  // Start HTTP server
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

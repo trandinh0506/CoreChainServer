@@ -16,6 +16,7 @@ import {
   UpdateUserDto,
   UpdateWorkingHoursDto,
 } from './dto/update-user.dto';
+import { UpdateFcmTokenDto } from './dto/update-fcm-token.dto';
 import { Public, User } from 'src/decorators/customize';
 import { IUser } from './users.interface';
 
@@ -76,6 +77,15 @@ export class UsersController {
       user,
       id,
     );
+  }
+
+  @Patch('fcm-token/:id')
+  updateFcmToken(
+    @Param('id') id: string,
+    @Body() updateFcmTokenDto: UpdateFcmTokenDto,
+    @User() user: IUser,
+  ) {
+    return this.usersService.updateFcmToken(id, updateFcmTokenDto.fcmToken);
   }
 
   @Post('password/change')

@@ -9,12 +9,16 @@ import { IUser } from 'src/users/users.interface';
 import mongoose, { ObjectId } from 'mongoose';
 import { END_OF_MONTH, START_OF_MONTH } from 'src/decorators/customize';
 import { ITask } from './task.interface';
+import { NotificationService } from 'src/notification/notification.service';
+import { UsersService } from 'src/users/users.service';
 // import { ProjectsService } from 'src/projects/projects.service';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectModel(Task.name) private taskModel: SoftDeleteModel<TaskDocument>,
+    private notificationService: NotificationService,
+    private usersService: UsersService,
     // private projectService: ProjectsService,
   ) {}
   async create(createTaskDto: CreateTaskDto, user: IUser) {
@@ -46,7 +50,67 @@ export class TasksService {
       startDate,
       dueDate,
     });
+
+    // Publish task.created event to Kafka (fire-and-forget)
+    this.publishTaskCreatedEvent(newTask, user).catch((error) => {
+      // Log error but don't fail task creation
+      console.error('Failed to publish task.created event:', error);
+    });
+
     return newTask._id;
+  }
+
+  private async publishTaskCreatedEvent(task: any, creator: IUser) {
+    try {
+      // Fetch assigned user details including FCM token
+      const assignedUser = await this.usersService.findOne(
+        task.assignedTo.toString(),
+      );
+
+      if (!assignedUser) {
+        console.warn(`Assigned user not found: ${task.assignedTo}`);
+        return;
+      }
+
+      // Prepare task.created event
+      const event = {
+        event_type: 'task.created',
+        timestamp: new Date().toISOString(),
+        data: {
+          _id: task._id.toString(),
+          title: task.title,
+          description: task.description,
+          attachments: task.attachments,
+          createdBy: {
+            _id: creator._id.toString(),
+            email: creator.email,
+          },
+          assignedTo: task.assignedTo.toString(),
+          projectId: task.projectId?.toString(),
+          priority: task.priority,
+          status: task.status,
+          startDate: task.startDate,
+          dueDate: task.dueDate,
+          isDeleted: task.isDeleted || false,
+          createdAt: task.createdAt,
+          updatedAt: task.updatedAt,
+        },
+        metadata: {
+          assignedToUser: {
+            _id: assignedUser._id.toString(),
+            fcmToken: assignedUser.fcmToken || '',
+            name: assignedUser.name || '',
+            email: assignedUser.email,
+          },
+        },
+      };
+
+      // Publish to Kafka
+      await this.notificationService.publishTaskCreated(event);
+    } catch (error) {
+      console.error('Error in publishTaskCreatedEvent:', error);
+      throw error;
+    }
   }
 
   async countTask(status: number, id: string) {

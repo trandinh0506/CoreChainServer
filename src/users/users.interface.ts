@@ -36,6 +36,7 @@ export interface PublicUser {
         _id: mongoose.Schema.Types.ObjectId;
         name: string;
       };
+  fcmToken?: string;
   department:
     | mongoose.Schema.Types.ObjectId
     | {
