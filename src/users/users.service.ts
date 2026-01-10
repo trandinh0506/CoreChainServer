@@ -201,6 +201,7 @@ export class UsersService {
 
   async findAll(currentPage: number, limit: number, qs: string) {
     let { filter, skip, sort, projection, population } = aqp(qs);
+    console.log(filter);
     delete filter.current;
     delete filter.pageSize;
     let offset = (+currentPage - 1) * +limit;
@@ -231,6 +232,19 @@ export class UsersService {
       },
       result,
     };
+  }
+
+  async findOnePublic(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException(`Invalid user ID`);
+    }
+    const employee = (await this.userModel
+      .findOne({
+        _id: id,
+        isDeleted: false,
+      })
+      .select('name avatar') as PublicUser);
+    return employee;
   }
 
   async findOne(id: string) {

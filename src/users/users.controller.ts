@@ -43,6 +43,12 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
+  @Public()
+  @Get('/public/:id')
+  findOnePublic(@Param('id') id: string) {
+    return this.usersService.findOnePublic(id);
+  }
+
   @Get('/private/:id')
   findPrivateOne(@Param('id') id: string) {
     return this.usersService.findPrivateOne(id);
