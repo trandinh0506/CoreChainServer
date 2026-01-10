@@ -73,7 +73,6 @@ export class ProjectsService {
     population.push({ path: 'tasks', select: '_id name' });
     population.push({ path: 'manager', select: '_id name email' });
     population.push({ path: 'teamMembers', select: '_id name email' });
-    // population.push({ path: 'teamMembers', select: 'name email' });
     const projects: IProject[] = await this.projectModel
       .find(filter)
       .skip(offset)
@@ -104,7 +103,7 @@ export class ProjectsService {
         pages: totalPages,
         total: totalItems,
       },
-      projects,
+      result: projects,
     };
   }
   async findOne(id: string) {

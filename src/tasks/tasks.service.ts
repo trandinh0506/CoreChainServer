@@ -34,6 +34,17 @@ export class TasksService {
       startDate,
       dueDate,
     } = createTaskDto;
+
+    // Validate that startDate is before dueDate
+    if (startDate && dueDate) {
+      const start = new Date(startDate);
+      const due = new Date(dueDate);
+      
+      if (start > due) {
+        throw new BadRequestException('Start date must be before due date');
+      }
+    }
+
     const newTask = await this.taskModel.create({
       createdBy: {
         _id: user._id,

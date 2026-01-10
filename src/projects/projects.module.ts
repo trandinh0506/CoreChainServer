@@ -6,7 +6,7 @@ import { Project, ProjectSchema } from './schemas/project.schema';
 import { TasksModule } from 'src/tasks/tasks.module';
 import { TasksService } from 'src/tasks/tasks.service';
 import { Task, TaskSchema } from 'src/tasks/schemas/task.schema';
-
+import { UsersModule } from 'src/users/users.module';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -14,6 +14,7 @@ import { Task, TaskSchema } from 'src/tasks/schemas/task.schema';
       { name: Task.name, schema: TaskSchema },
     ]),
     forwardRef(() => TasksModule),
+    forwardRef(() => UsersModule),
   ],
   controllers: [ProjectsController],
   providers: [ProjectsService],

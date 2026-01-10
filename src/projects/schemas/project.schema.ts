@@ -22,7 +22,9 @@ export class Project {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
   manager: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: User.name })
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: User.name }],
+  })
   teamMembers: Array<mongoose.Schema.Types.ObjectId>;
 
   @Prop({
