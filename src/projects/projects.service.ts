@@ -9,6 +9,7 @@ import aqp from 'api-query-params';
 import mongoose from 'mongoose';
 import { TasksService } from 'src/tasks/tasks.service';
 import { IProject } from './project.interface';
+import { DepartmentsService } from 'src/departments/departments.service';
 
 @Injectable()
 export class ProjectsService {
@@ -16,6 +17,7 @@ export class ProjectsService {
     @InjectModel(Project.name)
     private projectModel: SoftDeleteModel<ProjectDocument>,
     private taskService: TasksService,
+    private departmentService: DepartmentsService,
   ) {}
   async progressCalculation(id: string) {
     const taskCompleted = await this.taskService.countTask(3, id);
@@ -57,6 +59,7 @@ export class ProjectsService {
       endDate,
       actualEndDate,
     });
+    await this.departmentService.update(department.toString(), { $push: { projectIds: newProject._id } });
     return newProject._id;
   }
 

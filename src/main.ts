@@ -19,8 +19,9 @@ async function bootstrap() {
   app.useGlobalGuards(new JwtAuthGuard(reflector));
   app.useGlobalInterceptors(new TransformInterceptor(reflector));
 
+  const allowedOrigins = configService.get<string>('ORIGIN')?.split(',') || [];
   app.enableCors({
-    origin: configService.get<string>('ORIGIN'),
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     credentials: true,
   });

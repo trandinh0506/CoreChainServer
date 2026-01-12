@@ -82,22 +82,27 @@ export class DepartmentsService {
 
   async update(
     id: string,
-    updateDepartmentDto: UpdateDepartmentDto,
-    user: IUser,
+    updateDepartmentDto: UpdateDepartmentDto | any,
+    user?: IUser,
   ) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid department ID`);
     }
     console.log(updateDepartmentDto);
+    
+    const updateData = user 
+      ? {
+          ...updateDepartmentDto,
+          updatedBy: {
+            _id: user._id,
+            email: user.email,
+          },
+        }
+      : updateDepartmentDto;
+    
     return this.departmentModel.updateOne(
       { _id: id },
-      {
-        ...updateDepartmentDto,
-        updatedBy: {
-          _id: user._id,
-          email: user.email,
-        },
-      },
+      updateData,
     );
   }
 
