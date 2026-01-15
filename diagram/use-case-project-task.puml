@@ -1,0 +1,121 @@
+@startuml Project-Task-Management-Use-Case
+title Project & Task Management - Use Case Diagram
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor "HR Manager" as HRManager
+actor "Project Manager" as PM
+actor "Employee" as Employee
+actor "System" as System
+
+rectangle "Project & Task Management System" {
+  
+  package "Project Management" {
+    usecase "Create Project" as UC1
+    usecase "View Project List" as UC2
+    usecase "View Project Details" as UC3
+    usecase "Update Project" as UC4
+    usecase "Delete Project" as UC5
+    usecase "Add Team Members" as UC6
+    usecase "Remove Team Members" as UC7
+    usecase "Link to Department" as UC8
+  }
+  
+  package "Task Management" {
+    usecase "Create Task" as UC9
+    usecase "Assign Task to Employee" as UC10
+    usecase "View Task List" as UC11
+    usecase "View Task Details" as UC12
+    usecase "Update Task Status" as UC13
+    usecase "Update Task Progress" as UC14
+    usecase "Delete Task" as UC15
+    usecase "Set Task Priority" as UC16
+    usecase "Set Task Deadline" as UC17
+  }
+  
+  package "Collaboration" {
+    usecase "Comment on Task" as UC18
+    usecase "Attach Files to Task" as UC19
+    usecase "Track Task History" as UC20
+  }
+  
+  package "Notifications" {
+    usecase "Notify Task Assignment" as UC21
+    usecase "Notify Task Update" as UC22
+    usecase "Notify Deadline Approaching" as UC23
+  }
+}
+
+' HR Manager / PM relationships
+HRManager --> UC1
+HRManager --> UC2
+HRManager --> UC3
+HRManager --> UC4
+HRManager --> UC5
+HRManager --> UC6
+HRManager --> UC7
+HRManager --> UC8
+HRManager --> UC9
+HRManager --> UC10
+HRManager --> UC16
+HRManager --> UC17
+
+PM --> UC1
+PM --> UC2
+PM --> UC3
+PM --> UC4
+PM --> UC6
+PM --> UC7
+PM --> UC9
+PM --> UC10
+PM --> UC16
+PM --> UC17
+
+' Employee relationships
+Employee --> UC11
+Employee --> UC12
+Employee --> UC13
+Employee --> UC14
+Employee --> UC18
+Employee --> UC19
+Employee --> UC20
+
+' System relationships
+System --> UC21
+System --> UC22
+System --> UC23
+System --> UC20
+
+' Include relationships
+UC1 .> UC8 : <<include>>
+UC9 .> UC10 : <<include>>
+UC10 .> UC21 : <<include>>
+UC13 .> UC22 : <<include>>
+UC14 .> UC22 : <<include>>
+
+' Extend relationships
+UC9 ..> UC16 : <<extend>>
+UC9 ..> UC17 : <<extend>>
+UC17 ..> UC23 : <<extend>>
+
+note right of UC10
+  Task assignment triggers
+  Kafka event for notification
+  delivery via FCM
+end note
+
+note bottom of UC8
+  Projects are linked to
+  departments and update
+  department's project list
+end note
+
+note left of UC21
+  Notification flow:
+  1. Kafka producer (NestJS)
+  2. Golang consumer
+  3. FCM push notification
+end note
+
+@enduml

@@ -1,0 +1,108 @@
+@startuml Employee-Management-Use-Case
+title Employee Management with Blockchain Integration - Use Case Diagram
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor "HR Manager" as HRManager
+actor "Admin" as Admin
+actor "Employee" as Employee
+actor "Blockchain Network" as Blockchain
+actor "System" as System
+
+rectangle "Employee Management System" {
+  
+  package "User CRUD Operations" {
+    usecase "Create User" as UC1
+    usecase "View User List" as UC2
+    usecase "View User Profile" as UC3
+    usecase "Update Public User Data" as UC4
+    usecase "Update Private User Data" as UC5
+    usecase "Delete User" as UC6
+  }
+  
+  package "Blockchain Operations" {
+    usecase "Store Employee on Blockchain" as BC1
+    usecase "Encrypt Sensitive Data" as BC1a
+    usecase "Create Blockchain Transaction" as BC1b
+    
+    usecase "Update Blockchain Employee" as BC2
+    usecase "Modify Blockchain Record" as BC2a
+    
+    usecase "Retrieve Employee from Blockchain" as BC3
+    usecase "Decrypt Blockchain Data" as BC3a
+    
+    usecase "Deactivate Blockchain Employee" as BC4
+  }
+  
+  package "Additional User Operations" {
+    usecase "Update FCM Token" as UC7
+    usecase "Update Working Hours" as UC8
+    usecase "View Private Info" as UC9
+    usecase "Change Password" as UC10
+  }
+}
+
+' HR Manager relationships
+HRManager --> UC1
+HRManager --> UC2
+HRManager --> UC3
+HRManager --> UC4
+HRManager --> UC5
+HRManager --> UC6
+HRManager --> UC8
+
+' Admin relationships
+Admin --> UC1
+Admin --> UC6
+
+' Employee relationships
+Employee --> UC3
+Employee --> UC4
+Employee --> UC7
+Employee --> UC9
+Employee --> UC10
+
+' Blockchain integration includes
+UC1 .> BC1 : <<include>>
+UC5 .> BC2 : <<include>>
+UC3 .> BC3 : <<extend>>
+UC6 .> BC4 : <<include>>
+
+' Blockchain sub-operations
+BC1 .> BC1a : <<include>>
+BC1 .> BC1b : <<include>>
+BC2 .> BC2a : <<include>>
+BC3 .> BC3a : <<include>>
+
+' Blockchain interactions
+BC1 --> Blockchain
+BC2 --> Blockchain
+BC3 --> Blockchain
+BC4 --> Blockchain
+
+' System automation
+System --> BC1b
+System --> BC2a
+System --> BC3a
+
+note right of BC1
+  Sensitive employee data is
+  encrypted using AES-256-CBC
+  before storing on Ethereum
+  blockchain via Web3
+end note
+
+note bottom of BC3
+  Public data stored in MongoDB
+  Private/sensitive data retrieved
+  from blockchain when needed
+end note
+
+note right of UC7
+  FCM tokens used for
+  push notifications to
+  mobile applications
+end note
+
+@enduml

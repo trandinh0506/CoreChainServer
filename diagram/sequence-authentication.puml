@@ -1,0 +1,149 @@
+@startuml Authentication-Flow-Sequence
+title User Authentication Flow
+
+actor User
+participant "Client App" as Client
+participant "AuthController" as Controller
+participant "LocalStrategy" as Strategy
+participant "AuthService" as Service
+participant "UsersService" as UserService
+participant "RolesService" as RoleService
+participant "MongoDB" as DB
+participant "JWT Library" as JWT
+participant "Bcrypt" as Bcrypt
+
+== Login Process ==
+
+User -> Client: Enter credentials\n(email, password)
+Client -> Controller: POST /auth/login\n{email, password}
+
+activate Controller
+Controller -> Strategy: Validate credentials
+activate Strategy
+
+Strategy -> UserService: findOneByUsername(email)
+activate UserService
+UserService -> DB: Query user by email
+DB --> UserService: User document
+UserService --> Strategy: User data
+deactivate UserService
+
+Strategy -> Bcrypt: compare(password, hashedPassword)
+activate Bcrypt
+Bcrypt --> Strategy: isValid
+deactivate Bcrypt
+
+alt Password is invalid
+  Strategy --> Controller: Unauthorized error
+  Controller --> Client: 401 Unauthorized
+  Client --> User: Login failed
+else Password is valid
+  Strategy --> Controller: User object
+  deactivate Strategy
+  
+  Controller -> Service: login(user, response)
+  activate Service
+  
+  Service -> RoleService: findOne(user.role._id)
+  activate RoleService
+  RoleService -> DB: Query role with permissions
+  DB --> RoleService: Role with permissions
+  RoleService --> Service: Role data
+  deactivate RoleService
+  
+  Service -> JWT: sign({userId, email, role}, SECRET)
+  activate JWT
+  JWT --> Service: access_token
+  deactivate JWT
+  
+  Service -> JWT: sign({userId}, REFRESH_SECRET)
+  activate JWT
+  JWT --> Service: refresh_token
+  deactivate JWT
+  
+  Service -> Service: Set refresh_token\nin HTTP-only cookie
+  
+  Service --> Controller: {access_token, user}
+  deactivate Service
+  
+  Controller --> Client: 200 OK\n{access_token, user}
+  deactivate Controller
+  
+  Client -> Client: Store access_token
+  Client --> User: Login successful
+end
+
+== Subsequent Requests ==
+
+User -> Client: Access protected resource
+Client -> Controller: GET /api/resource\nAuthorization: Bearer {access_token}
+
+activate Controller
+Controller -> JWT: verify(access_token, SECRET)
+activate JWT
+
+alt Token is valid
+  JWT --> Controller: Decoded payload
+  deactivate JWT
+  Controller -> Controller: Process request
+  Controller --> Client: 200 OK with data
+  Client --> User: Display data
+else Token expired
+  JWT --> Controller: TokenExpiredError
+  deactivate JWT
+  Controller --> Client: 401 Unauthorized
+  
+  == Refresh Token Flow ==
+  
+  Client -> Controller: GET /auth/refresh\n(refresh_token in cookie)
+  activate Controller
+  
+  Controller -> Service: processNewToken(refresh_token)
+  activate Service
+  
+  Service -> JWT: verify(refresh_token, REFRESH_SECRET)
+  activate JWT
+  JWT --> Service: Decoded payload
+  deactivate JWT
+  
+  Service -> UserService: findOne(userId)
+  activate UserService
+  UserService -> DB: Query user
+  DB --> UserService: User data
+  UserService --> Service: User object
+  deactivate UserService
+  
+  Service -> JWT: sign({userId, email, role}, SECRET)
+  activate JWT
+  JWT --> Service: new_access_token
+  deactivate JWT
+  
+  Service --> Controller: {access_token, user}
+  deactivate Service
+  
+  Controller --> Client: 200 OK\n{access_token, user}
+  deactivate Controller
+  
+  Client -> Client: Update stored token
+  Client --> User: Continue session
+end
+
+== Logout Process ==
+
+User -> Client: Click logout
+Client -> Controller: POST /auth/logout
+activate Controller
+
+Controller -> Service: logout(response, user)
+activate Service
+Service -> Service: Clear refresh_token cookie
+Service --> Controller: Success
+deactivate Service
+
+Controller --> Client: 200 OK
+deactivate Controller
+
+Client -> Client: Clear access_token
+Client --> User: Logged out
+
+@enduml

@@ -1,0 +1,181 @@
+@startuml Task-Creation-Notification-Sequence
+title Task Creation with Kafka and FCM Notification Flow
+
+actor "HR Manager" as HR
+participant "Client App" as Client
+participant "TasksController" as TaskCtrl
+participant "TasksService" as TaskSvc
+participant "MongoDB" as DB
+participant "Kafka\nProducer" as Kafka
+participant "Kafka Topic\n(task.created)" as Topic
+participant "Golang\nNotification\nService" as Golang
+participant "PostgreSQL" as PG
+participant "FCM Server" as FCM
+participant "Mobile App\n(Employee)" as Mobile
+actor "Employee" as Employee
+
+== Task Creation ==
+
+HR -> Client: Create new task\n(assign to employee)
+Client -> TaskCtrl: POST /tasks\n{title, description, assigneeId, deadline}
+
+activate TaskCtrl
+TaskCtrl -> TaskSvc: create(createTaskDto, currentUser)
+activate TaskSvc
+
+' Create task in database
+TaskSvc -> TaskSvc: Validate task data
+TaskSvc -> DB: Insert task document
+activate DB
+DB --> TaskSvc: Task created with _id
+deactivate DB
+
+' Publish event to Kafka
+TaskSvc -> Kafka: Publish task.created event
+activate Kafka
+
+note right of Kafka
+  Event payload:
+  {
+    "eventType": "task.created",
+    "taskId": "...",
+    "assigneeId": "...",
+    "title": "...",
+    "description": "...",
+    "deadline": "...",
+    "createdBy": "...",
+    "timestamp": "..."
+  }
+end note
+
+Kafka -> Topic: Send message
+activate Topic
+Topic --> Kafka: Acknowledged
+deactivate Topic
+Kafka --> TaskSvc: Event published
+deactivate Kafka
+
+TaskSvc --> TaskCtrl: Created task
+deactivate TaskSvc
+
+TaskCtrl --> Client: 201 Created\n{task data}
+deactivate TaskCtrl
+
+Client --> HR: Task created successfully
+
+== Golang Service Consumes Event ==
+
+Topic -> Golang: Kafka message received
+activate Golang
+
+Golang -> Golang: Parse event payload
+Golang -> Golang: Extract assigneeId
+
+' Get employee FCM token from MongoDB via API or cache
+Golang -> Golang: Lookup FCM token\nfor assigneeId
+
+Golang -> Golang: Build notification payload
+note right of Golang
+  Notification payload:
+  {
+    "title": "New Task Assigned",
+    "body": "You have a new task: {title}",
+    "data": {
+      "taskId": "...",
+      "type": "task_created",
+      "deadline": "..."
+    }
+  }
+end note
+
+' Send FCM notification
+Golang -> FCM: Send push notification\n(using Firebase Admin SDK)
+activate FCM
+
+FCM -> FCM: Validate FCM token
+FCM -> Mobile: Push notification
+activate Mobile
+
+Mobile -> Mobile: Receive notification\n(foreground/background/quit)
+
+Mobile -> Mobile: Display notification
+Mobile --> Employee: Show notification:\n"New Task Assigned"
+deactivate Mobile
+
+FCM --> Golang: Send result\n{messageId, success: true}
+deactivate FCM
+
+' Store notification history in PostgreSQL
+Golang -> PG: INSERT INTO notifications\n(user_id, type, payload, status, sent_at)
+activate PG
+PG --> Golang: Notification record saved
+deactivate PG
+
+Golang -> Topic: Acknowledge message
+deactivate Golang
+
+== Employee Opens Notification ==
+
+Employee -> Mobile: Tap notification
+activate Mobile
+
+Mobile -> Client: Navigate to task detail
+Mobile -> TaskCtrl: GET /tasks/:id
+activate TaskCtrl
+
+TaskCtrl -> TaskSvc: findOne(taskId)
+activate TaskSvc
+TaskSvc -> DB: Find task by ID
+activate DB
+DB --> TaskSvc: Task details
+deactivate DB
+TaskSvc --> TaskCtrl: Task data
+deactivate TaskSvc
+
+TaskCtrl --> Mobile: 200 OK\n{task details}
+deactivate TaskCtrl
+
+Mobile -> Mobile: Display task details
+Mobile --> Employee: Show task:\ntitle, description, deadline
+deactivate Mobile
+
+== Error Handling ==
+
+alt FCM Token Invalid
+  Golang -> FCM: Send notification
+  activate FCM
+  FCM --> Golang: Error: Invalid token
+  deactivate FCM
+  
+  Golang -> PG: INSERT notification\n(status: failed, error: invalid_token)
+  activate PG
+  PG --> Golang: Saved
+  deactivate PG
+  
+  Golang -> Golang: Log error
+  note right of Golang
+    Handle gracefully:
+    - Log the error
+    - Mark token as invalid
+    - Optionally retry or
+      notify via alternative channel
+  end note
+end
+
+note bottom of Topic
+  Kafka ensures:
+  - Reliable message delivery
+  - Decoupling of services
+  - Scalability
+  - Event replay capability
+end note
+
+note bottom of PG
+  Notification history provides:
+  - Audit trail
+  - Delivery status tracking
+  - Analytics data
+  - Troubleshooting
+end note
+
+@enduml

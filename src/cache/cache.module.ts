@@ -13,7 +13,7 @@ import * as redisStore from 'cache-manager-redis-store';
         store: redisStore,
         host:
           configService.get('UPSTASH_ENDPOINT') ||
-          'dynamic-gelding-23048.upstash.io',
+          'together-osprey-16484.upstash.io',
         port: configService.get('UPSTASH_PORT') || 6379,
         password: configService.get('UPSTASH_TOKEN'),
         ttl: configService.get('CACHE_TTL') || 300,

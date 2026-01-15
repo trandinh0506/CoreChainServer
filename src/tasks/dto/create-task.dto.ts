@@ -14,9 +14,6 @@ import mongoose from 'mongoose';
 
 export class CreateTaskDto {
   @IsNotEmpty()
-  name: string;
-
-  @IsNotEmpty()
   title: string;
 
   @IsNotEmpty()

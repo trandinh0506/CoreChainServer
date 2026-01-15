@@ -23,7 +23,6 @@ export class TasksService {
   ) {}
   async create(createTaskDto: CreateTaskDto, user: IUser) {
     const {
-      name,
       description,
       title,
       attachments = [],
@@ -50,7 +49,6 @@ export class TasksService {
         _id: user._id,
         email: user.email,
       },
-      name,
       title,
       description,
       attachments,

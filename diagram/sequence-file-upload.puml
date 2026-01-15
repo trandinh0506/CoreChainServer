@@ -1,0 +1,231 @@
+@startuml File-Upload-Sequence
+title File Upload Flow with Cloudinary Integration
+
+actor "User" as User
+participant "Client App" as Client
+participant "FilesController" as FileCtrl
+participant "FilesService" as FileSvc
+participant "Multer\nMiddleware" as Multer
+participant "Cloudinary\nSDK" as Cloudinary
+participant "Cloudinary\nCloud Storage" as CloudStorage
+participant "MongoDB" as DB
+
+== Single File Upload ==
+
+User -> Client: Select file to upload\n(document, image, etc.)
+Client -> Client: Validate file:\n- Size limit\n- File type\n- Format
+
+Client -> FileCtrl: POST /files/upload\nContent-Type: multipart/form-data\n{file, metadata}
+
+activate FileCtrl
+
+FileCtrl -> Multer: Process multipart upload
+activate Multer
+
+Multer -> Multer: Extract file from request\nValidate file size and type
+
+alt Invalid file
+  Multer --> FileCtrl: Error: Invalid file type/size
+  FileCtrl --> Client: 400 Bad Request\n{error: "Invalid file"}
+  Client --> User: Upload failed: Invalid file
+else Valid file
+  Multer --> FileCtrl: File buffer ready
+  deactivate Multer
+  
+  FileCtrl -> FileSvc: uploadFile(file, currentUser, metadata)
+  activate FileSvc
+  
+  ' Prepare Cloudinary upload options
+  FileSvc -> FileSvc: Configure upload options:\n- folder: /hrm-files/{userId}\n- resource_type: auto\n- public_id: generated\n- tags: [hrm, userId]
+  
+  ' Upload to Cloudinary
+  FileSvc -> Cloudinary: upload(fileBuffer, options)
+  activate Cloudinary
+  
+  Cloudinary -> CloudStorage: Stream file data
+  activate CloudStorage
+  
+  CloudStorage -> CloudStorage: Store file\nGenerate optimized versions\nCreate thumbnails (if image)
+  
+  CloudStorage --> Cloudinary: Upload response\n{url, secure_url, public_id, format, size}
+  deactivate CloudStorage
+  
+  Cloudinary --> FileSvc: Upload result
+  deactivate Cloudinary
+  
+  ' Save file metadata to MongoDB
+  FileSvc -> FileSvc: Create file document:\n- originalName\n- cloudinaryUrl\n- publicId\n- size\n- format\n- uploadedBy\n- uploadedAt
+  
+  FileSvc -> DB: Insert file document
+  activate DB
+  DB --> FileSvc: File record created with _id
+  deactivate DB
+  
+  FileSvc --> FileCtrl: {fileId, url, metadata}
+  deactivate FileSvc
+  
+  FileCtrl --> Client: 201 Created\n{fileId, url, secure_url, size}
+  deactivate FileCtrl
+  
+  Client --> User: File uploaded successfully\n(show preview if image)
+end
+
+== Multiple Files Upload ==
+
+User -> Client: Select multiple files
+Client -> FileCtrl: POST /files/upload-multiple\nContent-Type: multipart/form-data\n{files[]}
+
+activate FileCtrl
+FileCtrl -> Multer: Process multiple files
+activate Multer
+
+Multer -> Multer: Extract all files\nValidate each file
+
+Multer --> FileCtrl: Array of file buffers
+deactivate Multer
+
+FileCtrl -> FileSvc: uploadMultipleFiles(files, currentUser)
+activate FileSvc
+
+loop For each file
+  FileSvc -> Cloudinary: upload(fileBuffer, options)
+  activate Cloudinary
+  
+  Cloudinary -> CloudStorage: Store file
+  activate CloudStorage
+  CloudStorage --> Cloudinary: Upload result
+  deactivate CloudStorage
+  
+  Cloudinary --> FileSvc: File URL and metadata
+  deactivate Cloudinary
+  
+  FileSvc -> DB: Insert file document
+  activate DB
+  DB --> FileSvc: File record
+  deactivate DB
+end
+
+FileSvc -> FileSvc: Collect all upload results
+
+FileSvc --> FileCtrl: Array of uploaded files
+deactivate FileSvc
+
+FileCtrl --> Client: 201 Created\n[{fileId, url, metadata}]
+deactivate FileCtrl
+
+Client --> User: All files uploaded successfully
+
+== View/Download File ==
+
+User -> Client: Click to view/download file
+Client -> FileCtrl: GET /files/:id
+
+activate FileCtrl
+FileCtrl -> FileSvc: findOne(id)
+activate FileSvc
+
+FileSvc -> DB: Find file by ID
+activate DB
+DB --> FileSvc: File metadata\n(includes Cloudinary URL)
+deactivate DB
+
+FileSvc --> FileCtrl: File details
+deactivate FileSvc
+
+FileCtrl --> Client: 200 OK\n{file: {url, name, size, type}}
+deactivate FileCtrl
+
+Client -> Client: Display file or\nredirect to Cloudinary URL
+
+Client -> CloudStorage: GET {cloudinary_url}
+activate CloudStorage
+CloudStorage --> Client: File data (stream)
+deactivate CloudStorage
+
+Client --> User: Display/download file
+
+== Delete File ==
+
+User -> Client: Delete file
+Client -> FileCtrl: DELETE /files/:id
+
+activate FileCtrl
+FileCtrl -> FileSvc: remove(id, currentUser)
+activate FileSvc
+
+' Get file info
+FileSvc -> DB: Find file by ID
+activate DB
+DB --> FileSvc: File metadata\n(publicId, url)
+deactivate DB
+
+' Check permissions
+FileSvc -> FileSvc: Verify user can delete\n(owner or admin)
+
+alt Unauthorized
+  FileSvc --> FileCtrl: Error: Unauthorized
+  FileCtrl --> Client: 403 Forbidden
+  Client --> User: Cannot delete file
+else Authorized
+  ' Delete from Cloudinary
+  FileSvc -> Cloudinary: destroy(publicId)
+  activate Cloudinary
+  
+  Cloudinary -> CloudStorage: Delete file
+  activate CloudStorage
+  CloudStorage --> Cloudinary: Deletion confirmed
+  deactivate CloudStorage
+  
+  Cloudinary --> FileSvc: {result: "ok"}
+  deactivate Cloudinary
+  
+  ' Delete from MongoDB
+  FileSvc -> DB: Delete file document
+  activate DB
+  DB --> FileSvc: Deleted
+  deactivate DB
+  
+  FileSvc --> FileCtrl: Deletion successful
+  deactivate FileSvc
+  
+  FileCtrl --> Client: 200 OK
+  deactivate FileCtrl
+  
+  Client --> User: File deleted successfully
+end
+
+== Error Handling ==
+
+alt Upload fails
+  Cloudinary --> FileSvc: Error: Upload failed
+  activate FileSvc
+  
+  FileSvc -> FileSvc: Log error
+  
+  FileSvc --> FileCtrl: Upload error
+  deactivate FileSvc
+  
+  FileCtrl --> Client: 500 Internal Server Error\n{error: "Upload failed"}
+  Client --> User: Upload failed, please retry
+end
+
+note right of Cloudinary
+  Cloudinary provides:
+  - Automatic image optimization
+  - Thumbnail generation
+  - Format conversion
+  - CDN delivery
+  - Secure URLs
+  - Transformation APIs
+end note
+
+note left of DB
+  MongoDB stores:
+  - File metadata
+  - Cloudinary references
+  - Upload tracking
+  - Access permissions
+  - Audit trail
+end note
+
+@enduml

@@ -1,0 +1,83 @@
+@startuml Authentication-Module-Use-Case
+title Authentication Module - Use Case Diagram
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor "User" as User
+actor "System" as System
+
+rectangle "Authentication Module" {
+  
+  usecase "Login" as UC1
+  usecase "Validate Credentials" as UC1a
+  usecase "Generate JWT Token" as UC1b
+  usecase "Set Refresh Token Cookie" as UC1c
+  
+  usecase "Get Account Info" as UC2
+  usecase "Fetch User Data" as UC2a
+  usecase "Load Permissions" as UC2b
+  
+  usecase "Refresh Token" as UC3
+  usecase "Validate Refresh Token" as UC3a
+  usecase "Generate New JWT" as UC3b
+  
+  usecase "Logout" as UC4
+  usecase "Clear Session" as UC4a
+  usecase "Invalidate Tokens" as UC4b
+  
+  usecase "Change Password" as UC5
+  usecase "Validate Old Password" as UC5a
+  usecase "Hash New Password" as UC5b
+  usecase "Update User Record" as UC5c
+}
+
+' User relationships
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+
+' Include relationships for Login
+UC1 .> UC1a : <<include>>
+UC1 .> UC1b : <<include>>
+UC1 .> UC1c : <<include>>
+
+' Include relationships for Get Account
+UC2 .> UC2a : <<include>>
+UC2 .> UC2b : <<include>>
+
+' Include relationships for Refresh Token
+UC3 .> UC3a : <<include>>
+UC3 .> UC3b : <<include>>
+
+' Include relationships for Logout
+UC4 .> UC4a : <<include>>
+UC4 .> UC4b : <<include>>
+
+' Include relationships for Change Password
+UC5 .> UC5a : <<include>>
+UC5 .> UC5b : <<include>>
+UC5 .> UC5c : <<include>>
+
+' System interactions
+System --> UC1a
+System --> UC1b
+System --> UC1c
+System --> UC3a
+System --> UC3b
+System --> UC4b
+
+note right of UC1
+  Uses Local Strategy (Passport)
+  JWT authentication with
+  refresh token in HTTP-only cookie
+end note
+
+note right of UC5
+  Password encrypted using
+  Bcrypt before storage
+end note
+
+@enduml

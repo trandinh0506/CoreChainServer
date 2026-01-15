@@ -1,0 +1,108 @@
+@startuml Notification-System-Use-Case
+title Notification System - Use Case Diagram
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Mobile App User" as MobileUser
+actor "System" as System
+actor "Golang Service" as GolangService
+actor "FCM Server" as FCM
+
+rectangle "Notification System" {
+  
+  package "Mobile Client Operations" {
+    usecase "Register FCM Token" as UC1
+    usecase "Update FCM Token" as UC2
+    usecase "Receive Push Notification" as UC3
+    usecase "Handle Foreground Notification" as UC4
+    usecase "Handle Background Notification" as UC5
+    usecase "Handle Quit State Notification" as UC6
+  }
+  
+  package "Backend Operations" {
+    usecase "Store FCM Token" as UC7
+    usecase "Validate Token" as UC8
+    usecase "Publish Event to Kafka" as UC9
+  }
+  
+  package "Notification Service (Golang)" {
+    usecase "Consume Kafka Message" as UC10
+    usecase "Process Notification Payload" as UC11
+    usecase "Send FCM Notification" as UC12
+    usecase "Store Notification History" as UC13
+    usecase "Handle Send Failure" as UC14
+  }
+  
+  package "Notification Management" {
+    usecase "View Notification History" as UC15
+    usecase "Mark as Read" as UC16
+    usecase "Delete Notification" as UC17
+  }
+}
+
+' Mobile User relationships
+MobileUser --> UC1
+MobileUser --> UC2
+MobileUser --> UC3
+MobileUser --> UC4
+MobileUser --> UC5
+MobileUser --> UC6
+MobileUser --> UC15
+MobileUser --> UC16
+MobileUser --> UC17
+
+' System relationships
+System --> UC7
+System --> UC8
+System --> UC9
+
+' Golang Service relationships
+GolangService --> UC10
+GolangService --> UC11
+GolangService --> UC12
+GolangService --> UC13
+GolangService --> UC14
+
+' Include relationships
+UC1 .> UC7 : <<include>>
+UC2 .> UC7 : <<include>>
+UC7 .> UC8 : <<include>>
+
+UC9 .> UC10 : <<include>>
+UC10 .> UC11 : <<include>>
+UC11 .> UC12 : <<include>>
+UC12 .> UC13 : <<include>>
+
+UC12 --> FCM
+UC3 <-- FCM
+
+' Extend relationships
+UC12 ..> UC14 : <<extend>>
+
+note right of UC9
+  Task creation, updates, and
+  other events are published
+  to Kafka topic
+end note
+
+note bottom of UC10
+  Golang notification service
+  consumes from Kafka and
+  sends FCM notifications
+  via Firebase Admin SDK
+end note
+
+note left of UC13
+  Notification history stored
+  in PostgreSQL database for
+  audit and retrieval
+end note
+
+note right of UC3
+  React Native app receives
+  notifications in different
+  states (foreground, background, quit)
+end note
+
+@enduml

@@ -1,0 +1,194 @@
+@startuml Blockchain-Employee-Creation-Sequence
+title Employee Creation with Blockchain Integration
+
+actor "HR Manager" as HR
+participant "Client App" as Client
+participant "UsersController" as UserCtrl
+participant "UsersService" as UserSvc
+participant "BlockchainService" as BlockchainSvc
+participant "Encryption\nModule" as Crypto
+participant "Web3" as Web3
+participant "Ethereum\nSmart Contract" as Contract
+participant "MongoDB" as DB
+
+== Employee Creation ==
+
+HR -> Client: Create new employee\n(public + private data)
+Client -> UserCtrl: POST /users\n{CreateUserDto}
+
+activate UserCtrl
+UserCtrl -> UserSvc: create(createUserDto, currentUser)
+activate UserSvc
+
+' Validate and prepare data
+UserSvc -> UserSvc: Validate employee data
+UserSvc -> Crypto: hashPassword(password)
+activate Crypto
+Crypto --> UserSvc: hashedPassword
+deactivate Crypto
+
+' Separate public and private data
+UserSvc -> UserSvc: Separate public/private data\n(Public: name, email, role)\n(Private: salary, SSN, bank info)
+
+' Store public data in MongoDB
+UserSvc -> DB: Insert public user data
+activate DB
+DB --> UserSvc: User document with _id
+deactivate DB
+
+' Store private data on blockchain
+UserSvc -> BlockchainSvc: addEmployee(privateData, employeeId)
+activate BlockchainSvc
+
+BlockchainSvc -> Crypto: encrypt(privateData, AES-256-CBC)
+activate Crypto
+Crypto --> BlockchainSvc: encryptedData
+deactivate Crypto
+
+BlockchainSvc -> Web3: Get account and prepare transaction
+activate Web3
+Web3 --> BlockchainSvc: Account address
+deactivate Web3
+
+BlockchainSvc -> Contract: addEmployee(employeeId, encryptedData)
+activate Contract
+
+Contract -> Contract: Store encrypted data\nin blockchain storage
+Contract -> Contract: Emit EmployeeAdded event
+
+Contract --> BlockchainSvc: Transaction hash
+deactivate Contract
+
+BlockchainSvc -> Web3: Wait for transaction confirmation
+activate Web3
+Web3 --> BlockchainSvc: Transaction receipt
+deactivate Web3
+
+BlockchainSvc --> UserSvc: {success: true, txHash}
+deactivate BlockchainSvc
+
+' Update MongoDB with blockchain reference
+UserSvc -> DB: Update user with\nblockchainTxHash
+activate DB
+DB --> UserSvc: Updated document
+deactivate DB
+
+UserSvc --> UserCtrl: Created employee
+deactivate UserSvc
+
+UserCtrl --> Client: 201 Created\n{employee data}
+deactivate UserCtrl
+
+Client --> HR: Employee created successfully\n(shows txHash)
+
+== Retrieve Employee with Private Data ==
+
+HR -> Client: View employee details
+Client -> UserCtrl: GET /users/private/:id
+
+activate UserCtrl
+UserCtrl -> UserSvc: findPrivateOne(id)
+activate UserSvc
+
+' Get public data from MongoDB
+UserSvc -> DB: Find user by ID
+activate DB
+DB --> UserSvc: Public user data
+deactivate DB
+
+' Get private data from blockchain
+UserSvc -> BlockchainSvc: getEmployee(employeeId)
+activate BlockchainSvc
+
+BlockchainSvc -> Web3: Call contract method
+activate Web3
+Web3 -> Contract: getEmployee(employeeId)
+activate Contract
+
+Contract --> Web3: Encrypted employee data
+deactivate Contract
+Web3 --> BlockchainSvc: Blockchain response
+deactivate Web3
+
+BlockchainSvc -> Crypto: decrypt(encryptedData, AES-256-CBC)
+activate Crypto
+Crypto --> BlockchainSvc: decryptedPrivateData
+deactivate Crypto
+
+BlockchainSvc --> UserSvc: Private employee data
+deactivate BlockchainSvc
+
+' Merge data
+UserSvc -> UserSvc: Merge public and private data
+
+UserSvc --> UserCtrl: Complete employee data
+deactivate UserSvc
+
+UserCtrl --> Client: 200 OK\n{public + private data}
+deactivate UserCtrl
+
+Client --> HR: Display complete employee info
+
+== Update Employee Private Data ==
+
+HR -> Client: Update salary/bank info
+Client -> UserCtrl: PATCH /users/:id\n{UpdateUserDto}
+
+activate UserCtrl
+UserCtrl -> UserSvc: update(updateDto, user, id)
+activate UserSvc
+
+UserSvc -> BlockchainSvc: updateEmployee(newPrivateData, employeeId)
+activate BlockchainSvc
+
+BlockchainSvc -> Crypto: encrypt(newPrivateData, AES-256-CBC)
+activate Crypto
+Crypto --> BlockchainSvc: encryptedData
+deactivate Crypto
+
+BlockchainSvc -> Contract: updateEmployee(employeeId, encryptedData)
+activate Contract
+
+Contract -> Contract: Update blockchain record
+Contract -> Contract: Emit EmployeeUpdated event
+
+Contract --> BlockchainSvc: Transaction hash
+deactivate Contract
+
+BlockchainSvc -> Web3: Wait for confirmation
+activate Web3
+Web3 --> BlockchainSvc: Receipt
+deactivate Web3
+
+BlockchainSvc --> UserSvc: {success: true, txHash}
+deactivate BlockchainSvc
+
+UserSvc -> DB: Update public data if needed
+activate DB
+DB --> UserSvc: Updated document
+deactivate DB
+
+UserSvc --> UserCtrl: Updated employee
+deactivate UserSvc
+
+UserCtrl --> Client: 200 OK
+deactivate UserCtrl
+
+Client --> HR: Update successful
+
+note right of Contract
+  Smart contract ensures:
+  - Data immutability
+  - Transaction transparency
+  - Audit trail on blockchain
+  - Tamper-proof employee records
+end note
+
+note left of Crypto
+  Encryption/Decryption uses:
+  - AES-256-CBC for sensitive data
+  - RSA for key management
+  - SHA-256 for hashing
+end note
+
+@enduml

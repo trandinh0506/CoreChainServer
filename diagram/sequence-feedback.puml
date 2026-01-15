@@ -1,0 +1,231 @@
+@startuml Feedback-System-Sequence
+title Anonymous Feedback System with Optional ID Decryption
+
+actor "Employee" as Employee
+participant "Client App" as Client
+participant "FeedbackController" as FeedbackCtrl
+participant "FeedbackService" as FeedbackSvc
+participant "Encryption\nModule" as Crypto
+participant "MongoDB" as DB
+actor "HR Manager" as HR
+actor "Admin" as Admin
+
+== Submit Anonymous Feedback ==
+
+Employee -> Client: Write feedback\n(anonymous mode)
+Client -> Client: Prompt: "Submit anonymously?"
+
+Employee -> Client: Confirm anonymous submission
+
+Client -> FeedbackCtrl: POST /feedback\n{content, category, anonymous: true}
+
+activate FeedbackCtrl
+FeedbackCtrl -> FeedbackSvc: create(createFeedbackDto, currentUser)
+activate FeedbackSvc
+
+FeedbackSvc -> FeedbackSvc: Validate feedback content
+
+alt Anonymous feedback
+  ' Encrypt employee ID
+  FeedbackSvc -> Crypto: encryptEmployeeId(currentUser._id)
+  activate Crypto
+  
+  note right of Crypto
+    Encryption method:
+    - Algorithm: AES-256-CBC or RSA
+    - Generate unique encryption key
+    - Store encrypted ID as hash
+    - Original user ID not stored in plain text
+  end note
+  
+  Crypto -> Crypto: Generate AES key\nEncrypt employee ID
+  Crypto --> FeedbackSvc: {encryptedId, encryptionKey}
+  deactivate Crypto
+  
+  FeedbackSvc -> FeedbackSvc: Store feedback with:\n- encryptedEmployeeId\n- encryptionKey (hashed)\n- anonymous: true\n- Original userId NOT saved
+  
+else Non-anonymous feedback
+  FeedbackSvc -> FeedbackSvc: Store feedback with:\n- employeeId (plain)\n- anonymous: false
+end
+
+FeedbackSvc -> DB: Insert feedback document
+activate DB
+DB --> FeedbackSvc: Feedback created with _id
+deactivate DB
+
+FeedbackSvc -> FeedbackSvc: Generate feedback tracking ID
+
+FeedbackSvc --> FeedbackCtrl: Created feedback\n{feedbackId, trackingId}
+deactivate FeedbackSvc
+
+FeedbackCtrl --> Client: 201 Created\n{feedbackId, trackingId}
+deactivate FeedbackCtrl
+
+Client --> Employee: Feedback submitted successfully\nTracking ID: XXXXX
+
+== View Feedback List (HR Manager) ==
+
+HR -> Client: View all feedback
+Client -> FeedbackCtrl: GET /feedback?status=pending
+
+activate FeedbackCtrl
+FeedbackCtrl -> FeedbackSvc: findAll(pagination, filters)
+activate FeedbackSvc
+
+FeedbackSvc -> DB: Query feedback\n(filter by status, category, etc.)
+activate DB
+DB --> FeedbackSvc: List of feedback\n(encrypted IDs for anonymous)
+deactivate DB
+
+FeedbackSvc -> FeedbackSvc: Format response:\nHide employee identity\nfor anonymous feedback
+
+FeedbackSvc --> FeedbackCtrl: Feedback list
+deactivate FeedbackSvc
+
+FeedbackCtrl --> Client: 200 OK\n[{id, content, category, anonymous, createdAt}]
+deactivate FeedbackCtrl
+
+Client --> HR: Display feedback list\n(shows "Anonymous" for hidden identities)
+
+== View Single Feedback ==
+
+HR -> Client: Open feedback details
+Client -> FeedbackCtrl: GET /feedback/:id
+
+activate FeedbackCtrl
+FeedbackCtrl -> FeedbackSvc: findOne(id)
+activate FeedbackSvc
+
+FeedbackSvc -> DB: Find feedback by ID
+activate DB
+DB --> FeedbackSvc: Feedback document
+deactivate DB
+
+FeedbackSvc -> FeedbackSvc: Check if anonymous:\nDo not include employee details
+
+FeedbackSvc --> FeedbackCtrl: Feedback details\n(employee ID hidden if anonymous)
+deactivate FeedbackSvc
+
+FeedbackCtrl --> Client: 200 OK\n{feedback details}
+deactivate FeedbackCtrl
+
+Client --> HR: Display feedback\n(shows content, category, timestamp)
+
+== Decrypt Feedback ID (Admin Only) ==
+
+HR -> Client: Critical issue detected\nNeed to identify employee
+
+Client -> HR: Request admin approval
+
+HR -> Admin: Request ID decryption\nfor feedback #XXXXX
+
+Admin -> Client: Login as admin
+Client -> FeedbackCtrl: POST /feedback/decrypt/:id\n{reason, adminPassword}
+
+activate FeedbackCtrl
+
+' Verify admin permissions
+FeedbackCtrl -> FeedbackCtrl: Verify admin role\nand authorization
+
+alt Not authorized
+  FeedbackCtrl --> Client: 403 Forbidden
+  Client --> Admin: Access denied
+else Authorized
+  FeedbackCtrl -> FeedbackSvc: decryptFeedbackId(id, reason, admin)
+  activate FeedbackSvc
+  
+  FeedbackSvc -> DB: Find feedback
+  activate DB
+  DB --> FeedbackSvc: Feedback with encrypted ID
+  deactivate DB
+  
+  alt Feedback is not anonymous
+    FeedbackSvc --> FeedbackCtrl: Error: Feedback not anonymous
+    FeedbackCtrl --> Client: 400 Bad Request
+    Client --> Admin: Cannot decrypt non-anonymous feedback
+  else Feedback is anonymous
+    FeedbackSvc -> Crypto: decrypt(encryptedId, encryptionKey)
+    activate Crypto
+    
+    Crypto -> Crypto: Retrieve decryption key\nDecrypt employee ID
+    
+    Crypto --> FeedbackSvc: Original employee ID
+    deactivate Crypto
+    
+    ' Log the decryption for audit
+    FeedbackSvc -> DB: Create audit log:\n{feedbackId, decryptedBy, reason, timestamp}
+    activate DB
+    DB --> FeedbackSvc: Audit log saved
+    deactivate DB
+    
+    ' Get employee details
+    FeedbackSvc -> DB: Find employee by decrypted ID
+    activate DB
+    DB --> FeedbackSvc: Employee data
+    deactivate DB
+    
+    ' Update feedback status
+    FeedbackSvc -> DB: Update feedback:\nset identityRevealed = true\nset revealedBy = admin\nset revealReason = reason
+    activate DB
+    DB --> FeedbackSvc: Updated
+    deactivate DB
+    
+    FeedbackSvc --> FeedbackCtrl: {employee: {id, name, email}, decryptionLog}
+    deactivate FeedbackSvc
+    
+    FeedbackCtrl --> Client: 200 OK\n{employeeId, name, email, timestamp}
+    deactivate FeedbackCtrl
+    
+    Client --> Admin: Employee identified:\nName, Email, Department
+    
+    Admin -> Admin: Take appropriate action\nbased on feedback
+  end
+end
+
+== Respond to Feedback ==
+
+HR -> Client: Write response to feedback
+Client -> FeedbackCtrl: PATCH /feedback/:id\n{response, status: "resolved"}
+
+activate FeedbackCtrl
+FeedbackCtrl -> FeedbackSvc: update(id, updateDto, currentUser)
+activate FeedbackSvc
+
+FeedbackSvc -> DB: Update feedback\nwith response and status
+activate DB
+DB --> FeedbackSvc: Updated feedback
+deactivate DB
+
+FeedbackSvc -> FeedbackSvc: Mark as resolved\nSet resolvedBy and resolvedAt
+
+alt Employee identity known
+  FeedbackSvc -> FeedbackSvc: Send notification to employee
+end
+
+FeedbackSvc --> FeedbackCtrl: Updated feedback
+deactivate FeedbackSvc
+
+FeedbackCtrl --> Client: 200 OK
+deactivate FeedbackCtrl
+
+Client --> HR: Response saved
+
+note right of DB
+  Audit trail includes:
+  - Who decrypted the ID
+  - When it was decrypted
+  - Reason for decryption
+  - All actions taken
+  Ensures accountability
+end note
+
+note left of Crypto
+  Security measures:
+  - Strong encryption (AES-256)
+  - Unique keys per feedback
+  - Key rotation possible
+  - Multi-level access control
+  - Complete audit logging
+end note
+
+@enduml

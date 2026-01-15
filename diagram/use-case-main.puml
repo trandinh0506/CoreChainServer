@@ -1,0 +1,176 @@
+@startuml HRM-Blockchain-System-Main-Use-Case
+title HRM Blockchain System - Main Use Case Diagram
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Employee" as Employee
+actor "HR Manager" as HRManager
+actor "Admin" as Admin
+actor "System" as System
+actor "Blockchain Network" as Blockchain
+
+rectangle "CoreChainServer HRM System" {
+  
+  package "Authentication & Authorization" {
+    usecase "Login" as UC1
+    usecase "Logout" as UC2
+    usecase "Refresh Token" as UC3
+    usecase "Change Password" as UC4
+    usecase "Manage Account" as UC5
+  }
+  
+  package "User Management" {
+    usecase "Create User" as UC6
+    usecase "View User Profile" as UC7
+    usecase "Update User Info" as UC8
+    usecase "Delete User" as UC9
+    usecase "Manage FCM Token" as UC10
+  }
+  
+  package "Blockchain Integration" {
+    usecase "Store Employee Data\non Blockchain" as UC11
+    usecase "Update Blockchain\nEmployee Record" as UC12
+    usecase "Retrieve Employee\nfrom Blockchain" as UC13
+    usecase "Deactivate Employee\non Blockchain" as UC14
+  }
+  
+  package "Personnel Management" {
+    usecase "Manage Salary" as UC15
+    usecase "Calculate KPI" as UC16
+    usecase "Process Salary Advance" as UC17
+    usecase "Track Working Hours" as UC18
+  }
+  
+  package "Contract Management" {
+    usecase "Create Contract" as UC19
+    usecase "View Contract" as UC20
+    usecase "Update Contract" as UC21
+    usecase "Track Contract Expiration" as UC22
+  }
+  
+  package "Department & Position" {
+    usecase "Manage Departments" as UC23
+    usecase "Manage Positions" as UC24
+    usecase "Assign Employees" as UC25
+  }
+  
+  package "Project & Task Management" {
+    usecase "Create Project" as UC26
+    usecase "Assign Tasks" as UC27
+    usecase "Track Task Progress" as UC28
+    usecase "Manage Team Members" as UC29
+  }
+  
+  package "Feedback System" {
+    usecase "Submit Feedback" as UC30
+    usecase "View Feedback" as UC31
+    usecase "Decrypt Feedback ID" as UC32
+  }
+  
+  package "Notification System" {
+    usecase "Send Notifications" as UC33
+    usecase "Receive Push Notifications" as UC34
+    usecase "Manage Notification History" as UC35
+  }
+  
+  package "Reports" {
+    usecase "Generate Attendance Report" as UC36
+    usecase "Generate KPI Report" as UC37
+    usecase "Generate Salary Report" as UC38
+    usecase "Generate Turnover Report" as UC39
+  }
+  
+  package "File Management" {
+    usecase "Upload Files" as UC40
+    usecase "Download Files" as UC41
+  }
+  
+  package "Security & Permissions" {
+    usecase "Manage Roles" as UC42
+    usecase "Manage Permissions" as UC43
+    usecase "Enforce Access Control" as UC44
+  }
+  
+  package "Real-Time Communication" {
+    usecase "Send Message" as UC45
+    usecase "Receive Message" as UC46
+  }
+}
+
+' Employee relationships
+Employee --> UC1
+Employee --> UC2
+Employee --> UC4
+Employee --> UC5
+Employee --> UC7
+Employee --> UC8
+Employee --> UC10
+Employee --> UC20
+Employee --> UC27
+Employee --> UC28
+Employee --> UC30
+Employee --> UC34
+Employee --> UC41
+Employee --> UC45
+Employee --> UC46
+
+' HR Manager relationships
+HRManager --> UC6
+HRManager --> UC7
+HRManager --> UC8
+HRManager --> UC9
+HRManager --> UC15
+HRManager --> UC16
+HRManager --> UC17
+HRManager --> UC18
+HRManager --> UC19
+HRManager --> UC20
+HRManager --> UC21
+HRManager --> UC22
+HRManager --> UC23
+HRManager --> UC24
+HRManager --> UC25
+HRManager --> UC26
+HRManager --> UC27
+HRManager --> UC29
+HRManager --> UC31
+HRManager --> UC32
+HRManager --> UC33
+HRManager --> UC36
+HRManager --> UC37
+HRManager --> UC38
+HRManager --> UC39
+HRManager --> UC40
+
+' Admin relationships
+Admin --> UC6
+Admin --> UC9
+Admin --> UC42
+Admin --> UC43
+Admin --> UC44
+
+' System relationships
+System --> UC11
+System --> UC12
+System --> UC13
+System --> UC14
+System --> UC22
+System --> UC33
+System --> UC35
+System --> UC44
+
+' Blockchain relationships
+UC11 --> Blockchain
+UC12 --> Blockchain
+UC13 --> Blockchain
+UC14 --> Blockchain
+
+' Include relationships
+UC6 .> UC11 : <<include>>
+UC8 .> UC12 : <<include>>
+UC9 .> UC14 : <<include>>
+UC19 .> UC11 : <<include>>
+UC33 .> UC34 : <<include>>
+
+@enduml

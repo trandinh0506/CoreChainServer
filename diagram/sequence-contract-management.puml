@@ -1,0 +1,225 @@
+@startuml Contract-Management-Sequence
+title Employee Contract Management Flow
+
+actor "HR Manager" as HR
+participant "Client App" as Client
+participant "ContractsController" as ContractCtrl
+participant "ContractsService" as ContractSvc
+participant "BlockchainService" as BlockchainSvc
+participant "MongoDB" as DB
+participant "Smart Contract\n(Blockchain)" as Contract
+participant "Scheduler\n(Cron Job)" as Scheduler
+participant "NotificationService" as NotifySvc
+
+== Create Contract ==
+
+HR -> Client: Create employment contract
+Client -> ContractCtrl: POST /contracts\n{employeeId, type, startDate, endDate, terms}
+
+activate ContractCtrl
+ContractCtrl -> ContractSvc: create(createContractDto, currentUser)
+activate ContractSvc
+
+ContractSvc -> ContractSvc: Validate contract data
+ContractSvc -> ContractSvc: Calculate contract duration
+
+' Store contract in MongoDB
+ContractSvc -> DB: Insert contract document
+activate DB
+DB --> ContractSvc: Contract created with _id
+deactivate DB
+
+' Store contract hash on blockchain (optional for immutability)
+ContractSvc -> BlockchainSvc: storeContractHash(contractId, contractHash)
+activate BlockchainSvc
+
+BlockchainSvc -> BlockchainSvc: Generate SHA-256 hash\nof contract terms
+
+BlockchainSvc -> Contract: storeContractHash(contractId, hash)
+activate Contract
+Contract -> Contract: Store hash on blockchain
+Contract --> BlockchainSvc: Transaction hash
+deactivate Contract
+
+BlockchainSvc --> ContractSvc: Blockchain reference
+deactivate BlockchainSvc
+
+' Update contract with blockchain reference
+ContractSvc -> DB: Update contract\nwith blockchain txHash
+activate DB
+DB --> ContractSvc: Updated contract
+deactivate DB
+
+ContractSvc -> ContractSvc: Set createdBy and audit fields
+
+ContractSvc --> ContractCtrl: Created contract
+deactivate ContractSvc
+
+ContractCtrl --> Client: 201 Created\n{contract data}
+deactivate ContractCtrl
+
+Client --> HR: Contract created successfully
+
+== View Contract ==
+
+HR -> Client: View contract details
+Client -> ContractCtrl: GET /contracts/:id
+
+activate ContractCtrl
+ContractCtrl -> ContractSvc: findOne(id)
+activate ContractSvc
+
+ContractSvc -> DB: Find contract by ID\n(populate employee and creator)
+activate DB
+DB --> ContractSvc: Contract with related data
+deactivate DB
+
+ContractSvc -> ContractSvc: Calculate days until expiration
+
+ContractSvc --> ContractCtrl: Contract details
+deactivate ContractSvc
+
+ContractCtrl --> Client: 200 OK\n{contract, daysUntilExpiry}
+deactivate ContractCtrl
+
+Client --> HR: Display contract information
+
+== Contract Expiration Tracking ==
+
+Scheduler -> Scheduler: Daily cron job runs\n(e.g., 00:00 every day)
+activate Scheduler
+
+Scheduler -> ContractSvc: checkExpiringContracts()
+activate ContractSvc
+
+ContractSvc -> DB: Find contracts expiring\nwithin 30 days
+activate DB
+DB --> ContractSvc: List of expiring contracts
+deactivate DB
+
+loop For each expiring contract
+  ContractSvc -> ContractSvc: Calculate days remaining
+  
+  alt Less than 30 days remaining
+    ContractSvc -> NotifySvc: sendExpirationWarning(contract, daysRemaining)
+    activate NotifySvc
+    
+    NotifySvc -> NotifySvc: Build notification:\n"Contract expiring in X days"
+    
+    NotifySvc -> DB: Create notification record
+    activate DB
+    DB --> NotifySvc: Notification saved
+    deactivate DB
+    
+    NotifySvc -> NotifySvc: Send email/push notification\nto HR and employee
+    
+    NotifySvc --> ContractSvc: Notification sent
+    deactivate NotifySvc
+    
+    ContractSvc -> DB: Update contract\nset lastReminderSent = now()
+    activate DB
+    DB --> ContractSvc: Updated
+    deactivate DB
+  end
+end
+
+ContractSvc --> Scheduler: Expiration check complete
+deactivate ContractSvc
+deactivate Scheduler
+
+== Update Contract ==
+
+HR -> Client: Update contract terms
+Client -> ContractCtrl: PATCH /contracts/:id\n{updateContractDto}
+
+activate ContractCtrl
+ContractCtrl -> ContractSvc: update(id, updateDto, currentUser)
+activate ContractSvc
+
+ContractSvc -> DB: Find existing contract
+activate DB
+DB --> ContractSvc: Current contract
+deactivate DB
+
+ContractSvc -> ContractSvc: Validate update\n(check if already expired)
+
+alt Contract already expired
+  ContractSvc --> ContractCtrl: Error: Cannot update expired contract
+  ContractCtrl --> Client: 400 Bad Request
+  Client --> HR: Update failed
+else Contract is active
+  ContractSvc -> BlockchainSvc: storeContractHash(contractId, newHash)
+  activate BlockchainSvc
+  
+  BlockchainSvc -> Contract: updateContractHash(contractId, newHash)
+  activate Contract
+  Contract --> BlockchainSvc: Transaction hash
+  deactivate Contract
+  
+  BlockchainSvc --> ContractSvc: Updated blockchain reference
+  deactivate BlockchainSvc
+  
+  ContractSvc -> DB: Update contract\nwith new data and txHash
+  activate DB
+  DB --> ContractSvc: Updated contract
+  deactivate DB
+  
+  ContractSvc -> ContractSvc: Set updatedBy and timestamp
+  
+  ContractSvc --> ContractCtrl: Updated contract
+  deactivate ContractSvc
+  
+  ContractCtrl --> Client: 200 OK\n{updated contract}
+  deactivate ContractCtrl
+  
+  Client --> HR: Contract updated successfully
+end
+
+== Delete/Terminate Contract ==
+
+HR -> Client: Terminate contract early
+Client -> ContractCtrl: DELETE /contracts/:id
+
+activate ContractCtrl
+ContractCtrl -> ContractSvc: remove(id, currentUser)
+activate ContractSvc
+
+ContractSvc -> DB: Find contract
+activate DB
+DB --> ContractSvc: Contract data
+deactivate DB
+
+ContractSvc -> ContractSvc: Soft delete:\nset status = 'terminated'\nset terminatedAt = now()
+
+ContractSvc -> DB: Update contract status
+activate DB
+DB --> ContractSvc: Updated
+deactivate DB
+
+ContractSvc -> ContractSvc: Set deletedBy
+
+ContractSvc --> ContractCtrl: Termination successful
+deactivate ContractSvc
+
+ContractCtrl --> Client: 200 OK
+deactivate ContractCtrl
+
+Client --> HR: Contract terminated
+
+note right of Contract
+  Blockchain ensures:
+  - Contract terms immutability
+  - Tamper-proof audit trail
+  - Verifiable contract history
+  - Hash verification of terms
+end note
+
+note left of Scheduler
+  Automated tracking:
+  - Daily expiration checks
+  - Multi-stage reminders
+  - Automated renewal prompts
+  - Compliance reporting
+end note
+
+@enduml
