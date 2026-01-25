@@ -40,4 +40,9 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Department must not be empty !' })
   @IsMongoId()
   department: mongoose.Schema.Types.ObjectId;
+
+
+  @IsOptional()
+  @IsString()
+  avatar?: string;
 }

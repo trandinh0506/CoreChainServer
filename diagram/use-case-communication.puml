@@ -1,0 +1,180 @@
+@startuml use-case-communication
+title CoreChain Communication Service - Use Case Diagram
+
+!define RECTANGLE
+skinparam packageStyle rectangle
+
+left to right direction
+
+' Actors
+actor "Employee" as Employee
+actor "Manager" as Manager
+actor "Admin" as Admin
+actor "System\nScheduler" as System
+
+' External Systems
+actor "LiveKit\nServer" as LiveKit #lightblue
+actor "Kafka\nBroker" as Kafka #lightblue
+actor "User Service\n(NestJS)" as UserService #lightblue
+actor "Notification\nService" as NotifService #lightblue
+
+rectangle "CoreChain Communication Service (Go)" {
+  
+  package "Authentication" #LightYellow {
+    usecase "Validate JWT Token" as UC_AuthJWT
+    usecase "Extract User Claims" as UC_Claims
+  }
+  
+  package "Real-time Chat Module" #LightGreen {
+    usecase "Establish WebSocket\nConnection" as UC_WSConnect
+    usecase "Send Message\nvia WebSocket" as UC_SendMsg
+    usecase "Receive Real-time\nMessage" as UC_ReceiveMsg
+    usecase "Create Private\nConversation" as UC_CreateConv
+    usecase "List My\nConversations" as UC_ListConv
+    usecase "Get Conversation\nDetails" as UC_GetConv
+    usecase "Get Message\nHistory" as UC_GetMsgs
+    usecase "Manage Hub\nConnections" as UC_Hub
+  }
+  
+  package "Video Meeting Module" #LightCoral {
+    usecase "Create Meeting\n(Manager/Admin)" as UC_CreateMeeting
+    usecase "Generate LiveKit\nRoom" as UC_CreateRoom
+    usecase "Join Meeting" as UC_JoinMeeting
+    usecase "Generate Access\nToken" as UC_GenToken
+    usecase "List My Meetings" as UC_ListMeetings
+    usecase "End Meeting\n(Creator Only)" as UC_EndMeeting
+    usecase "Delete LiveKit\nRoom" as UC_DeleteRoom
+    usecase "Track Meeting\nParticipants" as UC_TrackParticipants
+  }
+  
+  package "File Storage Module" #LightSkyBlue {
+    usecase "Upload File\nto MinIO" as UC_Upload
+    usecase "Generate File\nMetadata" as UC_FileMeta
+  }
+  
+  package "Database Operations" #Lavender {
+    usecase "Store/Retrieve\nConversations" as UC_DBConv
+    usecase "Store/Retrieve\nMessages" as UC_DBMsg
+    usecase "Store/Retrieve\nMeetings" as UC_DBMeeting
+    usecase "Cache Data\n(Redis)" as UC_Cache
+  }
+  
+  package "Message Queue" #LightPink {
+    usecase "Publish Meeting\nEvents" as UC_PublishEvent
+    usecase "Consume from\nKafka (Worker)" as UC_ConsumeKafka
+  }
+}
+
+' Employee relationships
+Employee --> UC_WSConnect
+Employee --> UC_SendMsg
+Employee --> UC_ReceiveMsg
+Employee --> UC_CreateConv
+Employee --> UC_ListConv
+Employee --> UC_GetConv
+Employee --> UC_GetMsgs
+Employee --> UC_JoinMeeting
+Employee --> UC_ListMeetings
+Employee --> UC_Upload
+
+' Manager relationships (inherits Employee + additional)
+Manager --> UC_CreateMeeting
+Manager --> UC_EndMeeting
+
+' Admin relationships (inherits Manager)
+Admin --> UC_CreateMeeting
+Admin --> UC_EndMeeting
+
+' System relationships
+System --> UC_ConsumeKafka
+
+' Authentication includes
+UC_WSConnect ..> UC_AuthJWT : <<include>>
+UC_CreateConv ..> UC_AuthJWT : <<include>>
+UC_SendMsg ..> UC_Claims : <<include>>
+UC_CreateMeeting ..> UC_AuthJWT : <<include>>
+UC_JoinMeeting ..> UC_AuthJWT : <<include>>
+UC_Upload ..> UC_AuthJWT : <<include>>
+
+' Chat module includes
+UC_WSConnect ..> UC_Hub : <<include>>
+UC_SendMsg ..> UC_Hub : <<include>>
+UC_ReceiveMsg ..> UC_Hub : <<include>>
+UC_CreateConv ..> UC_DBConv : <<include>>
+UC_ListConv ..> UC_DBConv : <<include>>
+UC_GetConv ..> UC_DBConv : <<include>>
+UC_SendMsg ..> UC_DBMsg : <<include>>
+UC_GetMsgs ..> UC_DBMsg : <<include>>
+
+' Meeting module includes
+UC_CreateMeeting ..> UC_CreateRoom : <<include>>
+UC_CreateMeeting ..> UC_DBMeeting : <<include>>
+UC_CreateMeeting ..> UC_PublishEvent : <<include>>
+UC_JoinMeeting ..> UC_GenToken : <<include>>
+UC_JoinMeeting ..> UC_TrackParticipants : <<include>>
+UC_JoinMeeting ..> UC_DBMeeting : <<include>>
+UC_EndMeeting ..> UC_DeleteRoom : <<include>>
+UC_EndMeeting ..> UC_DBMeeting : <<include>>
+UC_EndMeeting ..> UC_PublishEvent : <<include>>
+UC_ListMeetings ..> UC_DBMeeting : <<include>>
+
+' Storage module includes
+UC_Upload ..> UC_FileMeta : <<include>>
+
+' Cache usage
+UC_ListConv ..> UC_Cache : <<extend>>
+UC_GetConv ..> UC_Cache : <<extend>>
+
+' External system relationships
+UC_CreateRoom --> LiveKit : <<uses>>
+UC_GenToken --> LiveKit : <<uses>>
+UC_DeleteRoom --> LiveKit : <<uses>>
+
+UC_PublishEvent --> Kafka : <<uses>>
+UC_ConsumeKafka --> Kafka : <<uses>>
+
+UC_CreateConv --> UserService : <<uses>>
+UC_ListConv --> UserService : <<uses>>
+UC_GetMsgs --> UserService : <<uses>>
+
+UC_PublishEvent --> NotifService : <<triggers>>
+
+' Notes
+note right of UC_CreateMeeting
+  **Role-based Access**
+  Only MANAGER or ADMIN
+  can create meetings
+end note
+
+note right of UC_Hub
+  **Hub Pattern**
+  Central connection manager
+  for WebSocket clients.
+  Routes messages to
+  active users.
+end note
+
+note left of UC_AuthJWT
+  **JWT Authentication**
+  All endpoints require
+  valid JWT token.
+  Token validated against
+  shared secret.
+end note
+
+note bottom of Kafka
+  **Event-Driven Architecture**
+  - meeting.created
+  - meeting.ended
+  Consumed by Notification Service
+  for push notifications
+end note
+
+note bottom of LiveKit
+  **Video Conferencing**
+  - Room management
+  - Access token generation
+  - WebRTC signaling
+end note
+
+@enduml

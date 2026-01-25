@@ -146,6 +146,7 @@ export class UsersService {
         workingHours,
         position,
         department,
+        avatar,
       } = createUserDto;
       const isExist = await this.userModel.findOne({ email });
       if (isExist) {
@@ -173,6 +174,7 @@ export class UsersService {
         dayOff: 0,
         workingHours: workingHours || 0,
         txHash,
+        avatar,
         createdBy: {
           _id: user._id,
           email: user.email,

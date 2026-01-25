@@ -1,0 +1,165 @@
+@startuml sequence-communication-chat
+title CoreChain Communication - Chat Flow (WebSocket + REST API)
+
+actor "Employee" as Employee
+participant "Client App" as Client
+participant "Communication\nService (Go)" as CommService
+participant "JWT Auth\nMiddleware" as Auth
+participant "WebSocket\nUpgrader" as WSUpgrader
+participant "Hub" as Hub
+participant "Client\nConnection" as WSClient
+participant "ChatService" as ChatService
+participant "PostgreSQL" as DB
+participant "User Service\n(NestJS)" as UserService
+
+== WebSocket Connection Establishment ==
+
+Employee -> Client: Open chat
+Client -> CommService: GET /ws?token=<JWT>
+CommService -> Auth: Validate JWT token
+Auth -> Auth: Parse and verify token\nwith JWT secret
+Auth --> CommService: User claims\n(_id, role, name)
+
+CommService -> WSUpgrader: Upgrade HTTP to WebSocket
+WSUpgrader --> CommService: WebSocket connection
+
+CommService -> WSClient: Create client instance\n(userID, conn, send channel)
+CommService -> Hub: Register client
+activate Hub
+Hub -> Hub: Add client to clients map\n(userID -> client)
+Hub --> CommService: Client registered
+deactivate Hub
+
+CommService -> WSClient: Start WritePump() goroutine
+CommService -> WSClient: Start ReadPump() goroutine
+
+note right of WSClient
+  **Hub Pattern**
+  - Maintains active connections
+  - Routes messages to recipients
+  - Handles broadcast logic
+end note
+
+== Send Message via WebSocket ==
+
+Employee -> Client: Type and send message
+Client -> WSClient: WebSocket message\n{"type":"send", "conversation_id":123,\n"content":"Hello", "receiver_id":"456"}
+
+WSClient -> Hub: Forward message
+activate Hub
+Hub -> ChatService: CreateMessage(ctx, params)
+ChatService -> DB: INSERT INTO messages\n(conversation_id, sender_id,\ncontent, created_at)
+DB --> ChatService: Message ID
+
+ChatService -> DB: UPDATE conversations\nSET last_message, updated_at
+DB --> ChatService: Updated
+
+ChatService --> Hub: Message created
+
+Hub -> Hub: Find recipient client\nby receiver_id
+Hub -> WSClient: Send to recipient's\nsend channel
+WSClient -> Client: WebSocket push\n(new message)
+Client -> Employee: Display message
+deactivate Hub
+
+note right of Hub
+  **Real-time Broadcasting**
+  If recipient is online, 
+  message is pushed via WebSocket.
+  Otherwise, it's stored in DB
+  for later retrieval.
+end note
+
+== REST API: Create/Get Private Conversation ==
+
+Employee -> Client: Start new conversation
+Client -> CommService: POST /conversations/private\nAuthorization: Bearer <token>\n{"partner_id": "456"}
+
+CommService -> Auth: WithAuth middleware
+Auth -> Auth: Validate JWT
+Auth --> CommService: Set user_id in context
+
+CommService -> ChatService: GetOrCreatePrivateConversation\n(userID, partnerID)
+ChatService -> DB: SELECT * FROM conversations\nWHERE is_group=false\nAND participants @> [user_id, partner_id]
+
+alt Conversation exists
+  DB --> ChatService: Conversation record
+else Conversation doesn't exist
+  ChatService -> DB: INSERT INTO conversations\n(is_group, created_by,\nparticipants, created_at)
+  DB --> ChatService: New conversation ID
+end
+
+ChatService -> ChatService: GetConversation(conversationID)
+ChatService -> DB: SELECT conversation with\nlast message details
+DB --> ChatService: Conversation detail
+
+ChatService -> UserService: GET /users?ids=[user_id, partner_id]
+UserService --> ChatService: User details\n(name, avatar, etc.)
+
+ChatService -> ChatService: Enrich conversation\nwith user details
+ChatService --> CommService: Conversation object
+
+CommService --> Client: 200 OK\n{"data": {"id": 123,\n"participants": [...],\n"last_message": {...}}}
+Client -> Employee: Show conversation
+
+== REST API: List Conversations ==
+
+Employee -> Client: View all chats
+Client -> CommService: GET /conversations\n?limit=20&offset=0\nAuthorization: Bearer <token>
+
+CommService -> Auth: WithAuth middleware
+Auth --> CommService: user_id in context
+
+CommService -> ChatService: ListConversations\n(userID, limit, offset)
+ChatService -> DB: SELECT * FROM conversations\nWHERE user_id = ANY(participants)\nORDER BY updated_at DESC\nLIMIT 20 OFFSET 0
+
+DB --> ChatService: Conversation list
+
+ChatService -> UserService: Batch get user details\nfor all participants
+UserService --> ChatService: User details map
+
+ChatService -> ChatService: Enrich each conversation\nwith user info and\nlast message
+ChatService --> CommService: Conversations array
+
+CommService --> Client: 200 OK\n{"data": [conversations]}
+Client -> Employee: Display chat list
+
+== REST API: Get Messages ==
+
+Employee -> Client: View message history
+Client -> CommService: GET /messages\n?conversation_id=123&limit=50\nAuthorization: Bearer <token>
+
+CommService -> Auth: WithAuth middleware
+Auth --> CommService: user_id authenticated
+
+CommService -> ChatService: GetMessages\n(conversationID, limit, offset)
+ChatService -> DB: SELECT * FROM messages\nWHERE conversation_id = 123\nORDER BY created_at DESC\nLIMIT 50
+
+DB --> ChatService: Messages array
+
+ChatService -> UserService: Get sender details\nfor each message
+UserService --> ChatService: User details
+
+ChatService -> ChatService: Enrich messages with\nsender information
+ChatService --> CommService: Messages with details
+
+CommService --> Client: 200 OK\n{"data": [messages]}
+Client -> Employee: Display message history
+
+== Client Disconnection ==
+
+Employee -> Client: Close app/navigate away
+Client -> WSClient: Close WebSocket
+WSClient -> Hub: Unregister client
+Hub -> Hub: Remove client from\nclients map
+Hub --> WSClient: Client removed
+
+note right of Hub
+  **Connection Cleanup**
+  When a client disconnects,
+  the Hub removes it from
+  active connections to
+  prevent memory leaks.
+end note
+
+@enduml

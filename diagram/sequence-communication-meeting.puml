@@ -1,0 +1,203 @@
+@startuml sequence-communication-meeting
+title CoreChain Communication - Video Meeting Lifecycle (LiveKit Integration)
+
+actor "Manager" as Manager
+actor "Employee" as Employee
+participant "Client App" as Client
+participant "Communication\nService (Go)" as CommService
+participant "JWT Auth\nMiddleware" as Auth
+participant "MeetingHandler" as MeetingHandler
+participant "MeetingService" as MeetingService
+participant "LiveKitService" as LiveKit
+participant "PostgreSQL" as DB
+participant "Kafka Broker" as Kafka
+participant "LiveKit Server" as LiveKitServer
+participant "Notification\nService (Go)" as NotifService
+
+== Create Meeting (Manager Only) ==
+
+Manager -> Client: Schedule new meeting
+Client -> CommService: POST /meetings\nAuthorization: Bearer <token>\n{"title": "Team Sync",\n"description": "Weekly meeting",\n"invited_user_ids": ["user1", "user2"],\n"start_time": "2024-01-20T10:00:00Z"}
+
+CommService -> Auth: WithAuth middleware
+Auth -> Auth: Validate JWT token\nExtract user_id and role
+Auth --> CommService: user_id="mgr123"\nrole="MANAGER"
+
+CommService -> MeetingHandler: CreateMeeting(request)
+MeetingHandler -> MeetingHandler: Check role authorization
+
+alt Role is not MANAGER or ADMIN
+  MeetingHandler --> Client: 403 Forbidden\n{"error": "Manager role required"}
+else Role authorized
+  MeetingHandler -> MeetingService: CreateMeeting(ctx, title, description,\ncreatorID, invitedUserIDs, startTime)
+  
+  activate MeetingService
+  MeetingService -> MeetingService: Generate unique\nroom name and meeting key
+  
+  MeetingService -> LiveKit: CreateRoom(roomName)
+  LiveKit -> LiveKitServer: API call to create room\nwith configured settings
+  LiveKitServer --> LiveKit: Room created\n{name, sid, metadata}
+  LiveKit --> MeetingService: Room details
+  
+  MeetingService -> DB: INSERT INTO meetings\n(room_name, meeting_key, title,\ndescription, created_by,\ninvited_users, scheduled_time,\nstatus, livekit_room_sid)
+  DB --> MeetingService: Meeting ID
+  
+  MeetingService -> Kafka: Publish event\ntopic: "meeting.created"\npayload: {meeting_id, title,\ninvited_users, start_time}
+  Kafka --> MeetingService: Event published
+  deactivate MeetingService
+  
+  MeetingService --> MeetingHandler: Meeting record\n{id, room_name, meeting_key}
+  MeetingHandler --> Client: 201 Created\n{"data": {"id": 789,\n"room_name": "room-abc123",\n"meeting_key": "key-xyz",\n"title": "Team Sync"}}
+end
+
+Client -> Manager: Meeting created
+
+note right of Kafka
+  **Async Notification**
+  Kafka event triggers
+  notifications to all
+  invited participants
+end note
+
+== Kafka Consumer: Send Invitations ==
+
+Kafka -> NotifService: Consume "meeting.created" event
+NotifService -> DB: Query invited users'\nFCM tokens
+DB --> NotifService: FCM tokens list
+NotifService -> NotifService: Send FCM notification\nto each participant\n"You're invited to Team Sync"
+
+note right of NotifService
+  **Meeting Invitations**
+  Separate Golang service
+  handles push notifications
+  to mobile devices
+end note
+
+== Join Meeting (Any Participant) ==
+
+Employee -> Client: Join meeting notification
+Client -> CommService: POST /meetings/join\nAuthorization: Bearer <token>\n{"room_name": "room-abc123",\n"meeting_key": "key-xyz"}
+
+CommService -> Auth: WithAuth middleware
+Auth -> Auth: Validate JWT
+Auth --> CommService: user_id="emp456"\nuser_name="John Doe"
+
+CommService -> MeetingHandler: JoinMeeting(request)
+MeetingHandler -> MeetingService: JoinMeeting(ctx, userID,\nuserName, roomName, meetingKey)
+
+activate MeetingService
+MeetingService -> DB: SELECT * FROM meetings\nWHERE room_name = 'room-abc123'\nAND meeting_key = 'key-xyz'
+DB --> MeetingService: Meeting record
+
+alt Meeting not found or invalid key
+  MeetingService --> MeetingHandler: Error: Invalid meeting
+  MeetingHandler --> Client: 403 Forbidden\n{"error": "Invalid meeting credentials"}
+else Meeting valid
+  MeetingService -> MeetingService: Check if user is invited\n(user_id in invited_users)
+  
+  alt User not invited
+    MeetingService --> MeetingHandler: Error: Not authorized
+    MeetingHandler --> Client: 403 Forbidden\n{"error": "You are not invited"}
+  else User authorized
+    MeetingService -> LiveKit: GenerateAccessToken\n(roomName, userID, userName)
+    LiveKit -> LiveKit: Create JWT token\nwith LiveKit API credentials\nGrant: canPublish, canSubscribe
+    LiveKit --> MeetingService: Access token
+    
+    MeetingService -> DB: INSERT INTO meeting_participants\n(meeting_id, user_id, joined_at,\nstatus='joined')
+    DB --> MeetingService: Participant recorded
+    
+    MeetingService -> DB: UPDATE meetings\nSET status='active'\nWHERE id = meeting_id\nAND status='scheduled'
+    DB --> MeetingService: Meeting activated
+    
+    deactivate MeetingService
+    MeetingService --> MeetingHandler: {token, roomName, serverURL}
+    MeetingHandler --> Client: 200 OK\n{"token": "eyJhbG...",\n"room_name": "room-abc123",\n"server_url": "wss://livekit.example.com"}
+  end
+end
+
+alt Join successful
+  Client -> LiveKitServer: Connect with access token\nWebRTC connection
+  LiveKitServer --> Client: Connected to room\nAudio/Video streams
+  Client -> Employee: In meeting (video/audio)
+end
+
+note right of LiveKit
+  **LiveKit Integration**
+  - JWT token generation
+  - Room management
+  - Participant permissions
+  - WebRTC signaling
+end note
+
+== List My Meetings ==
+
+Employee -> Client: View my meetings
+Client -> CommService: GET /meetings/my\nAuthorization: Bearer <token>
+
+CommService -> Auth: WithAuth middleware
+Auth --> CommService: user_id authenticated
+
+CommService -> MeetingHandler: ListMyMeetings(request)
+MeetingHandler -> MeetingService: ListMyMeetings(ctx, userID)
+
+MeetingService -> DB: SELECT * FROM meetings\nWHERE created_by = user_id\nOR user_id = ANY(invited_users)\nORDER BY scheduled_time DESC
+
+DB --> MeetingService: Meetings list
+
+MeetingService --> MeetingHandler: Meetings array
+MeetingHandler --> Client: 200 OK\n{"data": [meetings]}
+Client -> Employee: Display meetings list
+
+== End Meeting (Creator Only) ==
+
+Manager -> Client: End meeting
+Client -> CommService: POST /meetings/end\nAuthorization: Bearer <token>\n{"room_name": "room-abc123"}
+
+CommService -> Auth: WithAuth middleware
+Auth --> CommService: user_id="mgr123"
+
+CommService -> MeetingHandler: EndMeeting(request)
+MeetingHandler -> MeetingService: EndMeeting(ctx, userID, roomName)
+
+activate MeetingService
+MeetingService -> DB: SELECT * FROM meetings\nWHERE room_name = 'room-abc123'
+DB --> MeetingService: Meeting record
+
+MeetingService -> MeetingService: Verify user is creator\n(created_by == user_id)
+
+alt User is not creator
+  MeetingService --> MeetingHandler: Error: Not authorized
+  MeetingHandler --> Client: 403 Forbidden\n{"error": "Only creator can end meeting"}
+else User is creator
+  MeetingService -> LiveKit: DeleteRoom(roomName)
+  LiveKit -> LiveKitServer: API call to delete room\nDisconnect all participants
+  LiveKitServer --> LiveKit: Room deleted
+  LiveKit --> MeetingService: Success
+  
+  MeetingService -> DB: UPDATE meetings\nSET status='ended',\nended_at=NOW()\nWHERE room_name = 'room-abc123'
+  DB --> MeetingService: Updated
+  
+  MeetingService -> Kafka: Publish event\ntopic: "meeting.ended"\npayload: {meeting_id, room_name}
+  Kafka --> MeetingService: Event published
+  
+  deactivate MeetingService
+  MeetingService --> MeetingHandler: Success
+  MeetingHandler --> Client: 200 OK\n{"message": "Meeting ended successfully"}
+end
+
+Client -> Manager: Meeting ended
+Client -> LiveKitServer: Disconnected
+LiveKitServer -> Employee: Connection closed
+Employee -> Client: Exits meeting
+
+== Background Cleanup (DB Worker) ==
+
+note over DB, Kafka
+  **Scheduled Cleanup**
+  DB Worker periodically checks for:
+  - Abandoned meetings (active > 24 hours)
+  - Expired scheduled meetings
+  These are auto-ended and cleaned up
+end note
+
+@enduml
