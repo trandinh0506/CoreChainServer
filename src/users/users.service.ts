@@ -137,68 +137,57 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto, user: IUser) {
+    const session = await this.userModel.startSession();
+    session.startTransaction();
+
     try {
-      const {
-        name,
-        email,
-        password,
-        role,
-        workingHours,
-        position,
-        department,
-        avatar,
-      } = createUserDto;
-      const isExist = await this.userModel.findOne({ email });
-      if (isExist) {
-        throw new BadRequestException(
-          'Email already exist. Please use another email',
-        );
+        const isExist = await this.userModel.findOne({ email: createUserDto.email });
+        if (isExist) throw new BadRequestException('Email already exists');
+
+        const hashPassword = this.getHashPassword(createUserDto.password);
+        const [newUser] = await this.userModel.create([{
+          ...createUserDto,
+          password: hashPassword,
+          createdBy: { _id: user._id, email: user.email }
+        }], { session });
+
+        if (createUserDto.department) {
+          const department = await this.departmentService.findOne(
+            createUserDto.department.toString(),
+          );
+          department.employees.push(newUser._id as any);
+          await this.departmentService.update(
+            department._id.toString(),
+            {
+              employees: department.employees,
+            },
+            System,
+          );
+        }
+        const { employeeId, privateData } = this.splitData(createUserDto);
+        // Update blockchain
+        try {
+          const txHash = await this.blockchainService.addEmployee(
+            privateData, employeeId
+          );
+          await this.userModel.updateOne(
+            { _id: newUser._id }, 
+            { txHash }, 
+            { session }
+          );
+        } catch (blockchainError) {
+          throw new Error('Blockchain transaction failed: ' + blockchainError.message);
+        }
+
+        await session.commitTransaction();
+        return newUser._id;
+
+      } catch (error) {
+        await session.abortTransaction();
+        throw new BadRequestException(error.message);
+      } finally {
+        session.endSession();
       }
-
-      const hashPassword = this.getHashPassword(password);
-      const employeeData = {};
-      const txHash = await this.blockchainService.addEmployee(
-        employeeData,
-        createUserDto.employeeId,
-      );
-      console.log(txHash);
-
-      let newUser = await this.userModel.create({
-        name,
-        email,
-        password: hashPassword,
-        employeeId: createUserDto.employeeId,
-        position,
-        department,
-        role,
-        dayOff: 0,
-        workingHours: workingHours || 0,
-        txHash,
-        avatar,
-        createdBy: {
-          _id: user._id,
-          email: user.email,
-        },
-      });
-
-      //update department
-      if (createUserDto.department) {
-        const department = await this.departmentService.findOne(
-          createUserDto.department.toString(),
-        );
-        department.employees.push(newUser._id as any);
-        await this.departmentService.update(
-          department._id.toString(),
-          {
-            employees: department.employees,
-          },
-          System,
-        );
-      }
-      return newUser._id;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
@@ -333,6 +322,12 @@ export class UsersService {
       _id: id,
     });
     if (!idExist) throw new BadRequestException('User not found !');
+    console.log('Employee ID: >>>>>>', idExist.employeeId);
+    console.log('Update Employee ID: >>>>>>', updateUserDto.employeeId);
+    // Validate employeeId
+    if (idExist.employeeId !== updateUserDto.employeeId) {
+      throw new BadRequestException('You cannot update employee ID !');
+    }
 
     //update in blockchain
     let txHash: string;

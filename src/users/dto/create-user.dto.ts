@@ -1,5 +1,6 @@
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
+  IsArray,
   IsDate,
   IsEmail,
   IsMongoId,
@@ -7,8 +8,20 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
 import mongoose from 'mongoose';
+
+export class AdjustmentDto {
+  @IsNumber()
+  amount: number;
+
+  @IsString()
+  reason: string;
+
+  @IsOptional()
+  createdAt?: Date;
+}
 
 export class CreateUserDto {
   @IsNotEmpty({ message: 'Name must not be empty !' })
@@ -41,8 +54,81 @@ export class CreateUserDto {
   @IsMongoId()
   department: mongoose.Schema.Types.ObjectId;
 
+  @IsOptional()
+  @IsNumber()
+  netSalary: number;
 
   @IsOptional()
+  avatar: string;
+
+  @IsOptional({ message: 'Personal Identificaion Number must not be empty !' })
   @IsString()
-  avatar?: string;
+  personalIdentificationNumber: string;
+
+  @IsOptional()
+  dateOfBirth: Date;
+
+  @IsOptional()
+  personalPhoneNumber: string;
+
+  @IsOptional()
+  male: boolean;
+
+  @IsOptional()
+  nationality: string;
+
+  @IsOptional()
+  permanentAddress: string;
+
+  @IsOptional()
+  biometricData: string;
+
+  @IsOptional()
+  @IsMongoId()
+  employeeContractCode: mongoose.Schema.Types.ObjectId;
+
+  @IsOptional()
+  @IsNumber()
+  salary: number;
+
+  @IsOptional()
+  @IsNumber()
+  allowances: number;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AdjustmentDto)
+  adjustments: AdjustmentDto[];
+
+  @IsOptional()
+  @IsNumber()
+  loansSupported: number;
+
+  @IsOptional()
+  healthCheckRecordCode: string[];
+
+  @IsOptional()
+  medicalHistory: string;
+
+  @IsOptional()
+  healthInsuranceCode: string;
+
+  @IsOptional()
+  lifeInsuranceCode: string;
+
+  @IsOptional({ message: 'Social Insurance Number must not be empty !' })
+  @IsString()
+  socialInsuranceNumber: string;
+
+  @IsOptional({
+    message: 'Personal Tax Idenification Number must not be empty !',
+  })
+  
+  @IsString()
+  personalTaxIdentificationNumber: string;
+
+  @IsOptional({ message: 'Bank Account must not be empty !' })
+  @IsString()
+  backAccountNumber: string;
 }

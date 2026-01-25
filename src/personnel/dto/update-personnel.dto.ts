@@ -8,7 +8,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { AdjustmentDto } from 'src/users/dto/update-user.dto';
+import { AdjustmentDto } from 'src/users/dto/create-user.dto';
 
 export class UpdatePersonnelDto extends PartialType(CreatePersonnelDto) {
   @IsNotEmpty()

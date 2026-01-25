@@ -1,5 +1,5 @@
 import mongoose, { Types } from 'mongoose';
-import { AdjustmentDto } from './dto/update-user.dto';
+import { AdjustmentDto } from './dto/create-user.dto';
 
 export interface IUser {
   _id: string;
