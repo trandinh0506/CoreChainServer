@@ -7,6 +7,10 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { TransformInterceptor } from './core/transform.interceptor';
 import cookieParser from 'cookie-parser';
 import { IoAdapter } from '@nestjs/platform-socket.io';
+import * as dns from 'dns';
+
+// Fix for Node 22 DNS resolution with MongoDB Atlas
+dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1', '1.0.0.1']);
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

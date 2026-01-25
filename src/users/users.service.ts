@@ -225,6 +225,32 @@ export class UsersService {
     };
   }
 
+  async findAllByIds(ids: string[]) {
+    if (!ids || ids.length === 0) {
+      return [];
+    }
+
+    const invalidIds = ids.filter((id) => !mongoose.Types.ObjectId.isValid(id));
+    if (invalidIds.length > 0) {
+      throw new BadRequestException(
+        `Invalid user IDs: ${invalidIds.join(', ')}`,
+      );
+    }
+
+    return await this.userModel
+      .find({
+        _id: { $in: ids },
+        isDeleted: false,
+      })
+      .select('-password -refreshToken')
+      .populate([
+        { path: 'role', select: { name: 1, _id: 1 } },
+        { path: 'position', select: '_id title' },
+        { path: 'department', select: '_id name' },
+      ])
+      .lean();
+  }
+
   async findOnePublic(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid user ID`);
@@ -356,6 +382,36 @@ export class UsersService {
         throw error;
       }
     }
+
+    //update department 
+    if (updateUserDto.department && updateUserDto.department !== idExist.department) {
+      const department = await this.departmentService.findOne(
+        idExist.department.toString(),
+      );
+      department.employees = department.employees.filter(
+        (empId) => empId.toString() !== idExist._id.toString(),
+      );
+      await this.departmentService.update(
+        department._id.toString(),
+        {
+          employees: department.employees,
+        },
+        System,
+      );
+
+      const newDepartment = await this.departmentService.findOne(
+        updateUserDto.department.toString(),
+      );
+      newDepartment.employees.push(idExist._id as any);
+      await this.departmentService.update(
+        newDepartment._id.toString(),
+        {
+          employees: newDepartment.employees,
+        },
+        user,
+      );
+    }
+
     //delete cached
     const cachedEmployee = await this.getCached(id);
     if (cachedEmployee) {

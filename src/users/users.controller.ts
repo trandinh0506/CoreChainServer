@@ -38,6 +38,11 @@ export class UsersController {
     return this.usersService.findAll(+currentPage, +limit, qs);
   }
 
+  @Post('by-ids')
+  findAllByIds(@Body('ids') ids: string[]) {
+    return this.usersService.findAllByIds(ids);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
