@@ -4,7 +4,6 @@ import { ProjectsController } from './projects.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Project, ProjectSchema } from './schemas/project.schema';
 import { TasksModule } from 'src/tasks/tasks.module';
-import { TasksService } from 'src/tasks/tasks.service';
 import { Task, TaskSchema } from 'src/tasks/schemas/task.schema';
 import { UsersModule } from 'src/users/users.module';
 import { DepartmentsModule } from 'src/departments/departments.module';

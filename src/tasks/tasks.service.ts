@@ -149,6 +149,7 @@ export class TasksService {
   }
   async findAll(currentPage: number, limit: number, qs: string) {
     let { filter, skip, sort, projection, population = [] } = aqp(qs);
+    console.log(filter);
     delete filter.current;
     delete filter.pageSize;
     filter.isDeleted = false;
@@ -178,7 +179,62 @@ export class TasksService {
     // );
 
     // const tasksWithProjectName = result.map((task) => ({
-    //   ...task.toObject(),
+    //   ...task,
+    //   projectName: projectMap.get(task.projectId?.toString()) || null,
+    // }));
+    return {
+      meta: {
+        current: currentPage,
+        pageSize: limit,
+        pages: totalPages,
+        total: totalItems,
+      },
+      // result: tasksWithProjectName,
+      result,
+    };
+  }
+
+  async findAllByDay(currentPage: number, limit: number, startDate: string, dueDate: string, user: IUser) {
+    if (!startDate) {
+      startDate = START_OF_MONTH.toISOString();
+    }
+    if (!dueDate) {
+      dueDate = END_OF_MONTH.toISOString();
+    }
+
+    let offset = (+currentPage - 1) * +limit;
+    let defaultLimit = +limit ? +limit : 10;
+
+    const totalItems = (await this.taskModel.find({
+      "startDate": {$gte: startDate},
+      "dueDate": {$lte: dueDate},
+      assignedTo: user._id,
+    })).length;
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+    const result: ITask[] = await this.taskModel
+      .find({
+        "startDate": {$gte: startDate},
+        "dueDate": {$lte: dueDate},
+        assignedTo: user._id,
+      })
+      .skip(offset)
+      .limit(defaultLimit)
+      .exec();
+
+    // find project and add project.name to task
+    // const projectIds = result
+    //   .map((task) => task.projectId?.toString())
+    //   .filter(Boolean);
+
+    // const projects = await Promise.all(
+    //   projectIds.map((id) => this.projectService.findOne(id)),
+    // );
+    // const projectMap = new Map(
+    //   projects.map((project) => [project._id.toString(), project.name]),
+    // );
+
+    // const tasksWithProjectName = result.map((task) => ({
+    //   ...task,
     //   projectName: projectMap.get(task.projectId?.toString()) || null,
     // }));
     return {

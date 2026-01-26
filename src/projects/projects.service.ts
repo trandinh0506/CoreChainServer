@@ -6,7 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Project, ProjectDocument } from './schemas/project.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import aqp from 'api-query-params';
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { TasksService } from 'src/tasks/tasks.service';
 import { IProject } from './project.interface';
 import { DepartmentsService } from 'src/departments/departments.service';
@@ -65,13 +65,16 @@ export class ProjectsService {
 
   async findAll(currentPage: number, limit: number, qs: string) {
     let { filter, skip, sort, projection, population = [] } = aqp(qs);
+
     delete filter.current;
     delete filter.pageSize;
     filter.isDeleted = false;
     let offset = (+currentPage - 1) * +limit;
     let defaultLimit = +limit ? +limit : 10;
 
-    const totalItems = (await this.projectModel.find(filter)).length;
+    const allProjects = await this.projectModel.find(filter);
+
+    const totalItems = allProjects.length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
     population.push({ path: 'tasks', select: '_id name' });
     population.push({ path: 'manager', select: '_id name email' });
