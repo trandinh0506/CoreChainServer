@@ -41,6 +41,22 @@ export const END_OF_MONTH = new Date(
   59,
   999,
 );
+
+export const START_OF_YEAR = new Date(
+  new Date().getFullYear(),
+  0,
+  1,
+);
+export const END_OF_YEAR = new Date(
+  new Date().getFullYear(),
+  11,
+  31,
+  23,
+  59,
+  59,
+  999,
+);
+
 export const System: IUser = {
   _id: 'System',
   name: 'System',

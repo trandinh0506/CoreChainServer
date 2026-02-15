@@ -145,8 +145,10 @@ export class UsersService {
         if (isExist) throw new BadRequestException('Email already exists');
 
         const hashPassword = this.getHashPassword(createUserDto.password);
+        const { employeeId, privateData, publicData } = this.splitData(createUserDto);
+
         const [newUser] = await this.userModel.create([{
-          ...createUserDto,
+          ...publicData,
           password: hashPassword,
           createdBy: { _id: user._id, email: user.email }
         }], { session });
@@ -164,7 +166,6 @@ export class UsersService {
             System,
           );
         }
-        const { employeeId, privateData } = this.splitData(createUserDto);
         // Update blockchain
         try {
           const txHash = await this.blockchainService.addEmployee(

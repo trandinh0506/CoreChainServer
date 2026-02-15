@@ -27,20 +27,11 @@ export class TasksController {
   findAll(
     @Query('current') currentPage: string,
     @Query('pageSize') limit: string,
-    @Query() qs: string,
-  ) {
-    return this.tasksService.findAll(+currentPage, +limit, qs);
-  }
-
-  @Get('by-day')
-  findAllByDay(
-    @Query('current') currentPage: string,
-    @Query('pageSize') limit: string,
     @Query('startDate') startDate: string,
     @Query('dueDate') dueDate: string,
-    @User() user: IUser
+    @Query() qs: string,
   ) {
-    return this.tasksService.findAllByDay(+currentPage, +limit, startDate, dueDate, user);
+    return this.tasksService.findAll(+currentPage, +limit, startDate, dueDate, qs);
   }
 
   @Get(':id')

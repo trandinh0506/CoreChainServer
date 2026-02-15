@@ -27,9 +27,11 @@ export class ProjectsController {
   findAll(
     @Query('current') currentPage: string,
     @Query('pageSize') limit: string,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
     @Query() qs: string,
   ) {
-    return this.projectsService.findAll(+currentPage, +limit, qs);
+    return this.projectsService.findAll(+currentPage, +limit, startDate, endDate, qs);
   }
 
   @Get(':id')

@@ -10,6 +10,7 @@ import mongoose, { Types } from 'mongoose';
 import { TasksService } from 'src/tasks/tasks.service';
 import { IProject } from './project.interface';
 import { DepartmentsService } from 'src/departments/departments.service';
+import { END_OF_YEAR, START_OF_YEAR } from 'src/decorators/customize';
 
 @Injectable()
 export class ProjectsService {
@@ -63,7 +64,7 @@ export class ProjectsService {
     return newProject._id;
   }
 
-  async findAll(currentPage: number, limit: number, qs: string) {
+  async findAll(currentPage: number, limit: number, startDate: string, endDate: string, qs: string) {
     let { filter, skip, sort, projection, population = [] } = aqp(qs);
 
     delete filter.current;
@@ -71,7 +72,12 @@ export class ProjectsService {
     filter.isDeleted = false;
     let offset = (+currentPage - 1) * +limit;
     let defaultLimit = +limit ? +limit : 10;
-
+    if (startDate) {
+      filter.startDate = { $gte: startDate };
+    }
+    if (endDate) {
+      filter.endDate = { $lte: endDate };
+    }
     const allProjects = await this.projectModel.find(filter);
 
     const totalItems = allProjects.length;
