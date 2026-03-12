@@ -10,10 +10,10 @@ describe('PermissionsService', () => {
   let service: PermissionsService;
 
   const mockUser: IUser = {
-    _id: new Types.ObjectId().toString(),
+    _id: new string().toString(),
     email: 'test@example.com',
     name: 'Test User',
-    role: { _id: new Types.ObjectId().toString(), name: 'Admin' },
+    role: { _id: new string().toString(), name: 'Admin' },
   };
 
   const mockPermissionModel = {
@@ -52,7 +52,7 @@ describe('PermissionsService', () => {
       };
 
       const mockCreatedPermission = {
-        _id: new Types.ObjectId(),
+        _id: new string(),
         ...createPermissionDto,
       };
 
@@ -84,7 +84,7 @@ describe('PermissionsService', () => {
       };
 
       mockPermissionModel.findOne.mockResolvedValue({
-        _id: new Types.ObjectId(),
+        _id: new string(),
       });
 
       await expect(
@@ -97,7 +97,7 @@ describe('PermissionsService', () => {
     it('should return paginated permissions', async () => {
       const mockPermissions = [
         {
-          _id: new Types.ObjectId(),
+          _id: new string(),
           name: 'Test Permission',
           apiPath: '/api/test',
           method: 'GET',
@@ -128,9 +128,9 @@ describe('PermissionsService', () => {
 
   describe('findOne', () => {
     it('should return a single permission', async () => {
-      const permissionId = new Types.ObjectId().toString();
+      const permissionId = new string().toString();
       const mockPermission = {
-        _id: new Types.ObjectId(permissionId),
+        _id: new string(permissionId),
         name: 'Test Permission',
         apiPath: '/api/test',
         method: 'GET',
@@ -156,7 +156,7 @@ describe('PermissionsService', () => {
 
   describe('update', () => {
     it('should update a permission', async () => {
-      const permissionId = new Types.ObjectId().toString();
+      const permissionId = new string().toString();
       const updatePermissionDto = {
         name: 'Updated Permission',
       };
@@ -192,7 +192,7 @@ describe('PermissionsService', () => {
 
   describe('remove', () => {
     it('should remove a permission', async () => {
-      const permissionId = new Types.ObjectId().toString();
+      const permissionId = new string().toString();
       const mockDeleteResult = { acknowledged: true, deletedCount: 1 };
 
       mockPermissionModel.updateOne.mockResolvedValue({ acknowledged: true });

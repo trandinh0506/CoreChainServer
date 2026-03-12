@@ -9,7 +9,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import mongoose from 'mongoose';
+
 
 export class CreateProjectDto {
   @IsNotEmpty()
@@ -22,19 +22,19 @@ export class CreateProjectDto {
   attachments: Array<string>;
 
   @IsNotEmpty()
-  department: mongoose.Schema.Types.ObjectId;
+  department: string;
 
   @IsNotEmpty()
-  manager: mongoose.Schema.Types.ObjectId;
+  manager: string;
 
   @IsOptional()
   @IsArray()
-  teamMembers: Array<mongoose.Schema.Types.ObjectId>;
+  teamMembers: Array<string>;
 
   @IsOptional()
   @IsArray()
   @IsMongoId({ each: true })
-  tasks: Array<mongoose.Schema.Types.ObjectId>;
+  tasks: Array<string>;
 
   @IsOptional()
   expenses: Array<{

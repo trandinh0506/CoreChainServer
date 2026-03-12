@@ -5,15 +5,12 @@ import {
   Logger,
 } from '@nestjs/common';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
-import { UpdateFeedbackDto } from './dto/update-feedback.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Feedback, FeedbackDocument } from './schemas/feedback.schema';
-import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Feedback } from './entities/feedback.entity';
 import { SecurityService } from 'src/security/security.service';
 import { DecryptRequestDto } from './dto/decrypt-request.dto';
 import { IUser } from 'src/users/users.interface';
-import aqp from 'api-query-params';
-import mongoose from 'mongoose';
 import { IFeedback } from './feedback.interface';
 
 @Injectable()
@@ -21,10 +18,14 @@ export class FeedbackService {
   private readonly logger = new Logger(FeedbackService.name);
 
   constructor(
-    @InjectModel(Feedback.name)
-    private feedbackModel: SoftDeleteModel<FeedbackDocument>,
+    @InjectRepository(Feedback)
+    private feedbackRepository: Repository<Feedback>,
     private encryptionService: SecurityService,
   ) {}
+
+  isValidId(id: string) {
+    return /^[0-9a-fA-F]{24}$/.test(id) || /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+  }
 
   async createFeedback(createFeedbackDto: CreateFeedbackDto) {
     const { category, title, content } = createFeedbackDto;
@@ -32,18 +33,19 @@ export class FeedbackService {
       createFeedbackDto.sender.toString(),
     );
 
-    const newFeedback = await this.feedbackModel.create({
+    const newFeedback = this.feedbackRepository.create({
       encryptedEmployeeId,
       category,
       title,
       content,
       isFlagged: this.shouldFlagFeedback(createFeedbackDto.content),
     });
-    return newFeedback._id;
+    
+    const saved = await this.feedbackRepository.save(newFeedback);
+    return saved._id;
   }
+  
   private shouldFlagFeedback(content: string): boolean {
-    // Violence, Suicide, Abuse and exploitation, Sensitive and sexual, banned substances, Extremist and hateful language
-    // prettier-ignore
     const flagWords = [
       'threat', 'illegal', 'violence', 'harassment', 'bomb', 'kill', 'attack', 'murder', 'assault', 'shoot',
       'stab', 'hijack', 'terrorist', 'explode', 'gun', 'rifle', 'pistol', 'knife', 'rape', 'abuse', 'robbery',
@@ -64,7 +66,9 @@ export class FeedbackService {
     decryptRequest: DecryptRequestDto,
     user: IUser,
   ): Promise<string> {
-    const feedback = await this.feedbackModel.findById(feedbackId);
+    if (!this.isValidId(feedbackId)) throw new BadRequestException(`Invalid feedback ID`);
+    
+    const feedback = await this.feedbackRepository.findOne({ where: { _id: feedbackId } });
     if (!feedback) {
       throw new Error('Feedback not found');
     }
@@ -81,14 +85,6 @@ export class FeedbackService {
       );
     }
 
-    // await this.auditLogService.logDecryptionAttempt({
-    //   feedbackId,
-    //   requestedBy: requestingUser,
-    //   approvedBy: decryptRequest.approvedBy,
-    //   reason: decryptRequest.reason,
-    //   timestamp: new Date(),
-    // });
-
     const decryptedId = this.encryptionService.decryptEmployeeId(
       feedback.encryptedEmployeeId,
       decryptRequest.secretKey,
@@ -97,18 +93,15 @@ export class FeedbackService {
       throw new BadRequestException('Incorrect secret key !');
     }
 
-    await this.feedbackModel.updateOne(
-      { feedbackId },
-      {
-        wasDecrypted: true,
-        decryptionReason: decryptRequest.reason,
-        approvedBy: decryptRequest.approvedBy,
-        decryptedBy: {
-          _id: user._id,
-          email: user.email,
-        },
-      },
-    );
+    feedback.wasDecrypted = true;
+    feedback.decryptionReason = decryptRequest.reason;
+    feedback.approvedBy = decryptRequest.approvedBy;
+    feedback.decryptedBy = {
+      _id: user._id,
+      email: user.email,
+    };
+    
+    await this.feedbackRepository.save(feedback);
 
     this.logger.warn(
       `Employee ID for feedback ${feedbackId} was decrypted by ${user.name}`,
@@ -118,23 +111,16 @@ export class FeedbackService {
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
-    const { filter, skip, sort, projection, population } = aqp(qs);
-    delete filter.current;
-    delete filter.pageSize;
-    filter.isDeleted = false;
-    let offset = (+currentPage - 1) * +limit;
-    let defaultLimit = +limit ? +limit : 10;
+    let offset = (+currentPage - 1) * (+limit || 10);
+    let defaultLimit = +limit || 10;
 
-    const totalItems = (await this.feedbackModel.find(filter)).length;
+    const [result, totalItems] = await this.feedbackRepository.findAndCount({
+      skip: offset,
+      take: defaultLimit,
+      where: { isDeleted: false },
+    });
+
     const totalPages = Math.ceil(totalItems / defaultLimit);
-
-    const result: IFeedback[] = await this.feedbackModel
-      .find(filter)
-      .skip(offset)
-      .limit(defaultLimit)
-      .sort(sort as any)
-      .populate(population)
-      .exec();
 
     return {
       meta: {
@@ -143,30 +129,32 @@ export class FeedbackService {
         pages: totalPages,
         total: totalItems,
       },
-      result,
+      result: result as unknown as IFeedback[],
     };
   }
 
   async findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!this.isValidId(id)) {
       throw new BadRequestException(`Invalid feedback ID`);
     }
-    return (await this.feedbackModel.findById(id)) as IFeedback;
+    return (await this.feedbackRepository.findOne({ where: { _id: id } })) as unknown as IFeedback;
   }
 
   async remove(id: string, user: IUser) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!this.isValidId(id)) {
       throw new BadRequestException(`Invalid feedback ID`);
     }
-    await this.feedbackModel.updateOne(
-      { _id: id },
-      {
-        deletedBy: {
-          _id: user._id,
-          email: user.email,
-        },
-      },
-    );
-    return this.feedbackModel.softDelete({ _id: id });
+    const feedback = await this.feedbackRepository.findOne({ where: { _id: id } });
+    if (!feedback) throw new BadRequestException(`Invalid feedback ID`);
+    
+    feedback.deletedBy = {
+      _id: user._id,
+      email: user.email,
+    };
+    feedback.isDeleted = true;
+    feedback.deletedAt = new Date();
+    await this.feedbackRepository.save(feedback);
+    
+    return this.feedbackRepository.softDelete({ _id: id });
   }
 }

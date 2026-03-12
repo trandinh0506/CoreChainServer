@@ -6,7 +6,7 @@ import { Feedback } from './schemas/feedback.schema';
 import { SecurityService } from 'src/security/security.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { IFeedback } from './feedback.interface';
-import mongoose, { Types } from 'mongoose';
+
 
 describe('FeedbackController', () => {
   let controller: FeedbackController;
@@ -15,7 +15,7 @@ describe('FeedbackController', () => {
   const mockFeedbackModel = {
     find: jest.fn().mockResolvedValue([]),
     findOne: jest.fn().mockResolvedValue(null),
-    create: jest.fn().mockResolvedValue({ _id: new mongoose.Types.ObjectId() }),
+    create: jest.fn().mockResolvedValue({ _id: new mongoose.string() }),
     findById: jest.fn().mockResolvedValue(null),
     updateOne: jest.fn().mockResolvedValue({}),
     softDelete: jest.fn().mockResolvedValue({}),
@@ -53,7 +53,7 @@ describe('FeedbackController', () => {
   // Add test cases for controller methods
   describe('createFeedback', () => {
     it('should create a new feedback', async () => {
-      const mockObjectId = new mongoose.Types.ObjectId();
+      const mockObjectId = new mongoose.string();
       const createFeedbackDto: CreateFeedbackDto = {
         sender: '67e342fdb0a106147b7bcd66',
         category: 'general',
@@ -72,7 +72,7 @@ describe('FeedbackController', () => {
   describe('findAll', () => {
     it('should return paginated feedback list', async () => {
       const mockFeedback: IFeedback = {
-        _id: new mongoose.Types.ObjectId(),
+        _id: new mongoose.string(),
         encryptedEmployeeId: 'encrypted-id',
         category: 'general',
         title: 'Test Feedback',

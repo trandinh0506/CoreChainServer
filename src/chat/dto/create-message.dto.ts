@@ -1,15 +1,15 @@
 import {
-  IsMongoId,
+  IsUUID,
   IsString,
   IsOptional,
   ArrayNotEmpty,
 } from 'class-validator';
 
 export class CreateMessageDto {
-  @IsMongoId()
+  @IsUUID('all')
   conversationId: string;
 
-  @IsMongoId()
+  @IsUUID('all')
   senderId: string;
 
   @IsOptional()

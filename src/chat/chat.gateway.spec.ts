@@ -7,7 +7,7 @@ import { Message } from './schemas/message.schema';
 import { WsService } from 'src/ws/ws.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import mongoose from 'mongoose';
+
 
 describe('ChatGateway', () => {
   let gateway: ChatGateway;
@@ -109,10 +109,10 @@ describe('ChatGateway', () => {
     it('should return recent conversations', async () => {
       const mockConversations = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          _id: new mongoose.string(),
           participants: [
-            new mongoose.Types.ObjectId(),
-            new mongoose.Types.ObjectId(),
+            new mongoose.string(),
+            new mongoose.string(),
           ],
         },
       ];
@@ -128,7 +128,7 @@ describe('ChatGateway', () => {
       });
 
       const result = await gateway.getRecentConversations({
-        userId: new mongoose.Types.ObjectId().toString(),
+        userId: new mongoose.string().toString(),
       });
       expect(result).toBeDefined();
     });

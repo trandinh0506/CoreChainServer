@@ -10,7 +10,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import mongoose from 'mongoose';
+
 
 export class AdjustmentDto {
   @IsNumber()
@@ -35,7 +35,7 @@ export class CreateUserDto {
   password: string;
 
   @IsNotEmpty({ message: 'Role must not be empty !' })
-  role: mongoose.Schema.Types.ObjectId;
+  role: string;
 
   @IsOptional({ message: 'Working hours must not be empty !' })
   @Transform(({ value }) => (value === undefined ? 0 : value))
@@ -48,11 +48,11 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   @IsMongoId()
-  position: mongoose.Schema.Types.ObjectId;
+  position: string;
 
   @IsNotEmpty({ message: 'Department must not be empty !' })
   @IsMongoId()
-  department: mongoose.Schema.Types.ObjectId;
+  department: string;
 
   @IsOptional()
   @IsNumber()
@@ -85,7 +85,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsMongoId()
-  employeeContractCode: mongoose.Schema.Types.ObjectId;
+  employeeContractCode: string;
 
   @IsOptional()
   @IsNumber()

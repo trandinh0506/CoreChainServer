@@ -25,8 +25,8 @@ export class AuthService {
         const temp = await this.rolesService.findOne(userRole._id);
 
         const objUser = {
-          ...user.toObject(),
-          permissions: temp?.permissions ?? [],
+            ...user,
+            permissions: temp?.permissions ?? [],
         };
         return objUser;
       }

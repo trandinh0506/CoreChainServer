@@ -1,7 +1,7 @@
 import {
   IsArray,
   ArrayMinSize,
-  IsMongoId,
+  IsUUID,
   IsString,
   ValidateNested,
   ValidateIf,
@@ -10,7 +10,7 @@ import {
 import { Type } from 'class-transformer';
 
 export class AdminDto {
-  @IsMongoId({ message: 'Admin _id must be a valid mongoId.' })
+  @IsUUID('all', { message: 'Admin _id must be a valid UUID.' })
   _id: string;
 
   @IsString({ message: 'Admin name must be a string.' })
@@ -20,9 +20,9 @@ export class AdminDto {
 export class CreateConversationDto {
   @IsArray()
   @ArrayMinSize(2, { message: 'At least 2 participants in a conversation.' })
-  @IsMongoId({
+  @IsUUID('all', {
     each: true,
-    message: 'Each participant must be a valid mongoId.',
+    message: 'Each participant must be a valid UUID.',
   })
   participants: string[];
 

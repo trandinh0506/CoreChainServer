@@ -1,29 +1,27 @@
-import mongoose, { Types } from 'mongoose';
-
 export interface IDepartment {
-  _id: Types.ObjectId;
+  _id: string;
   name: string;
   code: string;
   description: string;
-  manager: mongoose.Schema.Types.ObjectId | string;
-  employees: Array<mongoose.Schema.Types.ObjectId | string>;
+  manager: string;
+  employees: Array<string>;
   status: string;
   budget: number;
-  projectIds: Array<mongoose.Schema.Types.ObjectId | string>;
+  projectIds: Array<string>;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
   createdBy: {
-    _id: mongoose.Schema.Types.ObjectId | string;
+    _id: string;
     email: string;
   };
   updatedBy: {
-    _id: mongoose.Schema.Types.ObjectId | string;
+    _id: string;
     email: string;
   };
   deletedBy: {
-    _id: mongoose.Schema.Types.ObjectId | string;
+    _id: string;
     email: string;
   };
 }

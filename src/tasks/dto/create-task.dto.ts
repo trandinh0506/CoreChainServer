@@ -10,7 +10,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import mongoose from 'mongoose';
+
 
 export class CreateTaskDto {
   @IsNotEmpty()
@@ -25,10 +25,10 @@ export class CreateTaskDto {
 
   @IsNotEmpty()
   @IsMongoId()
-  assignedTo: mongoose.Schema.Types.ObjectId;
+  assignedTo: string;
 
   @IsNotEmpty()
-  projectId: mongoose.Schema.Types.ObjectId;
+  projectId: string;
 
   @IsNotEmpty()
   priority: number;

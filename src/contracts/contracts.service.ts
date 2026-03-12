@@ -2,54 +2,55 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { IUser } from 'src/users/users.interface';
-import { InjectModel } from '@nestjs/mongoose';
-import { Contract, ContractDocument } from './schemas/contract.schema';
-import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-import aqp from 'api-query-params';
-import mongoose from 'mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Contract } from './entities/contract.entity';
 import { IContract } from './contract.interface';
 
 @Injectable()
 export class ContractsService {
   constructor(
-    @InjectModel(Contract.name)
-    private contractModel: SoftDeleteModel<ContractDocument>,
+    @InjectRepository(Contract)
+    private contractRepository: Repository<Contract>,
   ) {}
+
+  isValidId(id: string) {
+    return /^[0-9a-fA-F]{24}$/.test(id) || /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+  }
+
   async create(createContractDto: CreateContractDto, user: IUser) {
-    const isExist = await this.contractModel.findOne({
-      contractCode: createContractDto.contractCode,
+    const isExist = await this.contractRepository.findOne({
+      where: { contractCode: createContractDto.contractCode },
     });
     if (isExist) {
-      throw new BadRequestException('Contract already exist !');
+        throw new BadRequestException('Contract already exist !');
     }
-    const newContract = await this.contractModel.create({
+
+    const newContract = this.contractRepository.create({
       ...createContractDto,
+      employee: { _id: createContractDto.employee?.toString() } as any,
       createdBy: {
         _id: user._id,
         email: user.email,
       },
     });
-    return newContract._id;
+
+    const saved = await this.contractRepository.save(newContract);
+    return saved._id;
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
-    let { filter, skip, sort, projection, population = [] } = aqp(qs);
-    delete filter.current;
-    delete filter.pageSize;
-    filter.isDeleted = false;
-    let offset = (+currentPage - 1) * +limit;
-    let defaultLimit = +limit ? +limit : 10;
+    let offset = (+currentPage - 1) * (+limit || 10);
+    let defaultLimit = +limit || 10;
 
-    const totalItems = (await this.contractModel.find(filter)).length;
+    const [result, totalItems] = await this.contractRepository.findAndCount({
+      skip: offset,
+      take: defaultLimit,
+      where: { isDeleted: false },
+      relations: ['employee'], // Corresponds to population path='employee'
+    });
+
     const totalPages = Math.ceil(totalItems / defaultLimit);
-    population.push({ path: 'employee', select: 'name email' });
-    const result: IContract[] = await this.contractModel
-      .find(filter)
-      .skip(offset)
-      .limit(defaultLimit)
-      .sort(sort as any)
-      .populate(population)
-      .exec();
 
     return {
       meta: {
@@ -58,51 +59,52 @@ export class ContractsService {
         pages: totalPages,
         total: totalItems,
       },
-      result,
+      result: result as unknown as IContract[],
     };
   }
 
   async findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Invalid contract ID`);
-    }
-    return (await (
-      await this.contractModel.findById(id)
-    ).populate({
-      path: 'employee',
-      select: 'name email',
-    })) as IContract;
+    if (!this.isValidId(id)) throw new BadRequestException(`Invalid contract ID`);
+    const contract = await this.contractRepository.findOne({
+      where: { _id: id, isDeleted: false },
+      relations: ['employee'],
+    });
+
+    return contract as unknown as IContract;
   }
 
   async update(id: string, updateContractDto: UpdateContractDto, user: IUser) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Invalid contract ID`);
-    }
-    return this.contractModel.updateOne(
-      { _id: id },
-      {
-        ...updateContractDto,
-        updatedBy: {
-          _id: user._id,
-          email: user.email,
-        },
+    if (!this.isValidId(id)) throw new BadRequestException(`Invalid contract ID`);
+    const contract = await this.contractRepository.findOne({ where: { _id: id } });
+    if (!contract) throw new BadRequestException(`Invalid contract ID`);
+
+    const { employee, ...rest } = updateContractDto as any;
+    if (employee) contract.employee = { _id: employee.toString() } as any;
+
+    Object.assign(contract, {
+      ...rest,
+      updatedBy: {
+        _id: user._id,
+        email: user.email,
       },
-    );
+    });
+
+    return await this.contractRepository.save(contract);
   }
 
   async remove(id: string, user: IUser) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Invalid contract ID`);
-    }
-    await this.contractModel.updateOne(
-      { _id: id },
-      {
-        deletedBy: {
-          _id: id,
-          email: user.email,
-        },
-      },
-    );
-    return this.contractModel.softDelete({ _id: id });
+    if (!this.isValidId(id)) throw new BadRequestException(`Invalid contract ID`);
+    const contract = await this.contractRepository.findOne({ where: { _id: id } });
+    if (!contract) throw new BadRequestException(`Invalid contract ID`);
+
+    contract.deletedBy = {
+      _id: user._id,
+      email: user.email,
+    };
+    contract.isDeleted = true;
+    contract.deletedAt = new Date();
+    await this.contractRepository.save(contract);
+
+    return this.contractRepository.softDelete({ _id: id });
   }
 }

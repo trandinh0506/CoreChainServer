@@ -19,10 +19,10 @@ describe('PermissionsController', () => {
   };
 
   const mockUser: IUser = {
-    _id: new Types.ObjectId().toString(),
+    _id: new string().toString(),
     email: 'test@example.com',
     name: 'Test User',
-    role: { _id: new Types.ObjectId().toString(), name: 'Admin' },
+    role: { _id: new string().toString(), name: 'Admin' },
   };
 
   beforeEach(async () => {
@@ -53,7 +53,7 @@ describe('PermissionsController', () => {
         module: 'test',
       };
 
-      const expectedResult = new Types.ObjectId();
+      const expectedResult = new string();
       mockPermissionsService.create.mockResolvedValue(expectedResult);
 
       const result = await controller.create(createPermissionDto, mockUser);
@@ -77,7 +77,7 @@ describe('PermissionsController', () => {
         },
         result: [
           {
-            _id: new Types.ObjectId(),
+            _id: new string(),
             name: 'Test Permission',
             apiPath: '/api/test',
             method: 'GET',
@@ -97,9 +97,9 @@ describe('PermissionsController', () => {
 
   describe('findOne', () => {
     it('should return a single permission', async () => {
-      const permissionId = new Types.ObjectId().toString();
+      const permissionId = new string().toString();
       const expectedResult = {
-        _id: new Types.ObjectId(permissionId),
+        _id: new string(permissionId),
         name: 'Test Permission',
         apiPath: '/api/test',
         method: 'GET',
@@ -117,7 +117,7 @@ describe('PermissionsController', () => {
 
   describe('update', () => {
     it('should update a permission', async () => {
-      const permissionId = new Types.ObjectId().toString();
+      const permissionId = new string().toString();
       const updatePermissionDto: UpdatePermissionDto = {
         name: 'Updated Permission',
       };
@@ -142,7 +142,7 @@ describe('PermissionsController', () => {
 
   describe('remove', () => {
     it('should remove a permission', async () => {
-      const permissionId = new Types.ObjectId().toString();
+      const permissionId = new string().toString();
       const expectedResult = { acknowledged: true, deletedCount: 1 };
 
       mockPermissionsService.remove.mockResolvedValue(expectedResult);

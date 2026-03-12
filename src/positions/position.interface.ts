@@ -1,25 +1,25 @@
-import mongoose, { Types } from 'mongoose';
+
 
 export interface IPosition {
-  _id: Types.ObjectId;
+  _id: string;
   title: string;
   description: string;
-  parentId: mongoose.Schema.Types.ObjectId;
+  parentId: string;
   level: number;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
   createdBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
   updatedBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
   deletedBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
 }

@@ -3,7 +3,7 @@ import { ContractsController } from './contracts.controller';
 import { ContractsService } from './contracts.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { Contract } from './schemas/contract.schema';
-import mongoose from 'mongoose';
+
 import { IUser } from '../users/users.interface';
 
 describe('ContractsController', () => {
@@ -11,10 +11,10 @@ describe('ContractsController', () => {
   let service: ContractsService;
 
   // Create valid MongoDB ObjectIds for testing
-  const mockContractId = new mongoose.Types.ObjectId().toString();
-  const mockEmployeeId = new mongoose.Types.ObjectId().toString();
-  const mockUserId = new mongoose.Types.ObjectId().toString();
-  const mockRoleId = new mongoose.Types.ObjectId().toString();
+  const mockContractId = new mongoose.string().toString();
+  const mockEmployeeId = new mongoose.string().toString();
+  const mockUserId = new mongoose.string().toString();
+  const mockRoleId = new mongoose.string().toString();
 
   const mockContractModel = {
     find: jest.fn().mockReturnValue({

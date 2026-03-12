@@ -1,14 +1,12 @@
 import { Module } from '@nestjs/common';
 import { PositionsService } from './positions.service';
 import { PositionsController } from './positions.controller';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Position, PositionSchema } from './schemas/position.schema';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Position } from './entities/position.entity';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: Position.name, schema: PositionSchema },
-    ]),
+    TypeOrmModule.forFeature([Position]),
   ],
   controllers: [PositionsController],
   providers: [PositionsService],

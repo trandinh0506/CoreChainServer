@@ -1,13 +1,11 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateUserDto } from './create-user.dto';
 import {
-  IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
-import mongoose from 'mongoose';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}
 
@@ -28,9 +26,9 @@ export class UpdatePublicUserDto extends PartialType(CreateUserDto) {
 }
 
 export class UpdatePassword {
-  @IsMongoId()
+  @IsString()
   @IsNotEmpty()
-  id: mongoose.Schema.Types.ObjectId;
+  id: string;
 
   @IsString()
   @IsNotEmpty()

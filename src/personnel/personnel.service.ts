@@ -14,24 +14,24 @@ import {
 } from 'src/decorators/customize';
 import { TasksService } from 'src/tasks/tasks.service';
 import { SalaryAdvanceDto } from './dto/salary-advance.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import {
-  SalaryAdvance,
-  SalaryAdvanceDocument,
-} from './schemas/salary-advance.schema';
-import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-import aqp from 'api-query-params';
-import mongoose from 'mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { SalaryAdvance } from './entities/salary-advance.entity';
 import { ISalaryAdvance } from './personnel.interface';
 
 @Injectable()
 export class PersonnelService {
   constructor(
-    @InjectModel(SalaryAdvance.name)
-    private salaryAdvanceModel: SoftDeleteModel<SalaryAdvanceDocument>,
+    @InjectRepository(SalaryAdvance)
+    private salaryAdvanceRepository: Repository<SalaryAdvance>,
     private userService: UsersService,
     private taskService: TasksService,
   ) {}
+
+  isValidId(id: string) {
+    return /^[0-9a-fA-F]{24}$/.test(id) || /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+  }
+
   async calSalary(id: string, user: IUser) {
     try {
       const employee: CompleteUser = await this.userService.findPrivateOne(id);
@@ -47,10 +47,10 @@ export class PersonnelService {
         )
         .reduce((total, adj) => total + adj.amount, 0);
       const netSalary = baseSalary + totalAdjustments + employee.allowances;
-      console.log(netSalary);
+      
       employee.netSalary = netSalary;
       employee.workingHours = 0;
-      await this.userService.update(employee as UpdateUserDto, user, id);
+      await this.userService.update(employee as unknown as UpdateUserDto, user, id);
       return netSalary;
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -59,72 +59,73 @@ export class PersonnelService {
 
   async salaryAdvance(salaryAdvanceDto: SalaryAdvanceDto, user: IUser) {
     const { amount, reason, returnDate } = salaryAdvanceDto;
-    const countSalaryAdvance = await this.salaryAdvanceModel.countDocuments({
-      _id: user._id,
-      isApproved: false,
+    
+    // Check pending requests
+    const countSalaryAdvance = await this.salaryAdvanceRepository.count({
+      where: {
+        employee: { _id: user._id },
+        isApproved: false,
+        isDeleted: false
+      }
     });
+
     if (amount <= 400 && countSalaryAdvance === 0) {
-      await this.salaryAdvanceModel.create({
-        employee: user._id,
+      const advance = this.salaryAdvanceRepository.create({
+        employee: { _id: user._id } as any,
         amount,
         reason,
         isApproved: true,
         approvedBy: 'System',
         returnDate,
       });
+      await this.salaryAdvanceRepository.save(advance);
       // Call Bank API to tranfer money automactically
     } else {
-      await this.salaryAdvanceModel.create({
-        employee: user._id,
+      const advance = this.salaryAdvanceRepository.create({
+        employee: { _id: user._id } as any,
         amount,
         reason,
         returnDate,
         isApproved: false,
       });
+      await this.salaryAdvanceRepository.save(advance);
     }
     return { message: 'Salary advance request successful !' };
   }
 
   async approveSalaryAdvance(user: IUser, id: string) {
-    await this.salaryAdvanceModel.updateOne(
-      { _id: id },
-      {
-        isApproved: true,
-        approvedBy: {
-          _id: user._id,
-          email: user.email,
-        },
-      },
-    );
+    if (!this.isValidId(id)) throw new BadRequestException(`Invalid salary advance ID`);
+    const advance = await this.salaryAdvanceRepository.findOne({ where: { _id: id } });
+    if (!advance) throw new BadRequestException(`Invalid salary advance ID`);
+
+    advance.isApproved = true;
+    advance.approvedBy = {
+      _id: user._id,
+      email: user.email,
+    };
+    await this.salaryAdvanceRepository.save(advance);
     // Call Bank API to tranfer money automactically
     return { message: 'Approved salary advance !' };
   }
 
   async findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!this.isValidId(id)) {
       throw new BadRequestException(`Invalid salary advance ID`);
     }
-    return (await this.salaryAdvanceModel.findById(id)) as ISalaryAdvance;
+    return (await this.salaryAdvanceRepository.findOne({ where: {_id: id } })) as unknown as ISalaryAdvance;
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
-    const { filter, skip, sort, projection, population } = aqp(qs);
-    delete filter.current;
-    delete filter.pageSize;
-    filter.isDeleted = false;
-    let offset = (+currentPage - 1) * +limit;
-    let defaultLimit = +limit ? +limit : 10;
+    let offset = (+currentPage - 1) * (+limit || 10);
+    let defaultLimit = +limit || 10;
 
-    const totalItems = (await this.salaryAdvanceModel.find(filter)).length;
+    const [result, totalItems] = await this.salaryAdvanceRepository.findAndCount({
+      skip: offset,
+      take: defaultLimit,
+      where: { isDeleted: false }
+    });
+
     const totalPages = Math.ceil(totalItems / defaultLimit);
-
-    const result: ISalaryAdvance[] = await this.salaryAdvanceModel
-      .find(filter)
-      .skip(offset)
-      .limit(defaultLimit)
-      .sort(sort as any)
-      .populate(population)
-      .exec();
 
     return {
       meta: {
@@ -133,14 +134,15 @@ export class PersonnelService {
         pages: totalPages,
         total: totalItems,
       },
-      result,
+      result: result as unknown as ISalaryAdvance[],
     };
   }
+
   async calKpi(id: string, user: IUser) {
     try {
       const notCompleteTask = await this.taskService.countTaskInMonth(0, id);
       const completeTask = await this.taskService.countTaskInMonth(3, id);
-      const kpi = (notCompleteTask / completeTask) * 100 || 0;
+      const kpi = completeTask ? (notCompleteTask / completeTask) * 100 : 0;
       const updateDto: UpdatePublicUserDto = { kpi: kpi };
       await this.userService.updatePublicUser(updateDto, user, id);
       return kpi;
@@ -148,6 +150,7 @@ export class PersonnelService {
       throw new BadRequestException(error.message);
     }
   }
+
   async addAdjustments(
     id: string,
     updatePersonnelDto: UpdatePersonnelDto,
@@ -159,7 +162,7 @@ export class PersonnelService {
     }
     updatePersonnelDto.adjustment.createdAt = new Date();
     employee.adjustments.push(updatePersonnelDto.adjustment);
-    return this.userService.update(employee as UpdateUserDto, user, id);
+    return this.userService.update(employee as unknown as UpdateUserDto, user, id);
   }
 
   async updateWorkingHours(

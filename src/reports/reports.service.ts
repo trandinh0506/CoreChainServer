@@ -6,7 +6,7 @@ import { DepartmentsService } from 'src/departments/departments.service';
 import { PositionsService } from 'src/positions/positions.service';
 import { END_OF_MONTH, START_OF_MONTH, System } from 'src/decorators/customize';
 import { PersonnelService } from 'src/personnel/personnel.service';
-import { CompleteUser } from 'src/users/users.interface';
+import { CompleteUser, PublicUser } from 'src/users/users.interface';
 import {
   IDayOff,
   IEmployeesDepartment,
@@ -38,7 +38,7 @@ export class ReportsService {
         );
         return {
           department: department.name,
-          employees: employees,
+          employees: employees as unknown as PublicUser[],
         } as IEmployeesDepartment;
       }),
     );
@@ -58,8 +58,8 @@ export class ReportsService {
     const newEmployees = (await this.userService.findAll(1, 1000, newQs))
       .result;
     return {
-      resignedEmployees,
-      newEmployees,
+      resignedEmployees: resignedEmployees as unknown as PublicUser[],
+      newEmployees: newEmployees as unknown as PublicUser[],
     } as IEmployeesTurnover;
   }
 

@@ -1,54 +1,51 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Role, RoleDocument } from './schemas/role.schema';
-import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Role } from './entities/role.entity';
 import { IUser } from 'src/users/users.interface';
-import mongoose from 'mongoose';
-import aqp from 'api-query-params';
 import { ADMIN_ROLE } from 'src/decorators/customize';
 import { IRole } from './role.interface';
 
 @Injectable()
 export class RolesService {
   constructor(
-    @InjectModel(Role.name) private roleModel: SoftDeleteModel<RoleDocument>,
+    @InjectRepository(Role)
+    private roleRepository: Repository<Role>,
   ) {}
+
   async create(createRoleDto: CreateRoleDto) {
     const { name, description, isActive, permissions } = createRoleDto;
-    const existRole = await this.roleModel.findOne({ name });
+    const existRole = await this.roleRepository.findOne({ where: { name } });
     if (existRole) {
       throw new BadRequestException('This role already exist !');
     }
-    const newRole = await this.roleModel.create({
+    
+    const permissionEntities = permissions?.map((id) => ({ _id: id as unknown as string })) || [];
+    
+    const newRole = this.roleRepository.create({
       name,
       description,
       isActive,
-      permissions,
+      permissions: permissionEntities as any,
     });
-    return newRole._id;
+    const saved = await this.roleRepository.save(newRole);
+    return saved._id;
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
-    const { filter, skip, sort, projection, population } = aqp(qs);
-    delete filter.current;
-    delete filter.pageSize;
+    let offset = (+currentPage - 1) * (+limit || 10);
+    let defaultLimit = +limit || 10;
 
-    let offset = (+currentPage - 1) * +limit;
-    let defaultLimit = +limit ? +limit : 10;
+    const [result, totalItems] = await this.roleRepository.findAndCount({
+      skip: offset,
+      take: defaultLimit,
+      relations: ['permissions'],
+    });
 
-    const totalItems = (await this.roleModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    const result: IRole[] = await this.roleModel
-      .find(filter)
-      .skip(offset)
-      .limit(defaultLimit)
-      .sort(sort as any)
-      .populate(population)
-      .select(projection as any)
-      .exec();
     return {
       meta: {
         current: currentPage,
@@ -61,49 +58,52 @@ export class RolesService {
   }
 
   async findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    const role = await this.roleRepository.findOne({
+      where: { _id: id },
+      relations: ['permissions'],
+    });
+    if (!role) {
       throw new BadRequestException(`Not found role with id=${id}`);
     }
-    const role: IRole = await this.roleModel
-      .findOne({ _id: id })
-      .populate([
-        { path: 'permissions', select: '_id apiPath name method module' },
-      ]);
-    return role;
+    return role as unknown as IRole;
   }
 
   async update(id: string, updateRoleDto: UpdateRoleDto, user: IUser) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    const role = await this.roleRepository.findOne({ where: { _id: id } });
+    if (!role) {
       throw new BadRequestException(`Not found role with id=${id}`);
     }
-    return await this.roleModel.updateOne(
-      { _id: id },
-      {
-        ...updateRoleDto,
-        updatedBy: {
-          _id: user._id,
-          email: user.email,
-        },
+
+    const { permissions, ...rest } = updateRoleDto;
+    if (permissions) {
+      role.permissions = permissions.map((pId) => ({ _id: pId as unknown as string })) as any;
+    }
+
+    Object.assign(role, {
+      ...rest,
+      updatedBy: {
+        _id: user._id,
+        email: user.email,
       },
-    );
+    });
+
+    return await this.roleRepository.save(role);
   }
 
   async remove(id: string, user: IUser) {
-    const foundRole = await this.roleModel.findById(id);
-    if (foundRole.name === ADMIN_ROLE)
-      throw new BadRequestException('Cannot delete admin role !');
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    const foundRole = await this.roleRepository.findOne({ where: { _id: id } });
+    if (!foundRole) {
       throw new BadRequestException(`Not found role with id=${id}`);
     }
-    await this.roleModel.updateOne(
-      { _id: id },
-      {
-        deletedBy: {
-          _id: user._id,
-          email: user.email,
-        },
-      },
-    );
-    return await this.roleModel.softDelete({ _id: id });
+    if (foundRole.name === ADMIN_ROLE)
+      throw new BadRequestException('Cannot delete admin role !');
+
+    foundRole.deletedBy = {
+      _id: user._id,
+      email: user.email,
+    };
+    foundRole.isDeleted = true;
+    await this.roleRepository.save(foundRole);
+    return await this.roleRepository.softDelete({ _id: id });
   }
 }

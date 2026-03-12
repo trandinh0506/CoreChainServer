@@ -1,16 +1,16 @@
-import mongoose, { Types } from 'mongoose';
+
 
 export interface ITask {
-  _id: Types.ObjectId;
+  _id: string;
   title: string;
   description: string;
   attachments: Array<string>;
   createdBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
-  assignedTo: mongoose.Schema.Types.ObjectId;
-  projectId: mongoose.Schema.Types.ObjectId;
+  assignedTo: string;
+  projectId: string;
   priority: number;
   status: number;
   startDate: Date;
@@ -20,11 +20,11 @@ export interface ITask {
   updatedAt: Date;
   deletedAt: Date;
   updatedBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
   deletedBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
 }

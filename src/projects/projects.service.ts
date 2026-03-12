@@ -2,107 +2,87 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { IUser } from 'src/users/users.interface';
-import { InjectModel } from '@nestjs/mongoose';
-import { Project, ProjectDocument } from './schemas/project.schema';
-import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-import aqp from 'api-query-params';
-import mongoose, { Types } from 'mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Project } from './entities/project.entity';
 import { TasksService } from 'src/tasks/tasks.service';
 import { IProject } from './project.interface';
 import { DepartmentsService } from 'src/departments/departments.service';
-import { END_OF_YEAR, START_OF_YEAR } from 'src/decorators/customize';
 
 @Injectable()
 export class ProjectsService {
   constructor(
-    @InjectModel(Project.name)
-    private projectModel: SoftDeleteModel<ProjectDocument>,
+    @InjectRepository(Project)
+    private projectRepository: Repository<Project>,
     private taskService: TasksService,
     private departmentService: DepartmentsService,
   ) {}
+
+  isValidId(id: string) {
+    return /^[0-9a-fA-F]{24}$/.test(id) || /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+  }
+
   async progressCalculation(id: string) {
     const taskCompleted = await this.taskService.countTask(3, id);
     const taskAmount = await this.taskService.countTask(0, id);
-    console.log(taskCompleted, taskAmount);
+    if (!taskAmount) return 0;
     return (taskCompleted / taskAmount) * 100;
   }
+
   async create(createProjectDto: CreateProjectDto, user: IUser) {
     const {
-      name,
-      description,
-      department,
-      manager,
-      attachments = [],
-      teamMembers = [],
-      tasks = [],
-      expenses = [],
-      revenue,
-      priority,
-      status,
-      startDate,
-      endDate,
-      actualEndDate,
+      name, description, department, manager, attachments = [],
+      teamMembers = [], tasks = [], expenses = [], revenue,
+      priority, status, startDate, endDate, actualEndDate,
     } = createProjectDto;
-    //calculate progess
-    const newProject = await this.projectModel.create({
-      name,
-      description,
-      department,
-      manager,
-      attachments,
-      teamMembers,
-      tasks,
-      expenses,
-      revenue,
-      priority,
-      status,
-      startDate,
-      endDate,
-      actualEndDate,
+
+    const newProject = this.projectRepository.create({
+      name, description, attachments, expenses, revenue,
+      priority, status, startDate, endDate, actualEndDate,
+      department: department ? { _id: department.toString() } as any : null,
+      manager: manager ? { _id: manager.toString() } as any : null,
+      teamMembers: teamMembers.map((id) => ({ _id: id.toString() })) as any,
+      tasks: tasks.map((id) => ({ _id: id.toString() })) as any,
+      createdBy: { _id: user._id, email: user.email },
     });
-    await this.departmentService.update(department.toString(), { $push: { projectIds: newProject._id } });
-    return newProject._id;
+
+    const saved = await this.projectRepository.save(newProject);
+
+    if (department) {
+      const dept = await this.departmentService.findOne(department.toString()) as any;
+      if (dept) {
+        if (!dept.projectIds) dept.projectIds = [];
+        dept.projectIds.push(saved._id);
+        await this.departmentService.update(department.toString(), { projectIds: dept.projectIds }, user);
+      }
+    }
+    return saved._id;
   }
 
   async findAll(currentPage: number, limit: number, startDate: string, endDate: string, qs: string) {
-    let { filter, skip, sort, projection, population = [] } = aqp(qs);
+    let offset = (+currentPage - 1) * (+limit || 10);
+    let defaultLimit = +limit || 10;
 
-    delete filter.current;
-    delete filter.pageSize;
-    filter.isDeleted = false;
-    let offset = (+currentPage - 1) * +limit;
-    let defaultLimit = +limit ? +limit : 10;
-    if (startDate) {
-      filter.startDate = { $gte: startDate };
-    }
-    if (endDate) {
-      filter.endDate = { $lte: endDate };
-    }
-    const allProjects = await this.projectModel.find(filter);
+    const whereClause: any = { isDeleted: false }; 
 
-    const totalItems = allProjects.length;
+    const [result, totalItems] = await this.projectRepository.findAndCount({
+      skip: offset,
+      take: defaultLimit,
+      where: whereClause,
+      relations: ['tasks', 'manager', 'teamMembers'],
+    });
+
     const totalPages = Math.ceil(totalItems / defaultLimit);
-    population.push({ path: 'tasks', select: '_id name' });
-    population.push({ path: 'manager', select: '_id name email' });
-    population.push({ path: 'teamMembers', select: '_id name email' });
-    const projects: IProject[] = await this.projectModel
-      .find(filter)
-      .skip(offset)
-      .limit(defaultLimit)
-      .sort(sort as any)
-      .populate(population)
-      .exec();
-
-    const projectIds = projects.map((p) => p._id);
+    const projects = result as unknown as IProject[];
 
     const taskCompletedCounts = await Promise.all(
-      projectIds.map((id) => this.taskService.countTask(3, id.toString())),
+      projects.map((p: any) => this.taskService.countTask(3, p._id)),
     );
     const taskTotalCounts = await Promise.all(
-      projectIds.map((id) => this.taskService.countTask(0, id.toString())),
+      projects.map((p: any) => this.taskService.countTask(0, p._id)),
     );
 
-    projects.forEach((project, index) => {
+    projects.forEach((project: any, index: number) => {
       const taskCompleted = taskCompletedCounts[index] || 0;
       const taskTotal = taskTotalCounts[index] || 1;
       project.progress = (taskCompleted / taskTotal) * 100;
@@ -118,53 +98,54 @@ export class ProjectsService {
       result: projects,
     };
   }
+
   async findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Invalid project ID`);
+    if (!this.isValidId(id)) throw new BadRequestException(`Invalid project ID`);
+    const project = await this.projectRepository.findOne({
+      where: { _id: id, isDeleted: false },
+      relations: ['teamMembers', 'manager'],
+    }) as any;
+    if (project) {
+        project.progress = await this.progressCalculation(id);
     }
-    const project: IProject = await this.projectModel
-      .findOne({ _id: id })
-      .populate([
-        { path: 'teamMembers', select: 'name email' },
-        { path: 'manager', select: 'name email' },
-      ])
-      .lean();
-    project.progress = await this.progressCalculation(id);
-    return project;
+    return project as IProject;
   }
 
   async update(id: string, updateProjectDto: UpdateProjectDto, user: IUser) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Invalid project ID`);
-    }
+    if (!this.isValidId(id)) throw new BadRequestException(`Invalid project ID`);
+
+    const project = await this.projectRepository.findOne({ where: { _id: id } });
+    if (!project) throw new BadRequestException('Project not found');
 
     const progress = await this.progressCalculation(id);
-    return this.projectModel.updateOne(
-      { _id: id },
-      {
-        progress: progress,
-        ...updateProjectDto,
-        updatedBy: {
-          _id: user._id,
-          email: user.email,
-        },
-      },
-    );
+    
+    // Convert related arrays
+    const { teamMembers, tasks, manager, department, ...rest } = updateProjectDto as any;
+    
+    if (teamMembers) project.teamMembers = teamMembers.map((mId: string) => ({ _id: mId.toString() })) as any;
+    if (tasks) project.tasks = tasks.map((tId: string) => ({ _id: tId.toString() })) as any;
+    if (manager) project.manager = { _id: manager.toString() } as any;
+    if (department) project.department = { _id: department.toString() } as any;
+
+    Object.assign(project, {
+      ...rest,
+      progress: progress,
+      updatedBy: { _id: user._id, email: user.email },
+    });
+
+    return await this.projectRepository.save(project);
   }
 
   async remove(id: string, user: IUser) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Invalid project ID`);
-    }
-    await this.projectModel.updateOne(
-      { _id: id },
-      {
-        deletedBy: {
-          _id: user._id,
-          email: user.email,
-        },
-      },
-    );
-    return this.projectModel.softDelete({ _id: id });
+    if (!this.isValidId(id)) throw new BadRequestException(`Invalid project ID`);
+    const project = await this.projectRepository.findOne({ where: { _id: id } });
+    if (!project) throw new BadRequestException('Project not found');
+
+    project.deletedBy = { _id: user._id, email: user.email };
+    project.isDeleted = true;
+    project.deletedAt = new Date();
+    await this.projectRepository.save(project);
+
+    return await this.projectRepository.softDelete({ _id: id });
   }
 }

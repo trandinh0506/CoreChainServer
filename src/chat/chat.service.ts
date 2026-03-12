@@ -1,19 +1,13 @@
 import { JwtService } from '@nestjs/jwt';
 import { Injectable, NotFoundException, Get } from '@nestjs/common';
 import { CreateConversationDto } from './dto/create-conversation.dto';
-import {
-  Conversation,
-  ConversationDocument,
-  ConversationPopulatedDocument,
-  PopulatedUser,
-} from './schemas/conversation.schema';
-import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-import { InjectModel } from '@nestjs/mongoose';
-import { Message, MessageDocument } from './schemas/message.schema';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Conversation } from './entities/conversation.entity';
+import { Message } from './entities/message.entity';
 import { WsService } from 'src/ws/ws.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { ConversationItem } from './declarations/conversationItem';
-import { Types } from 'mongoose';
 import { Server, Socket } from 'socket.io';
 import { IUser } from 'src/users/users.interface';
 import { ConfigService } from '@nestjs/config';
@@ -23,10 +17,10 @@ const CHAT_NAME_SPACE = '/chat';
 @Injectable()
 export class ChatService {
   constructor(
-    @InjectModel(Conversation.name)
-    private conversationModel: SoftDeleteModel<ConversationDocument>,
-    @InjectModel(Message.name)
-    private messageModel: SoftDeleteModel<MessageDocument>,
+    @InjectRepository(Conversation)
+    private conversationRepository: Repository<Conversation>,
+    @InjectRepository(Message)
+    private messageRepository: Repository<Message>,
     private readonly wsService: WsService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -38,7 +32,6 @@ export class ChatService {
     this.server = server;
   }
 
-  /** register client base on their namespace {namespace: {clientId: client}} */
   registerClient(client: Socket) {
     const token =
       client.handshake.auth?.token ||
@@ -55,11 +48,10 @@ export class ChatService {
         secret,
         ignoreExpiration: false,
       });
-      // Attach user info to the client
       client['user'] = payload;
 
       console.log('Client authenticated:', client.id);
-      this.clients.set(payload._id, client);
+      this.clients.set(payload._id.toString(), client); // Ensure _id is string
     } catch (error) {
       console.log('Invalid token. Disconnecting client:', client.id);
       return client.disconnect();
@@ -68,7 +60,6 @@ export class ChatService {
 
   removeClient(client: Socket) {}
 
-  /**  */
   emitToClient(clientId: string, event: string, data: any) {
     const client = this.clients.get(clientId);
     if (!client) {
@@ -77,7 +68,6 @@ export class ChatService {
     client.emit(event, data);
   }
 
-  /**  */
   joinRoom(client: Socket, room: string) {
     client.join(room);
   }
@@ -88,24 +78,27 @@ export class ChatService {
 
   // broadcast to a room base on their namespace
   broadcastToRoom(room: string, event: string, data: any) {}
+  
   async create(createConversationDto: CreateConversationDto) {
     const { participants, groupName, admin } = createConversationDto;
 
-    // Convert participants thành ObjectId[]
+    // Convert participants to string
     const conversationData: any = {
-      participants: participants.map((id) => new Types.ObjectId(id)),
+      participants: participants.map((id) => ({ _id: id.toString() })),
     };
 
     if (groupName) {
       conversationData.groupName = groupName;
       conversationData.admin = {
-        _id: new Types.ObjectId(admin._id),
+        _id: admin._id.toString(),
         name: admin.name,
       };
     }
 
-    return await this.conversationModel.create(conversationData);
+    const newConv = this.conversationRepository.create(conversationData);
+    return await this.conversationRepository.save(newConv);
   }
+  
   async getOrCreateDirectConversation({
     userId,
     otherId,
@@ -113,32 +106,32 @@ export class ChatService {
     userId: string;
     otherId: string;
   }) {
-    // convert id to object id
-    const userObjectId = new Types.ObjectId(userId);
-    const otherObjectId = new Types.ObjectId(otherId);
-    // first direct message between user and other user
-    const existingConversation = await this.conversationModel.findOne({
-      participants: { $all: [userObjectId, otherObjectId] },
-      groupName: { $exists: false },
+    // Requires a query builder to find conversations with exact participants
+    const qb = this.conversationRepository.createQueryBuilder('conversation')
+      .leftJoinAndSelect('conversation.participants', 'participant')
+      .where('conversation.groupName IS NULL');
+      
+    const conversations = await qb.getMany();
+    
+    // In-memory filter for exactly those two participants
+    const existingConversation = conversations.find(c => {
+      const pIds = c.participants.map(p => p._id);
+      return pIds.includes(userId) && pIds.includes(otherId) && pIds.length === 2;
     });
 
-    // return if they already have a conversation
     if (existingConversation) {
       return existingConversation;
     }
 
-    // if they don't have a conversation then create a conversation and return it
-    const newConversation = await this.conversationModel.create({
-      participants: [userObjectId, otherObjectId],
+    const newConversation = this.conversationRepository.create({
+      participants: [{ _id: userId } as any, { _id: otherId } as any],
     });
 
-    return newConversation;
+    return await this.conversationRepository.save(newConversation);
   }
 
   async getConversationById({ conversationId }: { conversationId: string }) {
-    const conversation = await this.conversationModel
-      .findById(conversationId)
-      .exec();
+    const conversation = await this.conversationRepository.findOne({ where: { _id: conversationId }, relations: ['participants'] });
     if (!conversation) {
       throw new NotFoundException(
         `Conversation with ID ${conversationId} not found.`,
@@ -154,61 +147,56 @@ export class ChatService {
     userId: string;
     lastConversationId?: string;
   }): Promise<ConversationItem[]> {
-    // filter conversation that this user joined
-    const filter: any = { participants: new Types.ObjectId(userId) };
-
-    // if lastConversationId is provided then find last conversation to get last activity
+    
+    let lastActivityFilter = null;
     if (lastConversationId) {
-      const lastConversation = await this.conversationModel
-        .findById(lastConversationId)
-        .exec();
-      if (lastConversation) {
-        filter.lastActivity = { $lt: lastConversation.lastActivity };
-      }
+      const lastConv = await this.conversationRepository.findOne({ where: { _id: lastConversationId } });
+      if (lastConv) lastActivityFilter = lastConv.lastActivity;
     }
 
-    // find 10 conversations sorted by lastActivity descending
-    const conversations = (await this.conversationModel
-      .find(filter)
-      .sort({ lastActivity: -1 })
-      .limit(10)
-      .populate({ path: 'participants', select: 'name' })
-      .exec()) as ConversationPopulatedDocument[];
-    // Mapping data into type of ConversationItem
+    const qb = this.conversationRepository.createQueryBuilder('conversation')
+      .leftJoinAndSelect('conversation.participants', 'participant')
+      .where('participant._id = :userId', { userId })
+      .orderBy('conversation.lastActivity', 'DESC')
+      .take(10);
+
+    if (lastActivityFilter) {
+      qb.andWhere('conversation.lastActivity < :lastActivity', { lastActivity: lastActivityFilter });
+    }
+
+    const conversations = await qb.getMany();
+
     const conversationItems: ConversationItem[] = await Promise.all(
       conversations.map(async (conv) => {
-        // find latest message
-        const latestMsgDoc = await this.messageModel
-          .findOne({ conversationId: conv._id })
-          .sort({ createdAt: -1 })
-          .exec();
+        const latestMsgDoc = await this.messageRepository.findOne({
+          where: { conversationId: conv._id, isDeleted: false },
+          order: { createdAt: 'DESC' }
+        });
+
         let name = '';
         let avatar = '';
-        // if group => display groupName
+
         if (conv.groupName) {
           name = conv.groupName;
-          avatar = 'https://picsum.photos/200'; // url for development only
+          avatar = 'https://picsum.photos/200';
         } else {
-          // if direct message => get the other name
-          // by populated participants with users collection we can access participant.name
-
           const otherParticipant = conv.participants.find(
-            (p: PopulatedUser) => p._id.toString() !== userId,
+            (p) => p._id !== userId,
           );
           if (otherParticipant) {
             name = otherParticipant.name;
-            avatar = 'https://picsum.photos/200'; // url for development only
+            avatar = 'https://picsum.photos/200';
           }
         }
         return {
-          id: conv._id.toString(),
+          id: conv._id,
           avatar,
           name,
           timestamp:
             conv.lastActivity?.toISOString() || new Date().toISOString(),
           latestMessage: latestMsgDoc?.content || '',
-          isTyping: false, // TODO: implement this
-          unreadCount: 0, // TODO: implement this
+          isTyping: false,
+          unreadCount: 0,
         };
       }),
     );
@@ -216,63 +204,55 @@ export class ChatService {
     return conversationItems;
   }
 
-  // message
   async createMessage(createMessageDto: CreateMessageDto) {
     const { conversationId, senderId, content, attachments } = createMessageDto;
 
-    const conversation = await this.conversationModel.findById(conversationId);
+    const conversation = await this.conversationRepository.findOne({ where: { _id: conversationId }, relations: ['participants'] });
     if (!conversation) {
       throw new NotFoundException(
         `Conversation with ID ${conversationId} not found.`,
       );
     }
 
-    const newMessage = await this.messageModel.create({
-      conversationId: new Types.ObjectId(conversationId),
-      senderId: new Types.ObjectId(senderId),
+    const newMessage = this.messageRepository.create({
+      conversationId: conversationId.toString(),
+      senderId: senderId.toString(),
       content,
       attachments,
       readBy: [],
       createdAt: new Date(),
       isDeleted: false,
     });
+    
+    const savedMsg = await this.messageRepository.save(newMessage);
 
-    // update last message
     conversation.lastActivity = new Date();
-    await conversation.save();
+    await this.conversationRepository.save(conversation);
 
     if (conversation.groupName) {
-      // broadcast to room
       this.wsService.broadcastToRoom(
         CHAT_NAME_SPACE,
         conversationId,
         'newMessage',
-        newMessage,
+        savedMsg,
       );
     } else {
-      // if the conversation is direct message then reciverId is the remaining element in participants
       const receiverIds = conversation.participants
-        .filter((participant) => participant.toString() !== senderId)
-        .map((id) => id.toString());
+        .filter((participant) => participant._id !== senderId)
+        .map((p) => p._id);
 
       if (receiverIds.length !== 1) {
         console.error(
           'Direct message error - Expected exactly 1 receiver, got:',
           { receiverIds },
         );
-        throw new Error(
-          'Invalid conversation participants for direct message.',
-        );
+      } else {
+        const receiverId = receiverIds[0];
+        this.emitToClient(receiverId, 'newMessage', savedMsg);
       }
-
-      const receiverId = receiverIds[0].toString();
-      console.log(receiverId);
-      // emit message to receiver
-      console.log();
-      this.emitToClient(receiverId, 'newMessage', newMessage);
     }
 
-    return newMessage;
+    return savedMsg;
   }
 
   async getMessages({
@@ -282,27 +262,24 @@ export class ChatService {
     conversationId: string;
     lastMessageId?: string;
   }): Promise<Message[]> {
-    // Xây dựng bộ lọc: conversationId phải khớp
-    const filter: any = { conversationId: new Types.ObjectId(conversationId) };
-
-    // Nếu có lastMessageId, tìm tin nhắn đó để lấy thời gian tạo và lọc các tin nhắn cũ hơn
+    
+    let lastMsgFilter = null;
     if (lastMessageId) {
-      const lastMessage = await this.messageModel
-        .findById(lastMessageId)
-        .exec();
-      if (lastMessage) {
-        filter.createdAt = { $lt: lastMessage.createdAt };
-      }
+       const last = await this.messageRepository.findOne({ where: { _id: lastMessageId } });
+       if (last) lastMsgFilter = last.createdAt;
     }
 
-    // Tìm 10 tin nhắn, sắp xếp theo createdAt giảm dần (tin mới nhất trước)
-    const messages = await this.messageModel
-      .find(filter)
-      .sort({ createdAt: -1 })
-      .limit(10)
-      .exec();
+    const qb = this.messageRepository.createQueryBuilder('message')
+      .where('message.conversationId = :cid', { cid: conversationId })
+      .andWhere('message.isDeleted = false')
+      .orderBy('message.createdAt', 'DESC')
+      .take(10);
+      
+    if (lastMsgFilter) {
+      qb.andWhere('message.createdAt < :lastAt', { lastAt: lastMsgFilter });
+    }
 
-    return messages;
+    return await qb.getMany();
   }
 
   findAll() {

@@ -1,14 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ContractsService } from './contracts.service';
 import { ContractsController } from './contracts.controller';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Contract, ContractSchema } from './schemas/contract.schema';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Contract } from './entities/contract.entity';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: Contract.name, schema: ContractSchema },
-    ]),
+    TypeOrmModule.forFeature([Contract]),
   ],
   controllers: [ContractsController],
   providers: [ContractsService],

@@ -2,28 +2,27 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { IUser } from 'src/users/users.interface';
-import { Permission, PermissionDocument } from './schemas/permission.schema';
-import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-import { InjectModel } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
-import aqp from 'api-query-params';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Permission } from './entities/permission.entity';
 import { IPermission } from './permission.interface';
 
 @Injectable()
 export class PermissionsService {
   constructor(
-    @InjectModel(Permission.name)
-    private permissionModel: SoftDeleteModel<PermissionDocument>,
+    @InjectRepository(Permission)
+    private permissionRepository: Repository<Permission>,
   ) {}
+
   async create(createPermissionDto: CreatePermissionDto, user: IUser) {
     const { name, apiPath, method, module } = createPermissionDto;
-    const existPer = await this.permissionModel.findOne({
-      apiPath: apiPath,
-      method: method,
+    const existPer = await this.permissionRepository.findOne({
+      where: { apiPath, method },
     });
     if (existPer)
       throw new BadRequestException('This permission already exist !');
-    const newPermission = await this.permissionModel.create({
+
+    const newPermission = this.permissionRepository.create({
       name,
       apiPath,
       method,
@@ -33,28 +32,22 @@ export class PermissionsService {
         email: user.email,
       },
     });
-    return newPermission._id;
+    const saved = await this.permissionRepository.save(newPermission);
+    return saved._id;
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
-    const { filter, skip, sort, projection, population } = aqp(qs);
-    delete filter.current;
-    delete filter.pageSize;
+    let offset = (+currentPage - 1) * (+limit || 10);
+    let defaultLimit = +limit || 10;
 
-    let offset = (+currentPage - 1) * +limit;
-    let defaultLimit = +limit ? +limit : 10;
+    const [result, totalItems] = await this.permissionRepository.findAndCount({
+      skip: offset,
+      take: defaultLimit,
+      // order: { createdAt: 'DESC' }
+    });
 
-    const totalItems = (await this.permissionModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    const result: IPermission[] = await this.permissionModel
-      .find(filter)
-      .skip(offset)
-      .limit(defaultLimit)
-      .sort(sort as any)
-      .populate(population)
-      .select(projection as any)
-      .exec();
     return {
       meta: {
         current: currentPage,
@@ -67,44 +60,41 @@ export class PermissionsService {
   }
 
   async findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    const permission = await this.permissionRepository.findOne({ where: { _id: id } });
+    if (!permission) {
       throw new BadRequestException(`Not found permission with id=${id}`);
     }
-    return (await this.permissionModel.findOne({ _id: id })) as IPermission;
+    return permission as unknown as IPermission;
   }
-  async update(
-    id: string,
-    updatePermissionDto: UpdatePermissionDto,
-    user: IUser,
-  ) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+
+  async update(id: string, updatePermissionDto: UpdatePermissionDto, user: IUser) {
+    const permission = await this.permissionRepository.findOne({ where: { _id: id } });
+    if (!permission) {
       throw new BadRequestException(`Not found permission with id=${id}`);
     }
-    return await this.permissionModel.updateOne(
-      { _id: id },
-      {
-        ...updatePermissionDto,
-        updatedBy: {
-          _id: user._id,
-          email: user.email,
-        },
+
+    Object.assign(permission, {
+      ...updatePermissionDto,
+      updatedBy: {
+        _id: user._id,
+        email: user.email,
       },
-    );
+    });
+
+    return await this.permissionRepository.save(permission);
   }
 
   async remove(id: string, user: IUser) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    const permission = await this.permissionRepository.findOne({ where: { _id: id } });
+    if (!permission) {
       throw new BadRequestException(`Not found permission with id=${id}`);
     }
-    await this.permissionModel.updateOne(
-      { _id: id },
-      {
-        deletedBy: {
-          _id: user._id,
-          email: user.email,
-        },
-      },
-    );
-    return await this.permissionModel.softDelete({ _id: id });
+    permission.deletedBy = {
+      _id: user._id,
+      email: user.email,
+    };
+    permission.isDeleted = true;
+    await this.permissionRepository.save(permission);
+    return await this.permissionRepository.softDelete({ _id: id });
   }
 }

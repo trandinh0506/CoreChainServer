@@ -2,65 +2,53 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
 import { IUser } from 'src/users/users.interface';
-import aqp from 'api-query-params';
-import { InjectModel } from '@nestjs/mongoose';
-import { Department, DepartmentDocument } from './schemas/department.schema';
-import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-import mongoose from 'mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Department } from './entities/department.entity';
 import { IDepartment } from './department.interface';
 
 @Injectable()
 export class DepartmentsService {
   constructor(
-    @InjectModel(Department.name)
-    private departmentModel: SoftDeleteModel<DepartmentDocument>,
+    @InjectRepository(Department)
+    private departmentRepository: Repository<Department>,
   ) {}
 
+  isValidId(id: string) {
+    return /^[0-9a-fA-F]{24}$/.test(id) || /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+  }
+
   async create(createDepartmentDto: CreateDepartmentDto, user: IUser) {
-    // const { name, code, description, manager, status, budget, projectIds } =
-    //   createDepartmentDto;
-    const isExist = await this.departmentModel.findOne({
-      code: createDepartmentDto.code,
+    const isExist = await this.departmentRepository.findOne({
+      where: { code: createDepartmentDto.code },
     });
     if (isExist) {
       throw new BadRequestException('Department already exist !');
     }
-    const newDepartment = await this.departmentModel.create({
-      // name,
-      // code,
-      // description,
-      // manager,
-      // status,
-      // budget,
-      // projectIds,
+    const newDepartment = this.departmentRepository.create({
       ...createDepartmentDto,
+      employees: [],
+      projectIds: [],
       createdBy: {
         _id: user._id,
         email: user.email,
       },
     });
-    return newDepartment._id;
+    const saved = await this.departmentRepository.save(newDepartment);
+    return saved._id;
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
-    let { filter, skip, sort, projection, population } = aqp(qs);
+    let offset = (+currentPage - 1) * (+limit || 10);
+    let defaultLimit = +limit || 10;
 
-    delete filter.current;
-    delete filter.pageSize;
-    filter.isDeleted = false;
+    const [result, totalItems] = await this.departmentRepository.findAndCount({
+      skip: offset,
+      take: defaultLimit,
+      where: { isDeleted: false }
+    });
 
-    let offset = (+currentPage - 1) * +limit;
-    let defaultLimit = +limit ? +limit : 10;
-
-    const totalItems = (await this.departmentModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-    const result: IDepartment[] = await this.departmentModel
-      .find(filter)
-      .skip(offset)
-      .limit(defaultLimit)
-      .sort(sort as any)
-      .populate(population)
-      .exec();
 
     return {
       meta: {
@@ -69,28 +57,24 @@ export class DepartmentsService {
         pages: totalPages,
         total: totalItems,
       },
-      result,
+      result: result as unknown as IDepartment[],
     };
   }
 
   async findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!this.isValidId(id)) {
       throw new BadRequestException(`Invalid department ID`);
     }
-    return (await this.departmentModel.findById(id).exec()) as IDepartment;
+    return (await this.departmentRepository.findOne({ where: { _id: id } })) as unknown as IDepartment;
   }
 
-  async update(
-    id: string,
-    updateDepartmentDto: UpdateDepartmentDto | any,
-    user?: IUser,
-  ) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+  async update(id: string, updateDepartmentDto: any, user?: IUser) {
+    if (!this.isValidId(id)) {
       throw new BadRequestException(`Invalid department ID`);
     }
-    console.log(updateDepartmentDto);
     
-    const updateData = user 
+    // In service it can be called internally by system
+    const updateData: any = user 
       ? {
           ...updateDepartmentDto,
           updatedBy: {
@@ -100,25 +84,23 @@ export class DepartmentsService {
         }
       : updateDepartmentDto;
     
-    return this.departmentModel.updateOne(
-      { _id: id },
-      updateData,
-    );
+    await this.departmentRepository.update(id, updateData);
+    return;
   }
 
   async remove(id: string, user: IUser) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!this.isValidId(id)) {
       throw new BadRequestException(`Invalid department ID`);
     }
-    await this.departmentModel.updateOne(
-      { _id: id },
-      {
-        updatedBy: {
-          _id: user._id,
-          email: user.email,
-        },
-      },
-    );
-    return this.departmentModel.softDelete({ _id: id });
+
+    const dept = await this.departmentRepository.findOne({ where: { _id: id } });
+    if (!dept) throw new BadRequestException(`Invalid department ID`);
+
+    dept.updatedBy = { _id: user._id, email: user.email };
+    dept.deletedAt = new Date();
+    dept.isDeleted = true;
+    await this.departmentRepository.save(dept);
+    
+    return this.departmentRepository.softDelete(id);
   }
 }

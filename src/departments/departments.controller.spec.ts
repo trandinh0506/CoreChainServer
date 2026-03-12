@@ -4,7 +4,7 @@ import { DepartmentsService } from './departments.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { Department } from './schemas/department.schema';
 import { IDepartment } from './department.interface';
-import mongoose from 'mongoose';
+
 
 describe('DepartmentsController', () => {
   let controller: DepartmentsController;
@@ -49,11 +49,11 @@ describe('DepartmentsController', () => {
     it('should return paginated departments', async () => {
       const mockDepartments: IDepartment[] = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          _id: new mongoose.string(),
           name: 'IT Department',
           code: 'IT',
           description: 'Information Technology Department',
-          manager: new mongoose.Types.ObjectId().toString(),
+          manager: new mongoose.string().toString(),
           employees: [],
           status: 'Active',
           budget: 100000,
@@ -63,7 +63,7 @@ describe('DepartmentsController', () => {
           updatedAt: new Date(),
           deletedAt: null,
           createdBy: {
-            _id: new mongoose.Types.ObjectId().toString(),
+            _id: new mongoose.string().toString(),
             email: 'admin@example.com',
           },
           updatedBy: null,

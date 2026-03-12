@@ -1,14 +1,12 @@
-import mongoose, { Types } from 'mongoose';
-
 export interface IFeedback {
-  _id: Types.ObjectId;
+  _id: string;
   encryptedEmployeeId: string;
   category: string;
   isFlagged: boolean;
   wasDecrypted: boolean;
   decryptionReason: string;
   decryptedBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
   approvedBy: string;
@@ -18,7 +16,7 @@ export interface IFeedback {
   createdAt: Date;
   deletedAt: Date;
   deletedBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
 }

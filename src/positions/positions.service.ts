@@ -2,26 +2,29 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreatePositionDto } from './dto/create-position.dto';
 import { UpdatePositionDto } from './dto/update-position.dto';
 import { IUser } from 'src/users/users.interface';
-import { InjectModel } from '@nestjs/mongoose';
-import { Position, PositionDocument } from './schemas/position.schema';
-import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-import aqp from 'api-query-params';
-import mongoose from 'mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Position } from './entities/position.entity';
 import { IPosition } from './position.interface';
 
 @Injectable()
 export class PositionsService {
   constructor(
-    @InjectModel(Position.name)
-    private positionModel: SoftDeleteModel<PositionDocument>,
+    @InjectRepository(Position)
+    private positionRepository: Repository<Position>,
   ) {}
+
+  isValidId(id: string) {
+    return /^[0-9a-fA-F]{24}$/.test(id) || /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+  }
+
   async create(createPositionDto: CreatePositionDto, user: IUser) {
     const { title, description, parentId, level } = createPositionDto;
-    const isExist = await this.positionModel.findOne({ title: title });
+    const isExist = await this.positionRepository.findOne({ where: { title } });
     if (isExist) {
       throw new BadRequestException('Position already exist !');
     }
-    const newPosition = await this.positionModel.create({
+    const newPosition = this.positionRepository.create({
       title,
       description,
       parentId,
@@ -31,27 +34,22 @@ export class PositionsService {
         email: user.email,
       },
     });
-    return newPosition._id;
+    const saved = await this.positionRepository.save(newPosition);
+    return saved._id;
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
-    const { filter, skip, sort, projection, population } = aqp(qs);
-    delete filter.current;
-    delete filter.pageSize;
-    filter.isDeleted = false;
-    let offset = (+currentPage - 1) * +limit;
-    let defaultLimit = +limit ? +limit : 10;
+    let offset = (+currentPage - 1) * (+limit || 10);
+    let defaultLimit = +limit || 10;
 
-    const totalItems = (await this.positionModel.find(filter)).length;
+    const [result, totalItems] = await this.positionRepository.findAndCount({
+      skip: offset,
+      take: defaultLimit,
+      where: { isDeleted: false },
+    });
+
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    const result: IPosition[] = await this.positionModel
-      .find(filter)
-      .skip(offset)
-      .limit(defaultLimit)
-      .sort(sort as any)
-      .populate(population)
-      .exec();
     return {
       meta: {
         current: currentPage,
@@ -59,46 +57,52 @@ export class PositionsService {
         pages: totalPages,
         total: totalItems,
       },
-      result,
+      result: result as unknown as IPosition[],
     };
   }
 
   async findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!this.isValidId(id)) {
       throw new BadRequestException(`Invalid position ID`);
     }
-    const position: IPosition = await this.positionModel.findById(id);
+    return (await this.positionRepository.findOne({ where: { _id: id } })) as unknown as IPosition;
   }
 
   async update(id: string, updatePositionDto: UpdatePositionDto, user: IUser) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!this.isValidId(id)) {
       throw new BadRequestException(`Invalid position ID`);
     }
-    return this.positionModel.updateOne(
-      { _id: id },
-      {
-        ...updatePositionDto,
-        updatedBy: {
-          _id: user._id,
-          email: user.email,
-        },
+
+    const pos = await this.positionRepository.findOne({ where: { _id: id } });
+    if (!pos) throw new BadRequestException(`Invalid position ID`);
+
+    Object.assign(pos, {
+      ...updatePositionDto,
+      updatedBy: {
+        _id: user._id,
+        email: user.email,
       },
-    );
+    });
+
+    return await this.positionRepository.save(pos);
   }
 
   async remove(id: string, user: IUser) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!this.isValidId(id)) {
       throw new BadRequestException(`Invalid position ID`);
     }
-    await this.positionModel.updateOne(
-      { _id: id },
-      {
-        deletedBy: {
-          _id: user._id,
-          email: user.email,
-        },
-      },
-    );
-    return this.positionModel.softDelete({ _id: id });
+
+    const pos = await this.positionRepository.findOne({ where: { _id: id } });
+    if (!pos) throw new BadRequestException(`Invalid position ID`);
+
+    pos.updatedBy = {
+      _id: user._id,
+      email: user.email,
+    };
+    pos.isDeleted = true;
+    pos.deletedAt = new Date();
+    await this.positionRepository.save(pos);
+
+    return await this.positionRepository.softDelete({ _id: id });
   }
 }

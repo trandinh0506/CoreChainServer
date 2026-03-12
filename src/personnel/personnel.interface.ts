@@ -1,30 +1,28 @@
-import mongoose, { Types } from 'mongoose';
-
 export interface ISalaryAdvance {
-  _id: Types.ObjectId;
-  employee: mongoose.Schema.Types.ObjectId;
+  _id: string;
+  employee: string;
   amount: number;
   reason: string;
   isApproved: boolean;
   approvedBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
-  };
+  } | string;
   returnDate: Date;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
   createdBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
   updatedBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
   deletedBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
 }

@@ -1,87 +1,60 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import aqp from 'api-query-params';
-import { InjectModel } from '@nestjs/mongoose';
-import { Task, TaskDocument } from './schemas/task.schema';
-import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Task } from './entities/task.entity';
 import { IUser } from 'src/users/users.interface';
-import mongoose, { ObjectId } from 'mongoose';
-import { END_OF_MONTH, START_OF_MONTH } from 'src/decorators/customize';
+import { START_OF_MONTH, END_OF_MONTH } from 'src/decorators/customize';
 import { ITask } from './task.interface';
 import { NotificationService } from 'src/notification/notification.service';
 import { UsersService } from 'src/users/users.service';
-// import { ProjectsService } from 'src/projects/projects.service';
 
 @Injectable()
 export class TasksService {
   constructor(
-    @InjectModel(Task.name) private taskModel: SoftDeleteModel<TaskDocument>,
+    @InjectRepository(Task)
+    private taskRepository: Repository<Task>,
     private notificationService: NotificationService,
     private usersService: UsersService,
-    // private projectService: ProjectsService,
   ) {}
+
+  isValidId(id: string) {
+    return /^[0-9a-fA-F]{24}$/.test(id) || /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+  }
+
   async create(createTaskDto: CreateTaskDto, user: IUser) {
     const {
-      description,
-      title,
-      attachments = [],
-      assignedTo,
-      projectId,
-      priority,
-      status,
-      startDate,
-      dueDate,
-    } = createTaskDto;
+      description, title, attachments = [], assignedTo,
+      projectId, priority, status, startDate, dueDate,
+    } = createTaskDto as any;
 
-    // Validate that startDate is before dueDate
-    if (startDate && dueDate) {
-      const start = new Date(startDate);
-      const due = new Date(dueDate);
-      
-      if (start > due) {
-        throw new BadRequestException('Start date must be before due date');
-      }
+    if (startDate && dueDate && new Date(startDate) > new Date(dueDate)) {
+      throw new BadRequestException('Start date must be before due date');
     }
 
-    const newTask = await this.taskModel.create({
-      createdBy: {
-        _id: user._id,
-        email: user.email,
-      },
-      title,
-      description,
-      attachments,
-      assignedTo,
-      projectId,
-      priority,
-      status,
-      startDate,
-      dueDate,
+    const newTask = this.taskRepository.create({
+      title, description, attachments, priority, status, startDate, dueDate,
+      projectId: projectId?.toString(),
+      assignedTo: assignedTo ? { _id: assignedTo.toString() } as any : null,
+      createdBy: { _id: user._id, email: user.email },
     });
 
-    // Publish task.created event to Kafka (fire-and-forget)
-    this.publishTaskCreatedEvent(newTask, user).catch((error) => {
-      // Log error but don't fail task creation
+    const saved = await this.taskRepository.save(newTask);
+
+    this.publishTaskCreatedEvent(saved, user).catch(error => {
       console.error('Failed to publish task.created event:', error);
     });
 
-    return newTask._id;
+    return saved._id;
   }
 
   private async publishTaskCreatedEvent(task: any, creator: IUser) {
     try {
-      // Fetch assigned user details including FCM token
-      const assignedUser = await this.usersService.findOne(
-        task.assignedTo.toString(),
-      );
+      if (!task.assignedTo || !task.assignedTo._id) return;
+      const assignedUser = await this.usersService.findOne(task.assignedTo._id) as any;
+      if (!assignedUser) return;
 
-      if (!assignedUser) {
-        console.warn(`Assigned user not found: ${task.assignedTo}`);
-        return;
-      }
-
-      // Prepare task.created event
       const event = {
         event_type: 'task.created',
         timestamp: new Date().toISOString(),
@@ -90,11 +63,8 @@ export class TasksService {
           title: task.title,
           description: task.description,
           attachments: task.attachments,
-          createdBy: {
-            _id: creator._id.toString(),
-            email: creator.email,
-          },
-          assignedTo: task.assignedTo.toString(),
+          createdBy: creator,
+          assignedTo: task.assignedTo._id.toString(),
           projectId: task.projectId?.toString(),
           priority: task.priority,
           status: task.status,
@@ -114,7 +84,6 @@ export class TasksService {
         },
       };
 
-      // Publish to Kafka
       await this.notificationService.publishTaskCreated(event);
     } catch (error) {
       console.error('Error in publishTaskCreatedEvent:', error);
@@ -124,71 +93,30 @@ export class TasksService {
 
   async countTask(status: number, id: string) {
     if (status === 0) {
-      return this.taskModel.countDocuments({
-        projectId: new mongoose.Types.ObjectId(id),
-      });
+      return this.taskRepository.count({ where: { projectId: id } });
     }
-    return this.taskModel.countDocuments({
-      status,
-      projectId: new mongoose.Types.ObjectId(id),
-    });
+    return this.taskRepository.count({ where: { status, projectId: id } });
   }
 
   async countTaskInMonth(status: number, id: string) {
-    if (status === 0) {
-      return await this.taskModel.countDocuments({
-        assignedTo: id,
-        createdAt: { $gte: START_OF_MONTH, $lte: END_OF_MONTH },
-      });
-    }
-    return await this.taskModel.countDocuments({
-      assignedTo: id,
-      status,
-      createdAt: { $gte: START_OF_MONTH, $lte: END_OF_MONTH },
-    });
+    const qb = this.taskRepository.createQueryBuilder('task')
+        .where('task.assignedToId = :id', { id }) 
+        .andWhere('task.createdAt >= :start AND task.createdAt <= :end', { start: START_OF_MONTH, end: END_OF_MONTH });
+    if (status !== 0) qb.andWhere('task.status = :status', { status });
+    return qb.getCount();
   }
+
   async findAll(currentPage: number, limit: number, startDate: string, dueDate: string, qs: string) {
-    let { filter, skip, sort, projection, population = [] } = aqp(qs);
-    console.log(filter);
-    delete filter.current;
-    delete filter.pageSize;
-    filter.isDeleted = false;
-    let offset = (+currentPage - 1) * +limit;
-    let defaultLimit = +limit ? +limit : 10;
+    let offset = (+currentPage - 1) * (+limit || 10);
+    let defaultLimit = +limit || 10;
 
-    if (startDate) {
-      filter.startDate = { $gte: startDate };
-    }
-    if (dueDate) {
-      filter.dueDate = { $lte: dueDate };
-    }
+    const [result, totalItems] = await this.taskRepository.findAndCount({
+      skip: offset,
+      take: defaultLimit,
+      where: { isDeleted: false },
+    });
 
-    const totalItems = await this.taskModel.countDocuments(filter);
     const totalPages = Math.ceil(totalItems / defaultLimit);
-    const result: ITask[] = await this.taskModel
-      .find(filter)
-      .skip(offset)
-      .limit(defaultLimit)
-      .sort(sort as any)
-      .populate(population)
-      .exec();
-    //find project and add project.name to task
-    // const projectIds = result
-    //   .map((task) => task.projectId?.toString())
-    //   .filter(Boolean);
-
-    // const projects = await Promise.all(
-    //   projectIds.map((id) => this.projectService.findOne(id)),
-    // );
-
-    // const projectMap = new Map(
-    //   projects.map((project) => [project._id.toString(), project.name]),
-    // );
-
-    // const tasksWithProjectName = result.map((task) => ({
-    //   ...task,
-    //   projectName: projectMap.get(task.projectId?.toString()) || null,
-    // }));
     return {
       meta: {
         current: currentPage,
@@ -196,52 +124,42 @@ export class TasksService {
         pages: totalPages,
         total: totalItems,
       },
-      // result: tasksWithProjectName,
       result,
     };
   }
 
   async findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Invalid task ID`);
-    }
-    const task: ITask = await this.taskModel.findOne({ _id: id }).lean();
-
-    return task;
+    if (!this.isValidId(id)) throw new BadRequestException(`Invalid task ID`);
+    return await this.taskRepository.findOne({ where: { _id: id } }) as unknown as ITask;
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto, user: IUser) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Invalid task ID`);
-    }
+    if (!this.isValidId(id)) throw new BadRequestException(`Invalid task ID`);
+    const task = await this.taskRepository.findOne({ where: { _id: id } });
+    if (!task) throw new BadRequestException(`Invalid task ID`);
 
-    return this.taskModel.updateOne(
-      { _id: id },
-      {
-        ...updateTaskDto,
-        updatedBy: {
-          _id: user._id,
-          email: user.email,
-        },
-      },
-    );
+    const { assignedTo, projectId, ...rest } = updateTaskDto as any;
+    if (assignedTo) task.assignedTo = { _id: assignedTo.toString() } as any;
+    if (projectId) task.projectId = projectId.toString();
+
+    Object.assign(task, {
+      ...rest,
+      updatedBy: { _id: user._id, email: user.email },
+    });
+
+    return await this.taskRepository.save(task);
   }
 
   async remove(id: string, user: IUser) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Invalid task ID`);
-    }
-    await this.taskModel.updateOne(
-      {
-        _id: id,
-      },
-      {
-        deletedBy: {
-          _id: user._id,
-          email: user.email,
-        },
-      },
-    );
-    return this.taskModel.softDelete({ _id: id });
+    if (!this.isValidId(id)) throw new BadRequestException(`Invalid task ID`);
+    const task = await this.taskRepository.findOne({ where: { _id: id } });
+    if (!task) throw new BadRequestException(`Invalid task ID`);
+
+    task.deletedBy = { _id: user._id, email: user.email };
+    task.isDeleted = true;
+    task.deletedAt = new Date();
+    await this.taskRepository.save(task);
+
+    return this.taskRepository.softDelete({ _id: id });
   }
 }

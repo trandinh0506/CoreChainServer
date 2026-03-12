@@ -1,7 +1,7 @@
-import mongoose, { Types } from 'mongoose';
+
 
 export interface IPermission {
-  _id: Types.ObjectId;
+  _id: string;
   name: string;
   apiPath: string;
   method: string;
@@ -11,15 +11,15 @@ export interface IPermission {
   deletedAt: Date;
   isDeleted: Boolean;
   createdBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
   updatedBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
   deletedBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
 }

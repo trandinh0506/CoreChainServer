@@ -8,7 +8,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import mongoose from 'mongoose';
+
 
 export class CreateDepartmentDto {
   @IsNotEmpty({ message: 'Name must not be empty !' })
@@ -22,11 +22,11 @@ export class CreateDepartmentDto {
 
   @IsOptional({ message: 'Manager ID must not be empty !' })
   @IsMongoId()
-  manager: mongoose.Schema.Types.ObjectId;
+  manager: string;
 
   @IsOptional({ message: 'Employees ID must not be empty !' })
   @IsMongoId({ each: true })
-  employees: Array<mongoose.Schema.Types.ObjectId | string>;
+  employees: string[];
 
   @IsNotEmpty({ message: 'Status must not be empty !' })
   status: string;
@@ -37,5 +37,5 @@ export class CreateDepartmentDto {
 
   @IsOptional({ message: 'ProjectIds must not be empty !' })
   @IsMongoId({ each: true, message: 'ProjectIds has format mongo Id' })
-  projectIds: Array<mongoose.Schema.Types.ObjectId>;
+  projectIds: string[];
 }

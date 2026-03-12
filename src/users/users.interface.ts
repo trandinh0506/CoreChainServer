@@ -1,4 +1,3 @@
-import mongoose, { Types } from 'mongoose';
 import { AdjustmentDto } from './dto/create-user.dto';
 
 export interface IUser {
@@ -18,29 +17,29 @@ export interface IUser {
 }
 
 export interface PublicUser {
-  _id: Types.ObjectId;
+  _id: string;
   name: string;
   email: string;
   avatar: string;
   role:
-    | mongoose.Schema.Types.ObjectId
+    | string
     | {
-        _id: mongoose.Schema.Types.ObjectId;
+        _id: string;
         name: string;
       };
   workingHours: number;
   employeeId: string;
   position:
-    | mongoose.Schema.Types.ObjectId
+    | string
     | {
-        _id: mongoose.Schema.Types.ObjectId;
+        _id: string;
         name: string;
       };
   fcmToken?: string;
   department:
-    | mongoose.Schema.Types.ObjectId
+    | string
     | {
-        _id: mongoose.Schema.Types.ObjectId;
+        _id: string;
         name: string;
       };
   isDeleted: boolean;
@@ -48,15 +47,15 @@ export interface PublicUser {
   updatedAt: Date;
   deletedAt: Date;
   createdBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
   updatedBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
   deletedBy: {
-    _id: mongoose.Schema.Types.ObjectId;
+    _id: string;
     email: string;
   };
 }
@@ -69,7 +68,7 @@ export interface PrivateUser {
   nationality?: string;
   permanentAddress?: string;
   biometricData?: string;
-  employeeContractCode?: mongoose.Schema.Types.ObjectId;
+  employeeContractCode?: string;
   salary?: number;
   allowances?: number;
   adjustments?: AdjustmentDto[];
