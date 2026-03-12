@@ -7,6 +7,8 @@ import { Role } from './entities/role.entity';
 import { IUser } from 'src/users/users.interface';
 import { ADMIN_ROLE } from 'src/decorators/customize';
 import { IRole } from './role.interface';
+import aqp from 'api-query-params';
+import { aqpTypeormConverter } from 'src/utils/aqp.util';
 
 @Injectable()
 export class RolesService {
@@ -34,13 +36,19 @@ export class RolesService {
     return saved._id;
   }
 
-  async findAll(currentPage: number = 1, limit: number = 10) {
-    let offset = (+currentPage - 1) * (+limit || 10);
-    let defaultLimit = +limit || 10;
+  async findAll(query: any) {
+    const { filter, skip, limit, sort } = aqp(query);
+    const convertedFilter = aqpTypeormConverter(filter);
+
+    let defaultLimit = limit || 10;
+    let offset = skip || 0;
+    const currentPage = Math.floor(offset / defaultLimit) + 1;
 
     const [result, totalItems] = await this.roleRepository.findAndCount({
       skip: offset,
       take: defaultLimit,
+      where: convertedFilter,
+      order: sort as any,
       relations: ['permissions'],
     });
 
@@ -49,7 +57,7 @@ export class RolesService {
     return {
       meta: {
         current: currentPage,
-        pageSize: limit,
+        pageSize: defaultLimit,
         pages: totalPages,
         total: totalItems,
       },

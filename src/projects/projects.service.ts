@@ -8,6 +8,8 @@ import { Project } from './entities/project.entity';
 import { TasksService } from 'src/tasks/tasks.service';
 import { IProject } from './project.interface';
 import { DepartmentsService } from 'src/departments/departments.service';
+import aqp from 'api-query-params';
+import { aqpTypeormConverter } from 'src/utils/aqp.util';
 
 @Injectable()
 export class ProjectsService {
@@ -59,16 +61,21 @@ export class ProjectsService {
     return saved._id;
   }
 
-  async findAll(currentPage: number = 1, limit: number = 10, startDate: string, endDate: string) {
-    let offset = (+currentPage - 1) * (+limit || 10);
-    let defaultLimit = +limit || 10;
+  async findAll(query: any) {
+    const { filter, skip, limit, sort } = aqp(query);
+    const convertedFilter = aqpTypeormConverter(filter);
 
-    const whereClause: any = { isDeleted: false }; 
+    let defaultLimit = limit || 10;
+    let offset = skip || 0;
+    const currentPage = Math.floor(offset / defaultLimit) + 1;
+
+    const whereClause: any = { isDeleted: false, ...convertedFilter }; 
 
     const [result, totalItems] = await this.projectRepository.findAndCount({
       skip: offset,
       take: defaultLimit,
       where: whereClause,
+      order: sort as any,
       relations: ['tasks', 'manager', 'teamMembers'],
     });
 
@@ -91,7 +98,7 @@ export class ProjectsService {
     return {
       meta: {
         current: currentPage,
-        pageSize: limit,
+        pageSize: defaultLimit,
         pages: totalPages,
         total: totalItems,
       },

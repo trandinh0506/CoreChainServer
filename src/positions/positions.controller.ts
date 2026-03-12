@@ -24,14 +24,8 @@ export class PositionsController {
   }
 
   @Get()
-  findAll(
-    @Query('current') currentPage: string,
-    @Query('pageSize') limit: string,
-    
-  ) {
-    if (!currentPage) currentPage = '1';
-    if (!limit) limit = '10';
-    return this.positionsService.findAll(+currentPage, +limit);
+  findAll(@Query() query: any) {
+    return this.positionsService.findAll(query);
   }
 
   @Get(':id')

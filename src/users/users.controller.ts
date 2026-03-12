@@ -30,14 +30,8 @@ export class UsersController {
   }
 
   @Get()
-  findAll(
-    @Query('current') currentPage: string,
-    @Query('pageSize') limit: string,
-    
-  ) {
-    if (!currentPage) currentPage = '1';
-    if (!limit) limit = '10';
-    return this.usersService.findAll(+currentPage, +limit);
+  findAll(@Query() query: any) {
+    return this.usersService.findAll(query);
   }
 
   @Post('by-ids')

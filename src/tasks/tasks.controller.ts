@@ -24,14 +24,8 @@ export class TasksController {
   }
 
   @Get()
-  findAll(
-    @Query('current') currentPage: string,
-    @Query('pageSize') limit: string,
-    @Query('startDate') startDate: string,
-    @Query('dueDate') dueDate: string,
-    
-  ) {
-    return this.tasksService.findAll(+currentPage, +limit, startDate, dueDate);
+  findAll(@Query() query: any) {
+    return this.tasksService.findAll(query);
   }
 
   @Get(':id')

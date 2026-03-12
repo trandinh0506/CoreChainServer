@@ -9,6 +9,8 @@ import { START_OF_MONTH, END_OF_MONTH } from 'src/decorators/customize';
 import { ITask } from './task.interface';
 import { NotificationService } from 'src/notification/notification.service';
 import { UsersService } from 'src/users/users.service';
+import aqp from 'api-query-params';
+import { aqpTypeormConverter } from 'src/utils/aqp.util';
 
 @Injectable()
 export class TasksService {
@@ -106,21 +108,26 @@ export class TasksService {
     return qb.getCount();
   }
 
-  async findAll(currentPage: number = 1, limit: number = 10, startDate: string, dueDate: string) {
-    let offset = (+currentPage - 1) * (+limit || 10);
-    let defaultLimit = +limit || 10;
+  async findAll(query: any) {
+    const { filter, skip, limit, sort } = aqp(query);
+    const convertedFilter = aqpTypeormConverter(filter);
+
+    let defaultLimit = limit || 10;
+    let offset = skip || 0;
+    const currentPage = Math.floor(offset / defaultLimit) + 1;
 
     const [result, totalItems] = await this.taskRepository.findAndCount({
       skip: offset,
       take: defaultLimit,
-      where: { isDeleted: false },
+      where: { isDeleted: false, ...convertedFilter },
+      order: sort as any,
     });
 
     const totalPages = Math.ceil(totalItems / defaultLimit);
     return {
       meta: {
         current: currentPage,
-        pageSize: limit,
+        pageSize: defaultLimit,
         pages: totalPages,
         total: totalItems,
       },

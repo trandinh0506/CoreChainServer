@@ -27,14 +27,8 @@ export class DepartmentsController {
   }
 
   @Get()
-  findAll(
-    @Query('current') currentPage: string,
-    @Query('pageSize') limit: string,
-    
-  ) {
-    if (!currentPage) currentPage = '1';
-    if (!limit) limit = '10';
-    return this.departmentsService.findAll(+currentPage, +limit);
+  findAll(@Query() query: any) {
+    return this.departmentsService.findAll(query);
   }
 
   @Get(':id')

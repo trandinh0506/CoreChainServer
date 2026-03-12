@@ -20,10 +20,10 @@ export class ReportsController {
     return this.reportsService.employeesReport();
   }
 
-  // @Get('employees-turnover')
-  // employeesTurnover() {
-  //   return this.reportsService.employeesTurnover();
-  // }
+  @Get('employees-turnover')
+  employeesTurnover() {
+    return this.reportsService.employeesTurnover();
+  }
 
   @Get('working-hours')
   workingHours() {

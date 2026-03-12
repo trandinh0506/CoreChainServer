@@ -18,6 +18,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SalaryAdvance } from './entities/salary-advance.entity';
 import { ISalaryAdvance } from './personnel.interface';
+import aqp from 'api-query-params';
+import { aqpTypeormConverter } from 'src/utils/aqp.util';
 
 @Injectable()
 export class PersonnelService {
@@ -115,14 +117,19 @@ export class PersonnelService {
     return (await this.salaryAdvanceRepository.findOne({ where: {_id: id } })) as unknown as ISalaryAdvance;
   }
 
-  async findAll(currentPage: number = 1, limit: number = 10) {
-    let offset = (+currentPage - 1) * (+limit || 10);
-    let defaultLimit = +limit || 10;
+  async findAll(query: any) {
+    const { filter, skip, limit, sort } = aqp(query);
+    const convertedFilter = aqpTypeormConverter(filter);
+
+    let defaultLimit = limit || 10;
+    let offset = skip || 0;
+    const currentPage = Math.floor(offset / defaultLimit) + 1;
 
     const [result, totalItems] = await this.salaryAdvanceRepository.findAndCount({
       skip: offset,
       take: defaultLimit,
-      where: { isDeleted: false }
+      where: { isDeleted: false, ...convertedFilter },
+      order: sort as any,
     });
 
     const totalPages = Math.ceil(totalItems / defaultLimit);
@@ -130,7 +137,7 @@ export class PersonnelService {
     return {
       meta: {
         current: currentPage,
-        pageSize: limit,
+        pageSize: defaultLimit,
         pages: totalPages,
         total: totalItems,
       },

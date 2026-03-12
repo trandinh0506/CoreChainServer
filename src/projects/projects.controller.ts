@@ -24,14 +24,8 @@ export class ProjectsController {
   }
 
   @Get()
-  findAll(
-    @Query('current') currentPage: string,
-    @Query('pageSize') limit: string,
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string,
-    
-  ) {
-    return this.projectsService.findAll(+currentPage, +limit, startDate, endDate);
+  findAll(@Query() query: any) {
+    return this.projectsService.findAll(query);
   }
 
   @Get(':id')

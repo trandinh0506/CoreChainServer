@@ -41,14 +41,8 @@ export class PersonnelController {
   }
 
   @Get('salary')
-  findAll(
-    @Query('current') currentPage: string,
-    @Query('pageSize') limit: string,
-    
-  ) {
-    if (!currentPage) currentPage = '1';
-    if (!limit) limit = '10';
-    return this.personnelService.findAll(+currentPage, +limit);
+  findAll(@Query() query: any) {
+    return this.personnelService.findAll(query);
   }
   @Get('kpi/:id')
   calculateKpi(@Param('id') id: string, @User() user: IUser) {

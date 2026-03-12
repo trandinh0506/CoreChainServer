@@ -13,6 +13,8 @@ import { DepartmentsService } from 'src/departments/departments.service';
 import { System } from 'src/decorators/customize';
 import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import aqp from 'api-query-params';
+import { aqpTypeormConverter } from 'src/utils/aqp.util';
 
 @Injectable()
 export class UsersService {
@@ -150,15 +152,19 @@ export class UsersService {
     }
   }
 
-  async findAll(currentPage: number, limit: number) {
+  async findAll(query: any) {
+    const { filter, skip, limit, sort } = aqp(query);
+    const convertedFilter = aqpTypeormConverter(filter);
 
-    let offset = (currentPage - 1) * (+limit || 10);
-    let defaultLimit = +limit || 10;
-    console.log(currentPage, limit, offset, defaultLimit)
+    let defaultLimit = limit || 10;
+    let offset = skip || 0;
+    const currentPage = Math.floor(offset / defaultLimit) + 1;
+
     const [result, totalItems] = await this.userRepository.findAndCount({
       skip: offset,
       take: defaultLimit,
-      where: { isDeleted: false },
+      where: { isDeleted: false, ...convertedFilter },
+      order: sort as any,
       relations: ['role', 'position', 'department'],
     });
 
@@ -166,7 +172,7 @@ export class UsersService {
     return {
       meta: {
         current: currentPage,
-        pageSize: limit,
+        pageSize: defaultLimit,
         pages: totalPages,
         total: totalItems,
       },
