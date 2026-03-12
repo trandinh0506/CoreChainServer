@@ -115,7 +115,7 @@ export class PersonnelService {
     return (await this.salaryAdvanceRepository.findOne({ where: {_id: id } })) as unknown as ISalaryAdvance;
   }
 
-  async findAll(currentPage: number, limit: number, qs: string) {
+  async findAll(currentPage: number = 1, limit: number = 10) {
     let offset = (+currentPage - 1) * (+limit || 10);
     let defaultLimit = +limit || 10;
 

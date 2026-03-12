@@ -150,10 +150,11 @@ export class UsersService {
     }
   }
 
-  async findAll(currentPage: number, limit: number, qs: string) {
-    let offset = (+currentPage - 1) * (+limit || 10);
-    let defaultLimit = +limit || 10;
+  async findAll(currentPage: number, limit: number) {
 
+    let offset = (currentPage - 1) * (+limit || 10);
+    let defaultLimit = +limit || 10;
+    console.log(currentPage, limit, offset, defaultLimit)
     const [result, totalItems] = await this.userRepository.findAndCount({
       skip: offset,
       take: defaultLimit,

@@ -27,9 +27,11 @@ export class RolesController {
   findAll(
     @Query('current') currentPage: string,
     @Query('pageSize') limit: string,
-    @Query() qs: string,
+    
   ) {
-    return this.rolesService.findAll(+currentPage, +limit, qs);
+    if (!currentPage) currentPage = '1';
+    if (!limit) limit = '10';
+    return this.rolesService.findAll(+currentPage, +limit);
   }
 
   @Get(':id')

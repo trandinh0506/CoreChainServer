@@ -27,9 +27,7 @@ export class ReportsService {
   async employeesReport() {
     const { result: departments } = await this.departmentService.findAll(
       1,
-      1000,
-      '',
-    );
+      1000,);
 
     const departmentReports: IEmployeesDepartment[] = await Promise.all(
       departments.map(async (department) => {
@@ -46,29 +44,27 @@ export class ReportsService {
     return departmentReports;
   }
 
-  async employeesTurnover() {
-    const startOfMonth = START_OF_MONTH.toISOString();
-    const endOfMonth = END_OF_MONTH.toISOString();
-    const resignedQs = `deletedAt>${startOfMonth}&deletedAt<${endOfMonth}&isDeleted=true`;
-    const newQs = `createdAt>${startOfMonth}&createdAt<${endOfMonth}&isDeleted=false`;
+  // async employeesTurnover() {
+  //   const startOfMonth = START_OF_MONTH.toISOString();
+  //   const endOfMonth = END_OF_MONTH.toISOString();
+  //   const resignedQs = `deletedAt>${startOfMonth}&deletedAt<${endOfMonth}&isDeleted=true`;
+  //   const newQs = `createdAt>${startOfMonth}&createdAt<${endOfMonth}&isDeleted=false`;
 
-    const resignedEmployees = (
-      await this.userService.findAll(1, 1000, resignedQs)
-    ).result;
-    const newEmployees = (await this.userService.findAll(1, 1000, newQs))
-      .result;
-    return {
-      resignedEmployees: resignedEmployees as unknown as PublicUser[],
-      newEmployees: newEmployees as unknown as PublicUser[],
-    } as IEmployeesTurnover;
-  }
+  //   const resignedEmployees = (
+  //     await this.userService.findAll(1, 1000, resignedQs)
+  //   ).result;
+  //   const newEmployees = (await this.userService.findAll(1, 1000, newQs))
+  //     .result;
+  //   return {
+  //     resignedEmployees: resignedEmployees as unknown as PublicUser[],
+  //     newEmployees: newEmployees as unknown as PublicUser[],
+  //   } as IEmployeesTurnover;
+  // }
 
   async workingHours() {
     const { result: departments } = await this.departmentService.findAll(
       1,
-      1000,
-      '',
-    );
+      1000,);
 
     const workingHoursReports: IWorkingHours[] = await Promise.all(
       departments.map(async (department) => {
@@ -99,9 +95,7 @@ export class ReportsService {
   async dayOff() {
     const { result: departments } = await this.departmentService.findAll(
       1,
-      1000,
-      '',
-    );
+      1000,);
 
     const dayOffReports: IDayOff[] = await Promise.all(
       departments.map(async (department) => {
@@ -132,9 +126,7 @@ export class ReportsService {
   async kpi() {
     const { result: departments } = await this.departmentService.findAll(
       1,
-      1000,
-      '',
-    );
+      1000,);
 
     const KPIReports: IKPI[] = await Promise.all(
       departments.map(async (department) => {
@@ -169,7 +161,6 @@ export class ReportsService {
     const { result: departments } = await this.departmentService.findAll(
       1,
       1000,
-      '',
     );
     let amount = 0;
     const salaryReports: ISalary[] = await Promise.all(

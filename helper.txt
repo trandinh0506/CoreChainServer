@@ -55,3 +55,52 @@ Summary
 > Total deployments:   1
 > Final cost:          0.002921250011685 ETH
 
+3/12/2026
+npx truffle migrate --network sepolia
+
+Compiling your contracts...
+===========================
+> Compiling .\src\blockchain\contracts\EmployeeRegistry.sol
+> Artifacts written to D:\Backend\HRM-Backend\CoreChainServer\src\blockchain\build\contracts
+> Compiled successfully using:
+   - solc: 0.8.19+commit.7dd6d404.Emscripten.clang
+
+
+Starting migrations...
+======================
+> Network name:    'sepolia'
+> Network id:      11155111
+> Block gas limit: 60000000 (0x3938700)
+
+
+1_initial_migration.js
+======================
+
+   Replacing 'EmployeeRegistry'
+   ----------------------------
+   > transaction hash:    0x21759e26b690d7fcf6dec2f574067b24bf4c41a7ee04afc38d02d2cb580fd1dd
+   > Blocks: 0            Seconds: 0
+   > contract address:    0x6406FD72FfCc89817f000aDAbf2E9c21199B35Ec
+   > block number:        10431384
+   > block timestamp:     1773297972
+   > account:             0xF93574aE19C7d82735dC8d8bbacF7424Eb8EDb38
+   > balance:             1.294655460073893843
+   > gas used:            1168500 (0x11d474)
+   > gas price:           2.500000011 gwei
+   > value sent:          0 ETH
+   > total cost:          0.0029212500128535 ETH
+
+   Pausing for 2 confirmations...
+
+   -------------------------------
+   > confirmation number: 1 (block: 10431385)
+   > confirmation number: 3 (block: 10431387)
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:     0.0029212500128535 ETH
+
+Summary
+=======
+> Total deployments:   1
+> Final cost:          0.0029212500128535 ETH
+

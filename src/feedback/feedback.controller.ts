@@ -37,9 +37,11 @@ export class FeedbackController {
   findAll(
     @Query('current') currentPage: string,
     @Query('pageSize') limit: string,
-    @Query() qs: string,
+    
   ) {
-    return this.feedbackService.findAll(+currentPage, +limit, qs);
+    if (!currentPage) currentPage = '1';
+    if (!limit) limit = '10';
+    return this.feedbackService.findAll(+currentPage, +limit);
   }
 
   @Get(':id')

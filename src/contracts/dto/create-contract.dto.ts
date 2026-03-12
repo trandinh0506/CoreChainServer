@@ -30,8 +30,7 @@ export class CreateContractDto {
   status: string;
 
   @IsNotEmpty()
-  @IsMongoId()
-  employee: string;
+employee: string;
 
   @IsNotEmpty()
   @IsNumber()

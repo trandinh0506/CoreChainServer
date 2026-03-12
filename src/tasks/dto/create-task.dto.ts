@@ -24,8 +24,7 @@ export class CreateTaskDto {
   attachments: Array<string>;
 
   @IsNotEmpty()
-  @IsMongoId()
-  assignedTo: string;
+assignedTo: string;
 
   @IsNotEmpty()
   projectId: string;

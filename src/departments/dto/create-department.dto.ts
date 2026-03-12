@@ -21,11 +21,9 @@ export class CreateDepartmentDto {
   description: string;
 
   @IsOptional({ message: 'Manager ID must not be empty !' })
-  @IsMongoId()
   manager: string;
 
   @IsOptional({ message: 'Employees ID must not be empty !' })
-  @IsMongoId({ each: true })
   employees: string[];
 
   @IsNotEmpty({ message: 'Status must not be empty !' })
@@ -36,6 +34,5 @@ export class CreateDepartmentDto {
   budget: number;
 
   @IsOptional({ message: 'ProjectIds must not be empty !' })
-  @IsMongoId({ each: true, message: 'ProjectIds has format mongo Id' })
   projectIds: string[];
 }

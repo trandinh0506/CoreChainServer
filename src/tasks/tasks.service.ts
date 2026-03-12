@@ -106,7 +106,7 @@ export class TasksService {
     return qb.getCount();
   }
 
-  async findAll(currentPage: number, limit: number, startDate: string, dueDate: string, qs: string) {
+  async findAll(currentPage: number = 1, limit: number = 10, startDate: string, dueDate: string) {
     let offset = (+currentPage - 1) * (+limit || 10);
     let defaultLimit = +limit || 10;
 

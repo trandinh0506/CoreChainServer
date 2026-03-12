@@ -59,7 +59,7 @@ export class ProjectsService {
     return saved._id;
   }
 
-  async findAll(currentPage: number, limit: number, startDate: string, endDate: string, qs: string) {
+  async findAll(currentPage: number = 1, limit: number = 10, startDate: string, endDate: string) {
     let offset = (+currentPage - 1) * (+limit || 10);
     let defaultLimit = +limit || 10;
 

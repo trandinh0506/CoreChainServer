@@ -20,10 +20,10 @@ export class User {
   @Column({ nullable: true })
   password?: string;
 
-  @ManyToOne(() => Role)
+  @ManyToOne(() => Role, { nullable: true })
   role: Role;
 
-  @ManyToOne(() => Department)
+  @ManyToOne(() => Department, { nullable: true })
   department: Department;
 
   @Column({ nullable: true })
@@ -44,7 +44,7 @@ export class User {
   @Column({ nullable: true })
   employeeId: string;
 
-  @ManyToOne(() => Position)
+  @ManyToOne(() => Position, { nullable: true })
   position: Position;
 
   @Column({ nullable: true })

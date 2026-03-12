@@ -2,7 +2,6 @@ import { Transform } from 'class-transformer';
 import {
   IsDate,
   IsEmail,
-  IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -18,7 +17,6 @@ export class CreatePositionDto {
   description: string;
 
   @IsOptional()
-  @IsMongoId()
   parentId: string;
 
   @IsNotEmpty()

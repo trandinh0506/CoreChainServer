@@ -34,7 +34,7 @@ export class RolesService {
     return saved._id;
   }
 
-  async findAll(currentPage: number, limit: number, qs: string) {
+  async findAll(currentPage: number = 1, limit: number = 10) {
     let offset = (+currentPage - 1) * (+limit || 10);
     let defaultLimit = +limit || 10;
 

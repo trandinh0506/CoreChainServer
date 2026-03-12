@@ -12,8 +12,7 @@ import {
 
 export class CreateFeedbackDto {
   @IsNotEmpty()
-  @IsMongoId()
-  sender: string;
+sender: string;
 
   @IsNotEmpty()
   category: string;

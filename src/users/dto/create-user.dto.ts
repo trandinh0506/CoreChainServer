@@ -34,7 +34,7 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Password must not be empty !' })
   password: string;
 
-  @IsNotEmpty({ message: 'Role must not be empty !' })
+  // @IsNotEmpty({ message: 'Role must not be empty !' })
   role: string;
 
   @IsOptional({ message: 'Working hours must not be empty !' })
@@ -46,12 +46,10 @@ export class CreateUserDto {
   @IsString()
   employeeId: string;
 
-  @IsNotEmpty()
-  @IsMongoId()
+  // @IsNotEmpty()
   position: string;
 
-  @IsNotEmpty({ message: 'Department must not be empty !' })
-  @IsMongoId()
+  // @IsNotEmpty({ message: 'Department must not be empty !' })
   department: string;
 
   @IsOptional()
@@ -84,8 +82,7 @@ export class CreateUserDto {
   biometricData: string;
 
   @IsOptional()
-  @IsMongoId()
-  employeeContractCode: string;
+employeeContractCode: string;
 
   @IsOptional()
   @IsNumber()
