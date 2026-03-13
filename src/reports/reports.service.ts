@@ -45,19 +45,18 @@ export class ReportsService {
   async employeesTurnover() {
     const startOfMonth = START_OF_MONTH.toISOString();
     const endOfMonth = END_OF_MONTH.toISOString();
-    const resignedQs = `deletedAt>${startOfMonth}&deletedAt<${endOfMonth}&isDeleted=true`;
-    const newQs = `createdAt>${startOfMonth}&createdAt<${endOfMonth}&isDeleted=false`;
+    
+    // We pass the string query directly to `findAll` now that it uses AQP
+    const resignedQs = `deletedAt>${startOfMonth}&deletedAt<${endOfMonth}&isDeleted=true&limit=1000`;
+    const newQs = `createdAt>${startOfMonth}&createdAt<${endOfMonth}&isDeleted=false&limit=1000`;
 
-    // const resignedEmployees = (
-    //   await this.userService.findAll(1, 1000)
-    // ).result;
-    // const newEmployees = (await this.userService.findAll(1, 1000))
-    //   .result;
-    // return {
-    //   resignedEmployees: resignedEmployees as unknown as PublicUser[],
-    //   newEmployees: newEmployees as unknown as PublicUser[],
-    // } as IEmployeesTurnover;
-    return []
+    const resignedEmployees = (await this.userService.findAll(resignedQs)).result;
+    const newEmployees = (await this.userService.findAll(newQs)).result;
+    
+    return {
+      resignedEmployees: resignedEmployees as unknown as PublicUser[],
+      newEmployees: newEmployees as unknown as PublicUser[],
+    } as IEmployeesTurnover;
   }
 
   async workingHours() {
