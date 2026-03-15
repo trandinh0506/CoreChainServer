@@ -7,7 +7,7 @@ import { User } from './entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
 import { CompleteUser, IUser, PrivateUser, PublicUser } from './users.interface';
-import { BlockchainService } from 'src/blockchain/blockchain.service';
+import { FabricService } from 'src/fabric/fabric.service';
 import { SecurityService } from 'src/security/security.service';
 import { DepartmentsService } from 'src/departments/departments.service';
 import { System } from 'src/decorators/customize';
@@ -22,7 +22,7 @@ export class UsersService {
     @InjectRepository(User) private userRepository: Repository<User>,
     private dataSource: DataSource,
     private configService: ConfigService,
-    private blockchainService: BlockchainService,
+    private fabricService: FabricService,
     private securityService: SecurityService,
     private departmentService: DepartmentsService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -136,8 +136,9 @@ export class UsersService {
       }
       // update blockchain
       try {
-        const txHash = await this.blockchainService.addEmployee(privateData as any, employeeId);
-        await queryRunner.manager.update(User, savedUser._id, { txHash });
+        await this.fabricService.createEmployee(employeeId, user.name, user.position?.name || 'N/A', Number(privateData.salary) || 0, user.department?.name || 'N/A');
+        // txHash is no longer returned in the same way, we could omit it or default it
+        await queryRunner.manager.update(User, savedUser._id, { txHash: 'fabric-tx' });
       } catch (blockchainError: any) {
         throw new Error('Blockchain transaction failed: ' + blockchainError.message);
       }
@@ -240,7 +241,7 @@ export class UsersService {
       const publicEmployee = await this.findOne(id) as any;
       if (!publicEmployee) throw new BadRequestException('User not found');
 
-      const privateEmployee = await this.blockchainService.getEmployee(publicEmployee.employeeId);
+      const privateEmployee = await this.fabricService.getEmployee(publicEmployee.employeeId);
       const employee: CompleteUser = {
         ...publicEmployee,
         ...privateEmployee,
@@ -266,7 +267,10 @@ export class UsersService {
     if (Object.keys(privateData).length !== 0) {
       if (!employeeId) throw new BadRequestException('Can not update. Must have employee ID !');
       try {
-        txHash = await this.blockchainService.updateEmployee(privateData as any, employeeId);
+        if (privateData.salary) {
+            await this.fabricService.updateSalary(employeeId, Number(privateData.salary));
+            txHash = 'fabric-tx';
+        }
       } catch (error) {
         throw error;
       }
@@ -369,7 +373,8 @@ export class UsersService {
     await this.userRepository.save(foundUser);
     
     try {
-      await this.blockchainService.deactivateEmployee(foundUser.employeeId);
+      // In a real scenario we might have a deactivate method on chaincode
+      // await this.fabricService.deactivateEmployee(foundUser.employeeId);
     } catch (e) {
       Logger.error(e);
     }

@@ -6,7 +6,7 @@ import { Model } from 'mongoose';
 import { User } from './schemas/user.schema';
 import { PublicUser } from './users.interface';
 import { ConfigService } from '@nestjs/config';
-import { BlockchainService } from 'src/blockchain/blockchain.service';
+import { FabricService } from 'src/fabric/fabric.service';
 import { SecurityService } from 'src/security/security.service';
 import { DepartmentsService } from 'src/departments/departments.service';
 
@@ -60,8 +60,8 @@ describe('UsersController', () => {
           useValue: mockConfigService,
         },
         {
-          provide: BlockchainService,
-          useValue: mockBlockchainService,
+          provide: FabricService,
+          useValue: mockFabricService,
         },
         {
           provide: SecurityService,

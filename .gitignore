@@ -2,6 +2,11 @@ documentation
 .env
 keys
 # compiled output
+
+# fabric
+chaincode/node_modules
+chaincode/dist
+
 /dist
 /node_modules
 package-lock.json

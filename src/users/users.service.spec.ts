@@ -1,17 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
-import { getModelToken } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { User } from './schemas/user.schema';
-import { PublicUser } from './users.interface';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
 import { ConfigService } from '@nestjs/config';
-import { BlockchainService } from 'src/blockchain/blockchain.service';
+import { FabricService } from 'src/fabric/fabric.service';
 import { SecurityService } from 'src/security/security.service';
 import { DepartmentsService } from 'src/departments/departments.service';
 
 describe('UsersService', () => {
   let service: UsersService;
-  let userModel: Model<User>;
+  let userRepository: any;
 
   const mockUser = {
     _id: '507f1f77bcf86cd799439011',
@@ -24,31 +22,33 @@ describe('UsersService', () => {
     },
   };
 
-  const mockUserModel = {
-    find: jest.fn().mockReturnValue({
-      select: jest.fn().mockReturnThis(),
-      skip: jest.fn().mockReturnThis(),
-      limit: jest.fn().mockReturnThis(),
-      sort: jest.fn().mockReturnThis(),
-      populate: jest.fn().mockReturnThis(),
-      exec: jest.fn().mockResolvedValue([mockUser]),
-    }),
-    findOne: jest.fn().mockReturnValue({
-      select: jest.fn().mockReturnThis(),
-      populate: jest.fn().mockReturnThis(),
-      lean: jest.fn().mockReturnThis(),
-      exec: jest.fn().mockResolvedValue(null),
-    }),
-    findById: jest.fn().mockReturnValue({
-      select: jest.fn().mockReturnThis(),
-      populate: jest.fn().mockReturnThis(),
-      lean: jest.fn().mockReturnThis(),
-      exec: jest.fn().mockResolvedValue(null),
-    }),
+  const mockUserRepository = {
+    findAndCount: jest.fn().mockResolvedValue([[mockUser], 1]),
+    findOne: jest.fn().mockResolvedValue(mockUser),
     create: jest.fn(),
-    updateOne: jest.fn(),
-    softDelete: jest.fn(),
-    countDocuments: jest.fn().mockResolvedValue(1),
+    save: jest.fn().mockResolvedValue(mockUser),
+  };
+
+  const mockCacheManager = {
+    get: jest.fn(),
+    set: jest.fn(),
+    del: jest.fn(),
+  };
+
+  const mockDataSource = {
+    createQueryRunner: jest.fn().mockReturnValue({
+      connect: jest.fn(),
+      startTransaction: jest.fn(),
+      commitTransaction: jest.fn(),
+      rollbackTransaction: jest.fn(),
+      release: jest.fn(),
+      manager: {
+        findOne: jest.fn(),
+        create: jest.fn(),
+        save: jest.fn(),
+        update: jest.fn(),
+      }
+    })
   };
 
   beforeEach(async () => {
@@ -56,8 +56,16 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         {
-          provide: getModelToken(User.name),
-          useValue: mockUserModel,
+          provide: getRepositoryToken(User),
+          useValue: mockUserRepository,
+        },
+        {
+          provide: 'DataSource',
+          useValue: mockDataSource
+        },
+        {
+          provide: 'CACHE_MANAGER',
+          useValue: mockCacheManager
         },
         {
           provide: ConfigService,
@@ -92,7 +100,7 @@ describe('UsersService', () => {
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    userModel = module.get<Model<User>>(getModelToken(User.name));
+    userRepository = module.get(getRepositoryToken(User));
   });
 
   it('should be defined', () => {
@@ -111,31 +119,19 @@ describe('UsersService', () => {
         result: [mockUser],
       };
 
-      // First find call for counting total items
-      mockUserModel.countDocuments.mockResolvedValueOnce(1);
-
-      // Second find call for actual results
-      const mockQuery = {
-        select: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockReturnThis(),
-        sort: jest.fn().mockReturnThis(),
-        populate: jest.fn().mockReturnThis(),
-        exec: jest.fn().mockResolvedValue([mockUser]),
-      };
-      mockUserModel.find.mockReturnValueOnce(mockQuery);
-
-      const result = await service.findAll(1, 10, '');
+      mockUserRepository.findAndCount.mockResolvedValueOnce([[mockUser], 1]);
+      const result = await service.findAll({});
       expect(result).toEqual(mockResult);
     });
   });
 
   describe('findOne', () => {
     it('should return a single user', async () => {
-      mockUserModel.findOne().lean.mockResolvedValueOnce(mockUser);
+      mockUserRepository.findOne.mockResolvedValueOnce(mockUser);
 
       const result = await service.findOne('507f1f77bcf86cd799439011');
-      expect(result).toEqual(mockUser);
+      const { ...publicUser } = mockUser;
+      expect(result).toEqual(publicUser);
     });
   });
 });
